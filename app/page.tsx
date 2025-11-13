@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-32">
+      <div className="container mx-auto max-w-7xl px-2 py-6 pb-32">
         <main>
           {error ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
@@ -36,7 +36,7 @@ export default async function HomePage() {
               </p>
             </div>
           ) : collections.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] gap-y-4">
               {collections.map((collection) => (
                 <Link key={collection.id} href={`/collections/${collection.id}`} className="group">
                   <div className="relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-sm">
