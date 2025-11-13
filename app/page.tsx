@@ -42,7 +42,11 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {collections.length > 0 ? (
               collections.map((collection) => (
-                <Link key={collection.id} href={`/collections/${collection.id}`} className="flex flex-col group">
+                <Link
+                  key={collection.id}
+                  href={`/collections/${collection.slug || collection.id}`}
+                  className="flex flex-col group"
+                >
                   <div className="relative w-full overflow-hidden bg-gray-200">
                     <div
                       className="w-full bg-cover bg-center bg-no-repeat aspect-[3/4]"

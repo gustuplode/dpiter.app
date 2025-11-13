@@ -21,12 +21,13 @@ export default function SearchPage() {
       setIsLoading(true)
       const supabase = createClient()
 
+      const query = searchQuery.toLowerCase().trim()
+
+      // Search by title, brand name (starting with query), or exact price match
       const { data } = await supabase
         .from("products")
         .select("*")
-        .or(
-          `title.ilike.${searchQuery}%,brand.ilike.${searchQuery}%,title.ilike.% ${searchQuery}%,brand.ilike.% ${searchQuery}%`,
-        )
+        .or(`title.ilike.${query}%,brand.ilike.${query}%,price.eq.${Number.parseFloat(query) || -1}`)
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .limit(50)
@@ -50,7 +51,7 @@ export default function SearchPage() {
             <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by product or brand..."
+              placeholder="Search by title, brand, or price..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
