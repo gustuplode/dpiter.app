@@ -1,0 +1,3 @@
+-- Insert sample collections
+-- This file is now empty - users will manage collections through the admin panel
+-- The database starts clean and ready for real data
