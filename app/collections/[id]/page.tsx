@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
+import { notFound } from 'next/navigation'
 import { BottomNav } from "@/components/bottom-nav"
 import { WishlistButton } from "@/components/wishlist-button"
+import { FooterLinks } from "@/components/footer-links"
 import type { Metadata } from "next"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -57,11 +58,17 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] gap-y-4">
               {products.map((product) => (
-                <div key={product.id} className="group">
+                <a
+                  key={product.id}
+                  href={product.affiliate_link || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
                   <div className="relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-sm">
                     <img
                       alt={product.title}
-                      className="w-full h-auto aspect-[3/4] object-cover object-center"
+                      className="w-full h-auto aspect-[3/4] object-contain object-center"
                       src={product.image_url || "/placeholder.svg?height=400&width=300"}
                     />
                     <div className="absolute top-2 right-2">
@@ -71,16 +78,12 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
                       />
                     </div>
                   </div>
-                  <a
-                    href={product.affiliate_link || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pt-2 block"
-                  >
+                  <div className="pt-2">
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">{product.title}</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{product.brand}</p>
-                  </a>
-                </div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">${product.price}</p>
+                  </div>
+                </a>
               ))}
             </div>
           ) : (
@@ -91,6 +94,8 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
           )}
         </main>
       </div>
+
+      <FooterLinks />
 
       <BottomNav />
     </div>

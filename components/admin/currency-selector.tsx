@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DollarSign, ChevronDown } from "lucide-react"
+import { DollarSign, ChevronDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 
@@ -42,8 +42,7 @@ export function CurrencySelector() {
       console.error("Error saving currency:", error)
     }
 
-    // Trigger a page reload to update all prices
-    window.location.reload()
+    window.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: currencyCode } }))
   }
 
   const currentCurrency = currencies.find((c) => c.code === selectedCurrency) || currencies[0]

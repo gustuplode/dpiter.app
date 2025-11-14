@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Poppins } from "next/font/google"
+import { Poppins } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
@@ -56,6 +56,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
+        <meta name="google-site-verification" content="sHFi0coDLCMtYeXcBFJ7pIrzGeebms59PVwFCCrATSA" />
       </head>
       <body className={`${poppins.className} font-display antialiased`}>
         {children}

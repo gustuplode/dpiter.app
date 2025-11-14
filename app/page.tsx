@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { BottomNav } from "@/components/bottom-nav"
+import { FooterLinks } from "@/components/footer-links"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -74,6 +75,8 @@ export default async function HomePage() {
           )}
         </main>
       </div>
+
+      <FooterLinks />
 
       <BottomNav />
     </div>
