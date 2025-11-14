@@ -54,6 +54,16 @@ export function FooterLinks() {
                   Shipping Info
                 </Link>
               </li>
+              <li>
+                <a
+                  href="https://amzn.to/49SNT2h"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#F97316]"
+                >
+                  Amazon Store
+                </a>
+              </li>
             </ul>
           </div>
           <div>
@@ -61,7 +71,7 @@ export function FooterLinks() {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/share/1PwVj2Bg4Z/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#F97316]"
@@ -71,7 +81,7 @@ export function FooterLinks() {
               </li>
               <li>
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/deepiter_mark?igsh=MXh5djE1NzlkMTlo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#F97316]"

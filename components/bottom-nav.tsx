@@ -26,12 +26,12 @@ export function BottomNav() {
             }`}
           >
             <span
-              className="material-symbols-outlined text-xl md:text-4xl"
+              className="material-symbols-outlined text-lg md:text-4xl"
               style={{ fontVariationSettings: pathname === "/" ? "'FILL' 1" : "'FILL' 0" }}
             >
               home
             </span>
-            <span className="text-[10px] md:text-sm font-medium mt-0.5">Home</span>
+            <span className="text-[9px] md:text-sm font-medium mt-0.5">Home</span>
           </Link>
 
           <Link
@@ -42,22 +42,22 @@ export function BottomNav() {
                 : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
             }`}
           >
-            <span className="material-symbols-outlined text-xl md:text-4xl">search</span>
-            <span className="text-[10px] md:text-sm font-medium mt-0.5">Search</span>
+            <span className="material-symbols-outlined text-lg md:text-4xl">search</span>
+            <span className="text-[9px] md:text-sm font-medium mt-0.5">Search</span>
           </Link>
 
-          <div className="absolute -top-8 md:-top-12">
+          <div className="absolute -top-6 md:-top-12">
             <Link href="/">
-              <button className="bg-[#F97316] text-white rounded-full w-12 h-12 md:w-20 md:h-20 flex flex-col items-center justify-center shadow-lg transform transition-transform hover:scale-105">
-                <span className="material-symbols-outlined text-2xl md:text-4xl">shopping_bag</span>
+              <button className="bg-[#F97316] text-white rounded-full w-10 h-10 md:w-20 md:h-20 flex flex-col items-center justify-center shadow-lg transform transition-transform hover:scale-105">
+                <span className="material-symbols-outlined text-xl md:text-4xl">shopping_bag</span>
               </button>
             </Link>
-            <span className="text-center block text-[8px] md:text-xs font-semibold mt-0.5 md:mt-2 text-slate-600 dark:text-slate-400">
+            <span className="text-center block text-[7px] md:text-xs font-semibold mt-0.5 md:mt-2 text-slate-600 dark:text-slate-400">
               Dpiter
             </span>
           </div>
 
-          <div className="w-12 md:w-20"></div>
+          <div className="w-10 md:w-20"></div>
 
           <Link
             href="/wishlist"
@@ -67,8 +67,8 @@ export function BottomNav() {
                 : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
             }`}
           >
-            <span className="material-symbols-outlined text-xl md:text-4xl">favorite_border</span>
-            <span className="text-[10px] md:text-sm font-medium mt-0.5">Wishlist</span>
+            <span className="material-symbols-outlined text-lg md:text-4xl">favorite_border</span>
+            <span className="text-[9px] md:text-sm font-medium mt-0.5">Wishlist</span>
           </Link>
 
           <Link
@@ -79,8 +79,8 @@ export function BottomNav() {
                 : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
             }`}
           >
-            <span className="material-symbols-outlined text-xl md:text-4xl">person_outline</span>
-            <span className="text-[10px] md:text-sm font-medium mt-0.5">Profile</span>
+            <span className="material-symbols-outlined text-lg md:text-4xl">person_outline</span>
+            <span className="text-[9px] md:text-sm font-medium mt-0.5">Profile</span>
           </Link>
         </div>
       </div>

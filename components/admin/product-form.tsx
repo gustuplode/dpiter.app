@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Upload } from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Upload } from 'lucide-react'
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +21,6 @@ type Product = {
   image_url: string
   affiliate_link: string
   is_visible: boolean
-  currency?: string
 }
 
 export function ProductForm({ collectionId, product }: { collectionId: string; product?: Product }) {
@@ -38,7 +37,6 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
     image_url: product?.image_url || "",
     affiliate_link: product?.affiliate_link || "",
     is_visible: product?.is_visible ?? true,
-    currency: product?.currency || "USD",
   })
 
   useEffect(() => {
@@ -47,6 +45,13 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
       setSelectedCurrency(saved)
       setFormData((prev) => ({ ...prev, currency: saved }))
     }
+
+    const handleCurrencyChange = (e: CustomEvent) => {
+      setSelectedCurrency(e.detail.currency)
+    }
+
+    window.addEventListener("currencychange" as any, handleCurrencyChange)
+    return () => window.removeEventListener("currencychange" as any, handleCurrencyChange)
   }, [])
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,7 +239,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
                   disabled={uploading}
                 />
               </div>
-              <p className="text-xs text-gray-500">Recommended: 300×400px (3:4 ratio)</p>
+              <p className="text-xs text-gray-500">Upload HD images - original quality will be preserved</p>
               {formData.image_url && (
                 <div className="mt-2">
                   <img
@@ -252,7 +257,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
                 id="affiliate_link"
                 value={formData.affiliate_link}
                 onChange={(e) => setFormData({ ...formData, affiliate_link: e.target.value })}
-                placeholder="https://example.com/product"
+                placeholder="https://amzn.to/49SNT2h"
                 rows={3}
               />
             </div>

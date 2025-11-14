@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { BottomNav } from "@/components/bottom-nav"
 import { WishlistButton } from "@/components/wishlist-button"
 import { FooterLinks } from "@/components/footer-links"
+import { CurrencyDisplay } from "@/components/currency-display"
 import type { Metadata } from "next"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -60,7 +61,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
               {products.map((product) => (
                 <a
                   key={product.id}
-                  href={product.affiliate_link || "#"}
+                  href={product.affiliate_link || "https://amzn.to/49SNT2h"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block"
@@ -81,7 +82,9 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
                   <div className="pt-2">
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">{product.title}</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{product.brand}</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">${product.price}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">
+                      <CurrencyDisplay price={product.price} />
+                    </p>
                   </div>
                 </a>
               ))}
