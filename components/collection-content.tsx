@@ -1,6 +1,8 @@
 "use client"
 
 import { WishlistButton } from "@/components/wishlist-button"
+import { RatingButton } from "@/components/rating-button"
+import { RatingDisplay } from "@/components/rating-display"
 import { CurrencyDisplay } from "@/components/currency-display"
 
 interface Collection {
@@ -37,7 +39,13 @@ export function CollectionContent({
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {collection.brand || 'Our latest collection'}
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{productCount} items</p>
+            <div className="flex items-center gap-2 mt-2">
+              <RatingDisplay
+                itemId={collection.id}
+                itemType="collection"
+              />
+              <p className="text-xs text-slate-400 dark:text-slate-500">{productCount} items</p>
+            </div>
           </div>
           <div className="w-24 h-24 rounded-lg overflow-hidden shadow-md flex-shrink-0">
             <img
@@ -65,12 +73,29 @@ export function CollectionContent({
                       src={product.image_url || "/placeholder.svg?height=400&width=300"}
                     />
                     <div 
+                      className="absolute top-2 left-2"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <RatingButton
+                        itemId={product.id}
+                        itemType="product"
+                      />
+                    </div>
+                    {/* Heart icon button at top-right */}
+                    <div 
                       className="absolute top-2 right-2"
                       onClick={(e) => e.preventDefault()}
                     >
                       <WishlistButton
                         productId={product.id}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm text-slate-700 dark:text-slate-200"
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                      />
+                    </div>
+                    {/* Rating display at bottom-right */}
+                    <div className="absolute bottom-2 right-2">
+                      <RatingDisplay
+                        itemId={product.id}
+                        itemType="product"
                       />
                     </div>
                   </div>

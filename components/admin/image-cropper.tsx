@@ -135,7 +135,7 @@ export function ImageCropper({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
     const delta = -e.deltaY * 0.002
-    const newScale = Math.max(0.5, Math.min(5, scale + delta))
+    const newScale = Math.max(0.3, Math.min(8, scale + delta))
     setScale(newScale)
   }
 
@@ -160,13 +160,11 @@ export function ImageCropper({
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = "high"
 
-    // Calculate image dimensions and position
     const imgWidth = image.width * scale
     const imgHeight = image.height * scale
     const centerX = cropWidth / 2
     const centerY = cropHeight / 2
 
-    // Draw the image exactly as shown in the preview
     ctx.drawImage(image, centerX - imgWidth / 2 + position.x, centerY - imgHeight / 2 + position.y, imgWidth, imgHeight)
 
     outputCanvas.toBlob(

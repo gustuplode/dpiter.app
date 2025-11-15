@@ -38,9 +38,19 @@ export function WishlistButton({ productId, className = "" }: { productId: strin
   return (
     <button
       onClick={toggleWishlist}
-      className={`text-white rounded-full w-7 h-7 flex items-center justify-center ${className}`}
+      className={className}
     >
-      <span className={`material-symbols-outlined !text-base ${isInWishlist ? "filled" : ""}`}>favorite</span>
+      <span 
+        className={`material-symbols-outlined !text-base transition-colors ${
+          isInWishlist 
+            ? "text-red-500" 
+            : "text-slate-700 dark:text-slate-200"
+        }`}
+        style={{ fontVariationSettings: isInWishlist ? "'FILL' 1" : "'FILL' 0" }}
+      >
+        favorite
+      </span>
+      {/* </CHANGE> */}
     </button>
   )
 }

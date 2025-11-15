@@ -3,25 +3,49 @@ import type { Metadata } from "next"
 import { Poppins } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import { LoadingBar } from "@/components/loading-bar"
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"] })
 
 export const metadata: Metadata = {
-  title: "Dpiter - Curated Fashion & Lifestyle Collections",
+  title: "Dpiter - Best Shopping Website for Boys | Best Clothing Website India USA UK",
   description:
-    "Discover handpicked collections of premium fashion and lifestyle products from top brands. Shop the latest trends with exclusive deals.",
-  keywords: ["fashion", "lifestyle", "collections", "shopping", "brands", "trends", "deals"],
+    "Discover the best shopping website for boys with curated fashion and lifestyle collections. Shop best clothing website India, USA, UK. Full outfit collection low price with premium brands and exclusive deals.",
+  keywords: [
+    "best shopping website for boys",
+    "best clothing website for boy",
+    "best clothing website India",
+    "best clothing website USA",
+    "best clothing website UK",
+    "full outfit collection low price",
+    "affordable fashion India",
+    "boys fashion online",
+    "premium brands low price",
+    "fashion collections",
+    "lifestyle products",
+    "shopping deals",
+    "branded clothes affordable",
+    "online shopping India",
+    "trendy outfits boys",
+    "fashion",
+    "lifestyle",
+    "collections",
+    "shopping",
+    "brands",
+    "trends",
+    "deals"
+  ],
   authors: [{ name: "Dpiter" }],
   openGraph: {
-    title: "Dpiter - Curated Fashion & Lifestyle Collections",
-    description: "Discover handpicked collections of premium fashion and lifestyle products",
+    title: "Dpiter - Best Shopping Website for Boys | Affordable Fashion Collections",
+    description: "Shop the best clothing website for boys in India, USA, UK. Full outfit collection low price with premium brands.",
     type: "website",
     siteName: "Dpiter",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dpiter - Curated Fashion Collections",
-    description: "Discover handpicked collections of premium fashion products",
+    title: "Dpiter - Best Shopping Website for Boys",
+    description: "Discover curated fashion collections at affordable prices",
   },
   robots: {
     index: true,
@@ -32,7 +56,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "sHFi0coDLCMtYeXcBFJ7pIrzGeebms59PVwFCCrATSA",
+    google: "oAxbL_tiEoWvDgMQCCvT-bx5SpTHBRKA9yetJtFsoCw",
     other: {
       "msvalidate.01": "FC0ED3E2CD6BC6E015201B4F0DABF03E",
       monetag: "8e701858f43c71973d12ef290cd91d1f",
@@ -56,9 +80,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
-        <meta name="google-site-verification" content="sHFi0coDLCMtYeXcBFJ7pIrzGeebms59PVwFCCrATSA" />
+        <meta name="google-site-verification" content="oAxbL_tiEoWvDgMQCCvT-bx5SpTHBRKA9yetJtFsoCw" />
       </head>
       <body className={`${poppins.className} font-display antialiased`}>
+        <LoadingBar />
         {children}
         <Analytics />
       </body>

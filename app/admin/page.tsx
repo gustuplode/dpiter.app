@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from 'next/navigation'
-import { ArrowLeft, Network, Search, ChevronDown, Plus, LogOut } from 'lucide-react'
+import { ArrowLeft, Network, Search, ChevronDown, Plus, LogOut, BarChart3 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CollectionList } from "@/components/admin/collection-list"
@@ -33,6 +33,11 @@ export default async function AdminDashboard() {
           <h1 className="text-[#333333] dark:text-[#E5E7EB] text-xl font-bold leading-tight tracking-tight">Dpiter</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/admin/analytics">
+            <Button variant="ghost" className="size-10 p-0">
+              <BarChart3 className="h-5 w-5 text-[#333333] dark:text-[#E5E7EB]" />
+            </Button>
+          </Link>
           <form action="/api/auth/logout" method="POST">
             <Button variant="ghost" type="submit" className="size-10 p-0">
               <LogOut className="h-5 w-5 text-[#333333] dark:text-[#E5E7EB]" />

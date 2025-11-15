@@ -3,6 +3,8 @@ import Link from "next/link"
 import { BottomNav } from "@/components/bottom-nav"
 import { FooterLinks } from "@/components/footer-links"
 import { WishlistButton } from "@/components/wishlist-button"
+import { RatingButton } from "@/components/rating-button"
+import { RatingDisplay } from "@/components/rating-display"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -48,20 +50,35 @@ export default async function HomePage() {
                         className="w-full h-auto aspect-[3/4] object-cover object-center"
                         src={collection.image_url || "/placeholder.svg?height=400&width=300"}
                       />
+                      <div className="absolute top-2 left-2">
+                        <RatingButton
+                          itemId={collection.id}
+                          itemType="collection"
+                        />
+                      </div>
+                      {/* Heart icon button at top-right */}
+                      <div className="absolute top-2 right-2">
+                        <WishlistButton
+                          productId={collection.id}
+                          className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                        />
+                      </div>
+                      {/* Rating display at bottom-right */}
+                      <div className="absolute bottom-2 right-2">
+                        <RatingDisplay
+                          itemId={collection.id}
+                          itemType="collection"
+                        />
+                      </div>
+                      {/* </CHANGE> */}
                       {collection.is_limited_time && (
-                        <div className="absolute top-2 left-2">
+                        <div className="absolute bottom-2 left-2">
                           <span className="inline-flex items-center gap-1 rounded-md bg-[#F97316]/90 px-2 py-0.5 text-xs font-medium text-white">
                             <span className="material-symbols-outlined text-sm">schedule</span>
                             LIMITED TIME
                           </span>
                         </div>
                       )}
-                      <div className="absolute top-2 right-2">
-                        <WishlistButton
-                          productId={collection.id}
-                          className="h-8 w-8 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm text-slate-700 dark:text-slate-200"
-                        />
-                      </div>
                     </div>
                     <div className="pt-2">
                       <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{collection.brand}</h3>
