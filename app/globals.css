@@ -138,6 +138,20 @@
   animation: slide-left 30s linear infinite;
 }
 
+/* Added shimmer animation for Meesho-style loading bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
 /* Performance optimizations for smooth rendering */
 @layer utilities {
   .will-change-transform {
