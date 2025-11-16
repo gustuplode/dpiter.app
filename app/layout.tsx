@@ -182,7 +182,7 @@ export const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
         width: 1200,
         height: 630,
         alt: "DPITER.shop – Curated Fashion from Amazon, Meesho, Flipkart, Myntra",
@@ -194,7 +194,7 @@ export const metadata: Metadata = {
     title: "DPITER.shop – Trending Fashion Picks",
     description: "Curated fashion from Amazon, Flipkart, Meesho, Myntra. Secure redirect. No payment on our site.",
     creator: "@dpiter",
-    images: ["/og-image.png"],
+    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png"],
   },
   robots: {
     index: true,
@@ -255,7 +255,7 @@ export default function RootLayout({
       name: "DPITER.shop",
       logo: {
         "@type": "ImageObject",
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/logo.png`
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png"
       }
     }
   }
@@ -266,7 +266,7 @@ export default function RootLayout({
     name: "DPITER.shop",
     alternateName: "Dpiter",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop",
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/logo.png`,
+    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
     description: "Curated fashion discovery platform featuring trending collections from Amazon, Flipkart, Meesho, Myntra and eBay. Safe redirect service with no payment processing.",
     foundingDate: "2024",
     slogan: "Discover Trending Fashion from Trusted Marketplaces",
