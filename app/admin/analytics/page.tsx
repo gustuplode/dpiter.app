@@ -32,6 +32,7 @@ export default function AnalyticsPage() {
   })
   const [ratings, setRatings] = useState<Rating[]>([])
   const [isLoadingRatings, setIsLoadingRatings] = useState(true)
+  const [canReset, setCanReset] = useState(false)
 
   useEffect(() => {
     const visitorData = localStorage.getItem("dpiter_analytics")
@@ -46,6 +47,9 @@ export default function AnalyticsPage() {
     const interval = setInterval(() => {
       loadRatings()
     }, 5000)
+    
+    const adminEmail = localStorage.getItem("admin_email")
+    setCanReset(!!adminEmail)
     
     return () => clearInterval(interval)
   }, [])
@@ -127,6 +131,24 @@ export default function AnalyticsPage() {
       .catch((err) => console.error("Error fetching geolocation:", err))
   }
 
+  const resetAnalytics = () => {
+    if (!confirm("Are you sure you want to reset all analytics data? This cannot be undone.")) return
+    
+    localStorage.setItem("dpiter_analytics", JSON.stringify({
+      visitors: 0,
+      countries: [],
+      keywords: [],
+      referrers: []
+    }))
+    
+    setAnalytics({
+      visitors: 0,
+      countries: [],
+      keywords: [],
+      referrers: []
+    })
+  }
+
   return (
     <div className="min-h-screen bg-[#F4F4F7] dark:bg-[#1a1a1d] pb-20">
       <header className="flex items-center bg-white dark:bg-[#2a2a2e] p-4 justify-between border-b border-[#E5E7EB] dark:border-[#4a4a50]">
@@ -136,7 +158,11 @@ export default function AnalyticsPage() {
           </Button>
         </Link>
         <h1 className="text-xl font-bold">Analytics</h1>
-        <div className="w-10" />
+        {canReset && (
+          <Button onClick={resetAnalytics} variant="ghost" className="text-red-500 hover:text-red-700">
+            Reset
+          </Button>
+        )}
       </header>
 
       <main className="container mx-auto max-w-4xl p-4 space-y-6">

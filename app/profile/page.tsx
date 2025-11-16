@@ -34,6 +34,7 @@ export default function ProfilePage() {
       setLoading(false)
       
       if (currentUser) {
+        localStorage.setItem("firebase_uid", currentUser.uid)
         loadUserData(currentUser.uid)
       } else {
         const timer = setTimeout(() => {

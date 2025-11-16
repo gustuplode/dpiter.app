@@ -53,15 +53,16 @@ export function BottomNav() {
 
           <div className="absolute -top-6 md:-top-12">
             <Link href="/">
-              <button className="relative bg-gradient-to-br from-[#F97316] to-[#EA580C] text-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-[0_4px_12px_rgba(249,115,22,0.4)] transform transition-all hover:scale-105 hover:shadow-[0_6px_16px_rgba(249,115,22,0.5)]">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
-                <span className="material-symbols-outlined text-2xl md:text-4xl font-bold relative z-10">
-                  shopping_bag
-                </span>
+              <button className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105">
+                <img 
+                  src="/images/1000007078-01-imgupscaler.png" 
+                  alt="Dpiter"
+                  className="w-10 h-10 md:w-16 md:h-16 object-contain"
+                />
               </button>
             </Link>
             <div className="text-center mt-1 md:mt-2">
-              <span className="text-[10px] md:text-sm font-bold bg-gradient-to-r from-[#F97316] to-[#EA580C] bg-clip-text text-transparent">
+              <span className="text-[10px] md:text-sm font-bold bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
                 Dpiter
               </span>
             </div>
@@ -75,8 +76,8 @@ export function BottomNav() {
               wishlistFlash
                 ? "text-red-500 scale-110"
                 : pathname === "/wishlist"
-                ? "text-[#F97316]"
-                : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
+                ? "text-[#3B82F6]"
+                : "text-slate-600 dark:text-slate-400 hover:text-[#3B82F6] dark:hover:text-[#3B82F6]"
             }`}
           >
             <span className={`material-symbols-outlined text-lg md:text-4xl transition-all ${wishlistFlash ? 'animate-pulse' : ''}`}>
@@ -89,8 +90,8 @@ export function BottomNav() {
             href="/profile"
             className={`flex flex-col items-center transition-colors ${
               pathname === "/profile"
-                ? "text-[#F97316]"
-                : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
+                ? "text-[#3B82F6]"
+                : "text-slate-600 dark:text-slate-400 hover:text-[#3B82F6] dark:hover:text-[#3B82F6]"
             }`}
           >
             <span className="material-symbols-outlined text-lg md:text-4xl">person_outline</span>

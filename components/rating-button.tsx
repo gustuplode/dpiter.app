@@ -24,7 +24,7 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
   const loadUserRating = async () => {
     try {
       const supabase = createClient()
-      const userId = localStorage.getItem("userId") || `user_${Date.now()}`
+      const userId = localStorage.getItem("firebase_uid") || localStorage.getItem("userId") || `user_${Date.now()}`
       localStorage.setItem("userId", userId)
 
       const { data: userRatingData } = await supabase
@@ -48,7 +48,7 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
     setIsLoading(true)
     try {
       const supabase = createClient()
-      const userId = localStorage.getItem("userId") || `user_${Date.now()}`
+      const userId = localStorage.getItem("firebase_uid") || localStorage.getItem("userId") || `user_${Date.now()}`
       localStorage.setItem("userId", userId)
 
       const { error } = await supabase

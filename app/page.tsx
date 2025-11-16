@@ -6,6 +6,7 @@ import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
 import { getCollectionUrl } from "@/lib/utils"
+import { ImageLoader } from "@/components/image-loader"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -74,10 +75,11 @@ export default async function HomePage() {
                   <div key={collection.id} className="group">
                     <Link href={getCollectionUrl(collection.id, collection.title)} className="block">
                       <div className="relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-sm">
-                        <img
-                          alt={collection.title}
-                          className="w-full h-auto aspect-[3/4] object-cover object-center"
+                        <ImageLoader
                           src={collection.image_url || "/placeholder.svg?height=400&width=300"}
+                          alt={collection.title}
+                          className="w-full"
+                          aspectRatio="3/4"
                         />
                         <div className="absolute top-2 left-2">
                           <RatingButton
