@@ -69,7 +69,7 @@ export default async function HomePage() {
                 </p>
               </div>
             ) : collections.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-4 gap-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-6 gap-y-4">
                 {collections.map((collection) => (
                   <div key={collection.id} className="group">
                     <Link href={getCollectionUrl(collection.id, collection.title)} className="block">
@@ -100,7 +100,7 @@ export default async function HomePage() {
                         </div>
                         {collection.is_limited_time && (
                           <div className="absolute bottom-2 left-2">
-                            <span className="inline-flex items-center gap-1 rounded-md bg-[#F97316]/90 px-2 py-0.5 text-xs font-medium text-white">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-[#3B82F6]/90 px-2 py-0.5 text-xs font-medium text-white">
                               <span className="material-symbols-outlined text-sm">schedule</span>
                               LIMITED TIME
                             </span>

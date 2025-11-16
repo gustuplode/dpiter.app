@@ -10,7 +10,7 @@
   --card-foreground: #23150f;
   --popover: #ffffff;
   --popover-foreground: #23150f;
-  --primary: #f85a16;
+  --primary: #3B82F6;
   --primary-foreground: #ffffff;
   --secondary: #f4eae6;
   --secondary-foreground: #23150f;
@@ -22,7 +22,7 @@
   --destructive-foreground: #ffffff;
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #f85a16;
+  --ring: #3B82F6;
   --radius: 0.5rem;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);

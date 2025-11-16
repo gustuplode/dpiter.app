@@ -1,5 +1,7 @@
 import { BottomNav } from "@/components/bottom-nav"
 import { FooterLinks } from "@/components/footer-links"
+import { createClient } from "@/lib/supabase/server"
+import { getCollectionUrl } from "@/lib/utils"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -8,23 +10,59 @@ export const metadata: Metadata = {
   keywords: "dpiter faq, dpiter shop help, online shopping faq, amazon fashion help, flipkart shopping guide, meesho faq, myntra help, boys fashion faq, mens clothing faq, curated fashion faq, affiliate shopping faq, dpiter sitemap, dpiter collections, dpiter products",
 }
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const supabase = await createClient()
+  
+  // Fetch collections and products for backlinks
+  const { data: collections } = await supabase
+    .from("collections")
+    .select("id, title")
+    .eq("status", "published")
+    .limit(10)
+
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, title, collection_id")
+    .limit(10)
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
+
   return (
     <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
       <div className="container mx-auto max-w-4xl px-4 py-8 pb-32">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Frequently Asked Questions</h1>
         
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-sm mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-sm mb-6">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Quick Links</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <a href="https://dpiter.shop" className="text-[#F97316] hover:underline font-medium">🏠 Home</a>
-            <a href="https://dpiter.shop/search" className="text-[#F97316] hover:underline font-medium">🔍 Search Collections</a>
-            <a href="https://dpiter.shop/wishlist" className="text-[#F97316] hover:underline font-medium">❤️ My Wishlist</a>
-            <a href="https://dpiter.shop/about" className="text-[#F97316] hover:underline font-medium">📖 About Us</a>
-            <a href="https://dpiter.shop/contact" className="text-[#F97316] hover:underline font-medium">📧 Contact</a>
-            <a href="https://dpiter.shop/sitemap.xml" className="text-[#F97316] hover:underline font-medium">🗺️ Full Sitemap</a>
+            <a href="https://dpiter.shop" className="text-[#3B82F6] hover:underline font-medium">🏠 Home</a>
+            <a href="https://dpiter.shop/search" className="text-[#3B82F6] hover:underline font-medium">🔍 Search Collections</a>
+            <a href="https://dpiter.shop/wishlist" className="text-[#3B82F6] hover:underline font-medium">❤️ My Wishlist</a>
+            <a href="https://dpiter.shop/about" className="text-[#3B82F6] hover:underline font-medium">📖 About Us</a>
+            <a href="https://dpiter.shop/contact" className="text-[#3B82F6] hover:underline font-medium">📧 Contact</a>
+            <a href="https://dpiter.shop/sitemap.xml" className="text-[#3B82F6] hover:underline font-medium">🗺️ Full Sitemap</a>
           </div>
         </div>
+
+        {collections && collections.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-sm mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Popular Collections on DPITER.shop</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {collections.map((collection: any) => (
+                <a
+                  key={collection.id}
+                  href={`${baseUrl}${getCollectionUrl(collection.id, collection.title)}`}
+                  className="text-[#3B82F6] hover:underline text-sm"
+                >
+                  ✨ {collection.title}
+                </a>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
+              View all collections at <a href="https://dpiter.shop" className="text-[#3B82F6] hover:underline font-semibold">dpiter.shop</a> | Complete sitemap: <a href="https://dpiter.shop/sitemap.xml" className="text-[#3B82F6] hover:underline font-semibold">sitemap.xml</a>
+            </p>
+          </div>
+        )}
         
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
@@ -86,7 +124,7 @@ export default function FAQPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Why should I use DPITER.shop instead of going directly to Amazon/Flipkart?</h2>
             <p className="text-slate-700 dark:text-slate-300">
-              <a href="https://dpiter.shop" className="text-primary hover:underline"><strong>DPITER.shop</strong></a> saves you time by curating trending fashion from multiple marketplaces in one place. Instead of searching separately on <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Amazon</a>, <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Flipkart</a>, <a href="https://www.meesho.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meesho</a>, and <a href="https://www.myntra.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Myntra</a>, we bring the best collections together at <a href="https://dpiter.shop/search" className="text-primary hover:underline">dpiter.shop/search</a>. It's like having a personal fashion curator. Check our <a href="https://dpiter.shop/sitemap.xml" className="text-primary hover:underline">full product sitemap</a>.
+              <a href="https://dpiter.shop" className="text-primary hover:underline"><strong>DPITER.shop</strong></a> saves you time by curating trending fashion from multiple trusted marketplaces (<a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Amazon</a>, <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Flipkart</a>, <a href="https://www.meesho.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meesho</a>, <a href="https://www.myntra.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Myntra</a>). We save you time by bringing trending collections to one place without the need to search multiple sites.
             </p>
           </div>
 
@@ -246,27 +284,27 @@ export default function FAQPage() {
           </div>
         </div>
 
-        <div className="mt-8 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-md">
+        <div className="mt-8 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-md">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Explore DPITER.shop</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Shop by Marketplace</h3>
               <ul className="space-y-1 text-sm">
-                <li><a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">Amazon Fashion India</a></li>
-                <li><a href="https://www.flipkart.com/clothing" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">Flipkart Clothing</a></li>
-                <li><a href="https://www.meesho.com" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">Meesho Shopping</a></li>
-                <li><a href="https://www.myntra.com" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">Myntra Fashion</a></li>
-                <li><a href="https://www.ebay.in" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">eBay India</a></li>
+                <li><a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">Amazon Fashion India</a></li>
+                <li><a href="https://www.flipkart.com/clothing" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">Flipkart Clothing</a></li>
+                <li><a href="https://www.meesho.com" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">Meesho Shopping</a></li>
+                <li><a href="https://www.myntra.com" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">Myntra Fashion</a></li>
+                <li><a href="https://www.ebay.in" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">eBay India</a></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-slate-900 dark:text-white mb-2">DPITER.shop Resources</h3>
               <ul className="space-y-1 text-sm">
-                <li><a href="https://dpiter.shop" className="text-[#F97316] hover:underline">Home - Latest Collections</a></li>
-                <li><a href="https://dpiter.shop/search" className="text-[#F97316] hover:underline">Search All Products</a></li>
-                <li><a href="https://dpiter.shop/wishlist" className="text-[#F97316] hover:underline">My Wishlist</a></li>
-                <li><a href="https://dpiter.shop/profile" className="text-[#F97316] hover:underline">User Profile & Account</a></li>
-                <li><a href="https://dpiter.shop/sitemap.xml" className="text-[#F97316] hover:underline">Complete Sitemap</a></li>
+                <li><a href="https://dpiter.shop" className="text-[#3B82F6] hover:underline">Home - Latest Collections</a></li>
+                <li><a href="https://dpiter.shop/search" className="text-[#3B82F6] hover:underline">Search All Products</a></li>
+                <li><a href="https://dpiter.shop/wishlist" className="text-[#3B82F6] hover:underline">My Wishlist</a></li>
+                <li><a href="https://dpiter.shop/profile" className="text-[#3B82F6] hover:underline">User Profile & Account</a></li>
+                <li><a href="https://dpiter.shop/sitemap.xml" className="text-[#3B82F6] hover:underline">Complete Sitemap</a></li>
               </ul>
             </div>
           </div>

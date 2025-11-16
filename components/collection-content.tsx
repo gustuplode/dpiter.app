@@ -57,7 +57,7 @@ export function CollectionContent({
         </div>
 
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-4 gap-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-6 gap-y-4">
             {products.map((product) => (
               <div key={product.id} className="group">
                 <a
@@ -81,7 +81,6 @@ export function CollectionContent({
                         itemType="product"
                       />
                     </div>
-                    {/* Heart icon button at top-right */}
                     <div 
                       className="absolute top-2 right-2"
                       onClick={(e) => e.preventDefault()}
@@ -91,7 +90,6 @@ export function CollectionContent({
                         className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
                       />
                     </div>
-                    {/* Rating display at bottom-right */}
                     <div className="absolute bottom-2 right-2">
                       <RatingDisplay
                         itemId={product.id}
