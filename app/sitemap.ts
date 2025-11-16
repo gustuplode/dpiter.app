@@ -6,7 +6,7 @@ export const revalidate = 3600 // Revalidate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient()
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.vercel.app"
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
 
   // Fetch all published collections
   const { data: collections } = await supabase

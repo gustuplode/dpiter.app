@@ -3,8 +3,8 @@ import { FooterLinks } from "@/components/footer-links"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Dpiter",
-  description: "Read our privacy policy to understand how we collect, use, and protect your information.",
+  title: "Privacy Policy | DPITER.shop",
+  description: "DPITER.shop privacy policy - Learn how we protect your data. We don't collect payments or financial information. All purchases via trusted marketplaces.",
 }
 
 export default function PrivacyPolicyPage() {
@@ -17,53 +17,131 @@ export default function PrivacyPolicyPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {new Date().toLocaleDateString()}</p>
           
           <section>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Introduction</h2>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Overview</h2>
             <p>
-              Welcome to Dpiter. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.
+              <strong>DPITER.shop</strong> is a fashion discovery and curation platform. We help users find trending fashion from trusted marketplaces like <strong>Amazon, Flipkart, Meesho, Myntra, and eBay</strong>.
+            </p>
+            <p className="font-semibold text-lg">
+              Important: DPITER.shop does NOT collect payments or process orders. All transactions happen on the verified marketplace platforms you're redirected to.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No Payment Processing</h2>
+            <p>
+              <strong>DPITER.shop never stores or processes:</strong>
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Credit card information</li>
+              <li>Bank details</li>
+              <li>Payment credentials</li>
+              <li>Financial data of any kind</li>
+            </ul>
+            <p>
+              When you click on a product, you are forwarded to trusted marketplaces like <strong>Amazon, Meesho, Flipkart, Myntra, and eBay</strong>. All payment processing happens on their secure platforms with industry-standard encryption.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Information We Collect</h2>
-            <p>We may collect, use, store and transfer different kinds of personal data about you:</p>
+            <p>DPITER.shop may collect basic analytics for performance improvement:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Identity Data: name, username, or similar identifier</li>
-              <li>Contact Data: email address and telephone numbers</li>
-              <li>Technical Data: internet protocol (IP) address, browser type and version</li>
-              <li>Usage Data: information about how you use our website and services</li>
+              <li><strong>Anonymous usage data</strong> - Pages visited, time spent, clicks (via Google Analytics)</li>
+              <li><strong>Browser information</strong> - Browser type, device type, operating system</li>
+              <li><strong>Wishlist preferences</strong> - Stored locally on your device, not on our servers</li>
+              <li><strong>User ratings & reviews</strong> - If you choose to rate products (stored with Firebase authentication)</li>
+            </ul>
+            <p>We do NOT collect:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Personal identification details (unless you sign in with Google for profile features)</li>
+              <li>Shipping addresses</li>
+              <li>Phone numbers for orders</li>
+              <li>Any financial information</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">How We Use Your Information</h2>
-            <p>We use your personal data for the following purposes:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>To provide and maintain our service</li>
-              <li>To notify you about changes to our service</li>
-              <li>To provide customer support</li>
-              <li>To gather analysis or valuable information to improve our service</li>
-              <li>To detect, prevent and address technical issues</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Cookies</h2>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Cookies & Tracking</h2>
             <p>
-              We use cookies and similar tracking technologies to track activity on our service. Cookies are files with a small amount of data that may include an anonymous unique identifier.
+              DPITER.shop uses cookies and similar technologies to improve user experience. These include:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Essential cookies</strong> - For basic website functionality</li>
+              <li><strong>Analytics cookies</strong> - To understand how users interact with our platform</li>
+              <li><strong>Affiliate tracking</strong> - To ensure proper commission tracking when you purchase from marketplaces</li>
+            </ul>
+            <p>
+              You can disable cookies in your browser settings, though this may affect website functionality.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Third-Party Services</h2>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Third-Party Links & Redirects</h2>
             <p>
-              We may employ third-party companies and individuals to facilitate our service, provide service on our behalf, or assist us in analyzing how our service is used. These third parties have access to your personal data only to perform these tasks on our behalf.
+              DPITER.shop contains links to external marketplaces: <strong>Amazon, Flipkart, Meesho, Myntra, eBay</strong>. When you click these links:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>You leave DPITER.shop and enter the marketplace's website</li>
+              <li>Their privacy policies and terms apply</li>
+              <li>DPITER.shop is not responsible for their data practices</li>
+              <li>All affiliate links are secure and encrypted</li>
+            </ul>
+            <p>
+              We only partner with verified, trusted marketplaces to ensure your safety.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">User Accounts (Optional)</h2>
+            <p>
+              If you choose to sign in with Google for profile features:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>We store your email and profile picture via Firebase Authentication</li>
+              <li>This data is used only for personalized features (wishlist sync, ratings)</li>
+              <li>You can delete your account anytime</li>
+              <li>We never share your email with third parties</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Data Security</h2>
+            <p>
+              While DPITER.shop does not process payments, we take data security seriously:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>HTTPS encryption on all pages</li>
+              <li>Secure Firebase authentication</li>
+              <li>Regular security audits</li>
+              <li>No storage of sensitive financial data</li>
+            </ul>
+            <p>
+              Remember: The user experience remains <strong>100% safe</strong> because actual purchases happen on verified marketplace platforms with their own security measures.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Access your data (if you have a user account)</li>
+              <li>Request data deletion</li>
+              <li>Opt out of analytics tracking</li>
+              <li>Disable cookies</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Changes to This Policy</h2>
+            <p>
+              We may update this privacy policy from time to time. Changes will be posted on this page with an updated date.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Contact Us</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us through our contact page.
+              If you have questions about this privacy policy or data practices, please contact us through our contact page.
             </p>
           </section>
         </div>
