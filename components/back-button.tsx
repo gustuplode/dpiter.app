@@ -24,7 +24,7 @@ export function BackButton() {
       {isAnimating ? (
         <div className="relative h-10 w-10 animate-spin">
           <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png"
+            src="/images/design-mode/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg.png"
             alt="Dpiter"
             className="h-full w-full object-contain rounded-full"
           />

@@ -9,20 +9,20 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg",
+      "src": "/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg",
+      "src": "/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png"
     },
     {
-      "src": "https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg",
+      "src": "/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ],
   "categories": ["shopping", "fashion", "lifestyle"],
@@ -31,9 +31,9 @@
   "scope": "/",
   "screenshots": [
     {
-      "src": "https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg",
+      "src": "/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png",
       "sizes": "1280x720",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }

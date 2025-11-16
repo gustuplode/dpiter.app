@@ -7,7 +7,7 @@ export function FooterLinks() {
       <div className="container mx-auto max-w-7xl">
         <div className="flex justify-center mb-6">
           <img
-            src="https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg"
+            src="/images/design-mode/1000007078-01_imgupscaler_imgupscaler.ai_V1%28Fast%29_2K%20%282%29(1).jpg"
             alt="Dpiter Logo"
             className="h-16 w-16 object-contain"
           />

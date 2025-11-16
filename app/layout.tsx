@@ -182,7 +182,7 @@ export const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop",
     images: [
       {
-        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png`,
         width: 1200,
         height: 630,
         alt: "DPITER.shop – Curated Fashion from Amazon, Meesho, Flipkart, Myntra",
@@ -194,7 +194,7 @@ export const metadata: Metadata = {
     title: "DPITER.shop – Trending Fashion Picks",
     description: "Curated fashion from Amazon, Flipkart, Meesho, Myntra. Secure redirect. No payment on our site.",
     creator: "@dpiter",
-    images: ["https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png"],
+    images: [`${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png`],
   },
   robots: {
     index: true,
@@ -255,7 +255,7 @@ export default function RootLayout({
       name: "DPITER.shop",
       logo: {
         "@type": "ImageObject",
-        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png"
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png`
       }
     }
   }
@@ -266,7 +266,7 @@ export default function RootLayout({
     name: "DPITER.shop",
     alternateName: "Dpiter",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop",
-    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+    logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png`,
     description: "Curated fashion discovery platform featuring trending collections from Amazon, Flipkart, Meesho, Myntra and eBay. Safe redirect service with no payment processing.",
     foundingDate: "2024",
     slogan: "Discover Trending Fashion from Trusted Marketplaces",
@@ -290,7 +290,7 @@ export default function RootLayout({
     "@type": "Organization",
     "name": "Dpiter",
     "url": "https://dpiter.shop/",
-    "logo": "https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg"
+    "logo": `${process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"}/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png`
   }
 
   return (
@@ -300,8 +300,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
-        <link rel="icon" type="image/jpeg" href="https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg" />
-        <link rel="apple-touch-icon" href="https://fellow-lavender-k0z61xbabe.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2)%20(3)%20(1).jpg" />
+        <link rel="icon" type="image/png" href="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png" />
+        <link rel="apple-touch-icon" href="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png" />
         <meta name="theme-color" content="#F97316" />
         <meta name="google-site-verification" content="oAxbL_tiEoWvDgMQCCvT-bx5SpTHBRKA9yetJtFsoCw" />
         <script
