@@ -55,7 +55,7 @@ export function BottomNav() {
             <Link href="/">
               <button className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105">
                 <img 
-                  src="/images/1000007078-01-imgupscaler.png" 
+                  src="https://complicated-coral-dt9pgpdgdp.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2).jpg"
                   alt="Dpiter"
                   className="w-10 h-10 md:w-16 md:h-16 object-contain"
                 />

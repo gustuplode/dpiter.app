@@ -152,6 +152,24 @@
   animation: shimmer 1.5s infinite;
 }
 
+/* Added fadeOut animation for splash screen */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.animate-fadeOut {
+  animation: fadeOut 2s ease-in-out forwards;
+}
+
 /* Performance optimizations for smooth rendering */
 @layer utilities {
   .will-change-transform {

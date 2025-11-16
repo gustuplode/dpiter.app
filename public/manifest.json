@@ -9,20 +9,20 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+      "src": "https://complicated-coral-dt9pgpdgdp.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2).jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+      "src": "https://complicated-coral-dt9pgpdgdp.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2).jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+      "src": "https://complicated-coral-dt9pgpdgdp.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2).jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ],
   "categories": ["shopping", "fashion", "lifestyle"],
@@ -31,9 +31,9 @@
   "scope": "/",
   "screenshots": [
     {
-      "src": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000007078-01_imgupscaler.ai_V1%28Fast%29_2K.png.jpg-kN64jsYjWJBqDqEUwWk8icdF6HfwLc.png",
+      "src": "https://complicated-coral-dt9pgpdgdp.edgeone.app/1000007078-01_imgupscaler.ai_V1(Fast)_2K%20(2).jpg",
       "sizes": "1280x720",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }

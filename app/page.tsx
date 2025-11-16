@@ -6,7 +6,7 @@ import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
 import { getCollectionUrl } from "@/lib/utils"
-// import { ImageLoader } from "@/components/image-loader"
+import { SplashScreen } from "@/components/splash-screen"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -55,6 +55,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <SplashScreen />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
@@ -78,7 +79,7 @@ export default async function HomePage() {
                         <img
                           src={collection.image_url || "/placeholder.svg?height=400&width=300"}
                           alt={collection.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-opacity duration-300"
                           loading="lazy"
                         />
                         <div className="absolute top-2 left-2">
