@@ -302,7 +302,7 @@ export default function RootLayout({
         />
         <link rel="icon" type="image/png" href="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png" />
         <link rel="apple-touch-icon" href="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png" />
-        <meta name="theme-color" content="#F97316" />
+        <meta name="theme-color" content="#0EB6F7" />
         <meta name="google-site-verification" content="oAxbL_tiEoWvDgMQCCvT-bx5SpTHBRKA9yetJtFsoCw" />
         <script
           type="application/ld+json"
@@ -316,6 +316,13 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(brandLogoJsonLd) }}
         />
+        <style>{`
+          @font-face {
+            font-family: 'Poppins';
+            font-display: swap;
+            size-adjust: 100%;
+          }
+        `}</style>
       </head>
       <body className={`${poppins.className} font-display antialiased`}>
         <LoadingBar />

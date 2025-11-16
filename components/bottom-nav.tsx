@@ -53,19 +53,15 @@ export function BottomNav() {
 
           <div className="absolute -top-6 md:-top-12">
             <Link href="/">
-              <button className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105">
+              <button className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105 overflow-hidden p-0">
                 <img 
                   src="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png"
                   alt="Dpiter"
-                  className="w-10 h-10 md:w-16 md:h-16 object-contain"
+                  className="w-full h-full object-cover"
                 />
               </button>
             </Link>
-            <div className="text-center mt-1 md:mt-2">
-              <span className="text-[10px] md:text-sm font-bold bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
-                Dpiter
-              </span>
-            </div>
+            
           </div>
 
           <div className="w-10 md:w-20"></div>
