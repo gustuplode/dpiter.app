@@ -57,7 +57,7 @@ export function BottomNav() {
                 <img 
                   src="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png"
                   alt="Dpiter"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               </button>
             </Link>

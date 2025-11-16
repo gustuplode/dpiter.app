@@ -4,8 +4,8 @@
   "description": "Discover trending fashion from Amazon, Flipkart, Meesho, Myntra & eBay. 100% secure redirect. No payment on our site.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0EB6F7",
-  "theme_color": "#0EB6F7",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "icons": [
     {
