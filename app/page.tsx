@@ -33,33 +33,7 @@ export default async function HomePage() {
   let fashionCount = 0
   let gadgetsCount = 0
   let gamingCount = 0
-
-  try {
-    const { count: fCount } = await supabase
-      .from("category_products")
-      .select("*", { count: "exact", head: true })
-      .eq("category", "fashion")
-      .eq("is_visible", true)
-    fashionCount = fCount || 0
-
-    const { count: gCount } = await supabase
-      .from("category_products")
-      .select("*", { count: "exact", head: true })
-      .eq("category", "gadgets")
-      .eq("is_visible", true)
-    gadgetsCount = gCount || 0
-
-    const { count: gmCount } = await supabase
-      .from("category_products")
-      .select("*", { count: "exact", head: true })
-      .eq("category", "gaming")
-      .eq("is_visible", true)
-    gamingCount = gmCount || 0
-  } catch (e) {
-    // Table doesn't exist yet, that's okay
-  }
-
-  const allCount = fashionCount + gadgetsCount + gamingCount
+  let allCount = 0
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
 
@@ -98,7 +72,7 @@ export default async function HomePage() {
           allProductsCount={allCount}
         />
         
-        <div className="container mx-auto max-w-7xl px-2 pb-32">
+        <div className="container mx-auto max-w-7xl px-2 pt-2 pb-32">
           <main>
             {error ? (
               <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
