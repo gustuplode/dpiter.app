@@ -14,6 +14,20 @@ export default function ContactPage() {
       <div className="container mx-auto max-w-4xl px-4 py-8 pb-32">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Contact Us</h1>
         
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-6 shadow-sm mb-6">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Website Information</h2>
+          <div className="space-y-2 text-slate-700 dark:text-slate-300">
+            <p><strong>Website:</strong> <a href="https://dpiter.shop" className="text-[#3B82F6] hover:underline">dpiter.shop</a></p>
+            <p><strong>Owner/Publisher:</strong> DPITER.shop Team</p>
+            <p><strong>Founded:</strong> 2024</p>
+            <p><strong>Location:</strong> India (Serving India, USA, UK & Worldwide)</p>
+            <p><strong>Business Type:</strong> Fashion Discovery & Curation Platform</p>
+            <p className="text-sm mt-3">
+              DPITER.shop is independently owned and operated. We curate fashion from trusted marketplaces like Amazon, Flipkart, Meesho, Myntra & eBay. We do not process payments - all purchases happen on verified marketplace platforms.
+            </p>
+          </div>
+        </div>
+
         <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm space-y-6">
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Get in Touch</h2>

@@ -1,0 +1,2 @@
+# Google AdSense Publisher ID for dpiter.shop
+google.com, pub-8731726233953156, DIRECT, f08c47fec0942fa0
