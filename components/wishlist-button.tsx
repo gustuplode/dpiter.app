@@ -6,11 +6,13 @@ import { useState, useEffect } from "react"
 export function WishlistButton({ 
   productId, 
   type = "product",
-  className = "" 
+  className = "", 
+  showText = false
 }: { 
   productId: string
   type?: "product" | "collection"
   className?: string 
+  showText?: boolean
 }) {
   const [isInWishlist, setIsInWishlist] = useState(false)
 
@@ -53,16 +55,32 @@ export function WishlistButton({
       onClick={toggleWishlist}
       className={className}
     >
-      <span 
-        className={`material-symbols-outlined !text-base transition-colors ${
-          isInWishlist 
-            ? "text-red-500" 
-            : "text-slate-700 dark:text-slate-200"
-        }`}
-        style={{ fontVariationSettings: isInWishlist ? "'FILL' 1" : "'FILL' 0" }}
-      >
-        favorite
-      </span>
+      {showText ? (
+        <div className="flex items-center justify-center gap-2">
+          <span 
+            className={`material-symbols-outlined !text-base transition-colors ${
+              isInWishlist 
+                ? "text-red-500" 
+                : "text-blue-600 dark:text-blue-400"
+            }`}
+            style={{ fontVariationSettings: isInWishlist ? "'FILL' 1" : "'FILL' 0" }}
+          >
+            favorite
+          </span>
+          <span>{isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+        </div>
+      ) : (
+        <span 
+          className={`material-symbols-outlined !text-base transition-colors ${
+            isInWishlist 
+              ? "text-red-500" 
+              : "text-slate-700 dark:text-slate-200"
+          }`}
+          style={{ fontVariationSettings: isInWishlist ? "'FILL' 1" : "'FILL' 0" }}
+        >
+          favorite
+        </span>
+      )}
     </button>
   )
 }

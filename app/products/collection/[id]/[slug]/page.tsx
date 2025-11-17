@@ -106,7 +106,7 @@ export default async function CollectionProductDetailPage({ params }: { params: 
               <img
                 src={product.image_url || "/placeholder.svg"}
                 alt={product.title}
-                className="w-full h-[400px] md:h-[500px] object-contain bg-white"
+                className="w-full h-[400px] md:h-[500px] object-cover bg-white"
               />
               <div className="absolute top-4 left-4">
                 <RatingButton itemId={product.id} itemType="product" />
@@ -139,8 +139,7 @@ export default async function CollectionProductDetailPage({ params }: { params: 
                 </a>
                 <WishlistButton
                   productId={product.id}
-                  type="product"
-                  className="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-semibold py-3 px-4 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors"
+                  className="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-semibold py-3 px-4 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors w-full"
                   showText
                 />
               </div>
