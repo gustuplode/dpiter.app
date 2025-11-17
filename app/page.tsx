@@ -57,7 +57,6 @@ export default async function HomePage() {
     gamingCount = gmCount || 0
   } catch (e) {
     // Table doesn't exist yet, that's okay
-    console.log("[v0] Category products table not ready yet")
   }
 
   const allCount = fashionCount + gadgetsCount + gamingCount
@@ -99,7 +98,7 @@ export default async function HomePage() {
           allProductsCount={allCount}
         />
         
-        <div className="container mx-auto max-w-7xl px-2 py-6 pb-32">
+        <div className="container mx-auto max-w-7xl px-2 pb-32">
           <main>
             {error ? (
               <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
