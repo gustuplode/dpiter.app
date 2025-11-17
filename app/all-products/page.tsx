@@ -15,7 +15,7 @@ export const metadata = {
 export default async function AllProductsPage() {
   const supabase = await createClient()
 
-  const { data: products } = await supabase
+  const { data: products, error } = await supabase
     .from("category_products")
     .select("*")
     .eq("is_visible", true)
@@ -81,8 +81,8 @@ export default async function AllProductsPage() {
                         <RatingDisplay itemId={product.id} itemType="category_product" />
                       </div>
                       <div className="absolute top-2 left-12">
-                        <span className="inline-flex items-center rounded-md bg-blue-500/90 px-2 py-0.5 text-[9px] font-medium text-white">
-                          {product.category.toUpperCase()}
+                        <span className="inline-flex items-center rounded-md bg-blue-500/90 px-2 py-0.5 text-[9px] font-medium text-white capitalize">
+                          {product.category}
                         </span>
                       </div>
                     </div>
@@ -97,7 +97,9 @@ export default async function AllProductsPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <p className="text-lg text-slate-600 dark:text-slate-400">No products available yet</p>
+              <p className="text-lg text-slate-600 dark:text-slate-400">
+                {error ? "Please run the database setup script (009_create_category_products.sql) in admin panel" : "No products available yet"}
+              </p>
             </div>
           )}
         </div>

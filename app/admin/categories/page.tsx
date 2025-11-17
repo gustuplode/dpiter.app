@@ -16,23 +16,52 @@ export default async function AdminCategoriesPage() {
     redirect("/admin/login")
   }
 
-  const { data: fashionProducts } = await supabase
+  const { data: fashionProducts, error: fashionError } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", "fashion")
     .order("created_at", { ascending: false })
 
-  const { data: gadgetsProducts } = await supabase
+  const { data: gadgetsProducts, error: gadgetsError } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", "gadgets")
     .order("created_at", { ascending: false })
 
-  const { data: gamingProducts } = await supabase
+  const { data: gamingProducts, error: gamingError } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", "gaming")
     .order("created_at", { ascending: false })
+
+  // Check if table doesn't exist
+  const tableNotExists = fashionError?.code === '42P01' || gadgetsError?.code === '42P01' || gamingError?.code === '42P01'
+
+  if (tableNotExists) {
+    return (
+      <div className="relative flex h-auto min-h-screen w-full flex-col bg-[#F4F4F7] dark:bg-[#1a1a1d]">
+        <header className="flex items-center bg-white dark:bg-[#2a2a2e] p-4 pb-3 justify-between sticky top-0 z-10 border-b border-[#E5E7EB] dark:border-[#4a4a50]">
+          <Link href="/admin" className="text-[#333333] dark:text-[#E5E7EB] flex size-10 shrink-0 items-center justify-center">
+            <ArrowLeft className="h-6 w-6" />
+          </Link>
+          <h1 className="text-[#333333] dark:text-[#E5E7EB] text-xl font-bold">Category Products</h1>
+          <div className="w-10" />
+        </header>
+        <main className="flex-1 px-4 py-8">
+          <div className="max-w-2xl mx-auto bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+            <h2 className="text-lg font-bold mb-2">Database Setup Required</h2>
+            <p className="text-sm mb-4">The category_products table needs to be created. Please run the SQL script:</p>
+            <ol className="list-decimal list-inside space-y-2 text-sm mb-4">
+              <li>Go to the Scripts section in v0</li>
+              <li>Find and run: <code className="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded">009_create_category_products.sql</code></li>
+              <li>Refresh this page after the script completes</li>
+            </ol>
+            <p className="text-xs text-slate-600 dark:text-slate-400">This will create the table for Fashion, Gadgets, and Gaming products.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-[#F4F4F7] dark:bg-[#1a1a1d]">

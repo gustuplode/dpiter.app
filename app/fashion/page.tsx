@@ -15,14 +15,14 @@ export const metadata = {
 export default async function FashionPage() {
   const supabase = await createClient()
 
-  const { data: products } = await supabase
+  const { data: products, error } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", "fashion")
     .eq("is_visible", true)
     .order("created_at", { ascending: false })
 
-  // Get counts for header
+  // Get counts for header with error handling
   const { count: fashionCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
@@ -93,7 +93,9 @@ export default async function FashionPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <p className="text-lg text-slate-600 dark:text-slate-400">No fashion products available yet</p>
+              <p className="text-lg text-slate-600 dark:text-slate-400">
+                {error ? "Please run the database setup script in admin panel" : "No fashion products available yet"}
+              </p>
             </div>
           )}
         </div>

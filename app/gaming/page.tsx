@@ -15,7 +15,7 @@ export const metadata = {
 export default async function GamingPage() {
   const supabase = await createClient()
 
-  const { data: products } = await supabase
+  const { data: products, error } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", "gaming")
@@ -93,7 +93,9 @@ export default async function GamingPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <p className="text-lg text-slate-600 dark:text-slate-400">No gaming products available yet</p>
+              <p className="text-lg text-slate-600 dark:text-slate-400">
+                {error ? "Please run the database setup script (009_create_category_products.sql) in admin panel" : "No gaming products available yet"}
+              </p>
             </div>
           )}
         </div>
