@@ -16,48 +16,42 @@ export const metadata = {
 export default async function GamingPage() {
   const supabase = await createClient()
 
-  const { data: products, error } = await supabase
-    .from("category_products")
-    .select("*")
-    .eq("category", "gaming")
-    .eq("is_visible", true)
-    .order("created_at", { ascending: false })
+  let products: any[] = []
+  let error = null
 
-  // Get counts for header
-  const { count: fashionCount } = await supabase
-    .from("category_products")
-    .select("*", { count: "exact", head: true })
-    .eq("category", "fashion")
-    .eq("is_visible", true)
+  try {
+    const { data, error: fetchError } = await supabase
+      .from("category_products")
+      .select("*")
+      .eq("category", "gaming")
+      .eq("is_visible", true)
+      .order("created_at", { ascending: false })
 
-  const { count: gadgetsCount } = await supabase
-    .from("category_products")
-    .select("*", { count: "exact", head: true })
-    .eq("category", "gadgets")
-    .eq("is_visible", true)
-
-  const { count: gamingCount } = await supabase
-    .from("category_products")
-    .select("*", { count: "exact", head: true })
-    .eq("category", "gaming")
-    .eq("is_visible", true)
-
-  const allCount = (fashionCount || 0) + (gadgetsCount || 0) + (gamingCount || 0)
+    if (fetchError) {
+      error = fetchError
+    } else {
+      products = data || []
+    }
+  } catch (e) {
+    error = e
+  }
 
   return (
     <>
       <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
-        <CategoryHeader 
-          fashionCount={fashionCount || 0}
-          gadgetsCount={gadgetsCount || 0}
-          gamingCount={gamingCount || 0}
-          allProductsCount={allCount}
-        />
+        <CategoryHeader />
         
         <div className="container mx-auto max-w-7xl px-2 py-6 pb-32">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Gaming</h1>
           
-          {products && products.length > 0 ? (
+          {error ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <p className="text-lg text-slate-600 dark:text-slate-400 mb-2">Category products table not found</p>
+              <p className="text-sm text-slate-500 dark:text-slate-500">
+                Please run the SQL script <code className="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded">009_create_category_products.sql</code> from the admin panel Scripts section.
+              </p>
+            </div>
+          ) : products && products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-6 gap-y-4">
               {products.map((product) => (
                 <div key={product.id} className="group">
@@ -94,9 +88,7 @@ export default async function GamingPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <p className="text-lg text-slate-600 dark:text-slate-400">
-                {error ? "Please run the database setup script (009_create_category_products.sql) in admin panel" : "No gaming products available yet"}
-              </p>
+              <p className="text-lg text-slate-600 dark:text-slate-400">No gaming products available yet</p>
             </div>
           )}
         </div>
