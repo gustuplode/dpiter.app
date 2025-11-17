@@ -6,6 +6,7 @@ import { CategoryHeader } from "@/components/category-header"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
+import { generateSlug } from "@/lib/utils" // Import generateSlug function
 
 export const metadata = {
   title: "Fashion Products - Dpiter",
@@ -60,7 +61,7 @@ export default async function FashionPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-6 gap-y-4">
               {products.map((product) => (
                 <div key={product.id} className="group">
-                  <a href={product.affiliate_link} target="_blank" rel="noopener noreferrer" className="block">
+                  <Link href={`/products/${product.id}/${generateSlug(product.title)}`} className="block">
                     <div className="relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-sm aspect-[3/4]">
                       <img
                         src={product.image_url || "/placeholder.svg"}
@@ -68,10 +69,10 @@ export default async function FashionPage() {
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      <div className="absolute top-2 left-2">
+                      <div className="absolute top-2 left-2" onClick={(e) => e.preventDefault()}>
                         <RatingButton itemId={product.id} itemType="category_product" />
                       </div>
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 right-2" onClick={(e) => e.preventDefault()}>
                         <WishlistButton
                           productId={product.id}
                           type="product"
@@ -87,7 +88,7 @@ export default async function FashionPage() {
                       <p className="text-xs text-slate-500 dark:text-slate-400">{product.title}</p>
                       <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">₹{product.price}</p>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               ))}
             </div>

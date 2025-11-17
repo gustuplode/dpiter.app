@@ -55,7 +55,7 @@ export function BottomNav() {
             <Link href="/">
               <button className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105 overflow-hidden p-0">
                 <img 
-                  src="/images/design-mode/Picsart_25-11-16_17-26-59-671(1).png"
+                  src="/images/design-mode/1000007078-01_imgupscaler_imgupscaler.ai_V1%28Fast%29_2K%20%282%29%20%281%29%20%281%29.jpg"
                   alt="Dpiter"
                   className="w-full h-full object-cover rounded-full"
                 />
