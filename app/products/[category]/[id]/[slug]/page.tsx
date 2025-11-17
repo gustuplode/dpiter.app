@@ -30,15 +30,20 @@ export async function generateMetadata({
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
+  const productUrl = `${baseUrl}${getProductUrl(product.id, product.title, product.category)}`
 
   return {
     title: `${product.title} - ${product.brand} | DPITER.shop`,
     description: `Shop ${product.title} from ${product.brand} at ₹${product.price}. Secure redirect to trusted marketplace. Best deals guaranteed.`,
     keywords: [product.title, product.brand, `${product.brand} ${product.category}`],
+    alternates: {
+      canonical: productUrl,
+    },
     openGraph: {
       title: `${product.title} - ${product.brand}`,
       description: `Shop ${product.title} from ${product.brand}`,
       images: [{ url: product.image_url }],
+      url: productUrl,
     },
   }
 }

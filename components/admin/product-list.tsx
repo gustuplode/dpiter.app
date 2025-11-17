@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { MoreVertical, Package, Pencil, Trash2 } from "lucide-react"
+import { MoreVertical, Package, Pencil, Trash2 } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { createClient } from "@/lib/supabase/client"
 
@@ -98,7 +98,7 @@ export function ProductList({
           <div className="p-3">
             <p className="text-[#333333] dark:text-[#E5E7EB] text-sm font-bold uppercase">{product.brand}</p>
             <p className="text-[#333333]/70 dark:text-[#E5E7EB]/70 text-sm truncate">{product.title}</p>
-            <p className="text-[#333333] dark:text-[#E5E7EB] text-sm font-medium mt-1">${product.price.toFixed(2)}</p>
+            <p className="text-[#333333] dark:text-[#E5E7EB] text-sm font-medium mt-1">₹{product.price.toFixed(2)}</p>
             {!product.is_visible && (
               <span className="inline-block mt-1 text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">Hidden</span>
             )}

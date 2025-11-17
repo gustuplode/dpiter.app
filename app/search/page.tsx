@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { SearchIcon } from "lucide-react"
+import { SearchIcon } from 'lucide-react'
 import { BottomNav } from "@/components/bottom-nav"
 import { createClient } from "@/lib/supabase/client"
 
@@ -103,7 +103,7 @@ export default function SearchPage() {
                     {product.title}
                   </p>
                   <p className="text-sm font-medium leading-normal text-slate-800 dark:text-slate-100 pt-1">
-                    ${product.price.toFixed(2)}
+                    ₹{product.price.toFixed(2)}
                   </p>
                 </div>
               </Link>

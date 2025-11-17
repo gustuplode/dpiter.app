@@ -14,7 +14,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string; productId: string; slug: string }>
 }): Promise<Metadata> {
-  const { productId } = await params
+  const { id, productId } = await params
   const supabase = await createClient()
 
   const { data: product } = await supabase
@@ -30,15 +30,20 @@ export async function generateMetadata({
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
+  const productUrl = `${baseUrl}${getCollectionProductUrl(id, productId, product.title)}`
 
   return {
     title: `${product.title} - ${product.brand} | DPITER.shop`,
-    description: `Shop ${product.title} from ${product.brand} at ${product.price} ${product.currency || "INR"}. Secure redirect to trusted marketplace.`,
+    description: `Shop ${product.title} from ${product.brand} at ₹${product.price}. Secure redirect to trusted marketplace.`,
     keywords: [product.title, product.brand],
+    alternates: {
+      canonical: productUrl,
+    },
     openGraph: {
       title: `${product.title} - ${product.brand}`,
       description: `Shop ${product.title} from ${product.brand}`,
       images: [{ url: product.image_url }],
+      url: productUrl,
     },
   }
 }
@@ -145,8 +150,7 @@ export default async function CollectionProductDetailPage({
               <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Price</p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white">
-                  {product.currency || "₹"}
-                  {product.price}
+                  ₹{product.price}
                 </p>
               </div>
 
