@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client"
 
 interface RatingButtonProps {
   itemId: string
-  itemType: "collection" | "product" | "category_product"
+  itemType: "collection" | "product"
   className?: string
 }
 
@@ -33,7 +33,7 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
         .eq("item_id", itemId)
         .eq("item_type", itemType)
         .eq("user_id", userId)
-        .maybeSingle()
+        .single()
 
       if (userRatingData) {
         setUserRating(userRatingData.rating)

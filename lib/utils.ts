@@ -18,11 +18,3 @@ export function getCollectionUrl(id: string, title: string): string {
   const slug = generateSlug(title)
   return `/collections/${id}/${slug}`
 }
-
-export function getProductUrl(id: string, title: string, type: 'collection' | 'category'): string {
-  const slug = generateSlug(title)
-  if (type === 'collection') {
-    return `/products/collection/${id}/${slug}`
-  }
-  return `/products/${id}/${slug}`
-}

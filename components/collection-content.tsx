@@ -4,8 +4,7 @@ import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
 import { CurrencyDisplay } from "@/components/currency-display"
-import Link from "next/link"
-import { generateSlug } from "@/lib/utils"
+import { ImageLoader } from "@/components/image-loader"
 
 interface Collection {
   id: string
@@ -67,8 +66,10 @@ export function CollectionContent({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] md:gap-x-6 gap-y-4">
             {products.map((product) => (
               <div key={product.id} className="group">
-                <Link
-                  href={`/products/collection/${product.id}/${generateSlug(product.title)}`}
+                <a
+                  href={product.affiliate_link || "https://amzn.to/49SNT2h"}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block"
                 >
                   <div className="relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-sm aspect-[3/4]">
@@ -110,7 +111,7 @@ export function CollectionContent({
                       <CurrencyDisplay price={product.price} />
                     </p>
                   </div>
-                </Link>
+                </a>
               </div>
             ))}
           </div>

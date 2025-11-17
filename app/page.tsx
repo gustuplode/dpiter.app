@@ -2,11 +2,11 @@ import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { BottomNav } from "@/components/bottom-nav"
 import { FooterLinks } from "@/components/footer-links"
+import { CategoryHeader } from "@/components/category-header"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
 import { getCollectionUrl } from "@/lib/utils"
-import { CategoryHeader } from "@/components/category-header"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -29,6 +29,11 @@ export default async function HomePage() {
   } catch (e) {
     error = e
   }
+
+  let fashionCount = 0
+  let gadgetsCount = 0
+  let gamingCount = 0
+  let allCount = 0
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
 
@@ -60,7 +65,12 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
       />
       <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
-        <CategoryHeader />
+        <CategoryHeader 
+          fashionCount={fashionCount}
+          gadgetsCount={gadgetsCount}
+          gamingCount={gamingCount}
+          allProductsCount={allCount}
+        />
         
         <div className="container mx-auto max-w-7xl px-2 pt-2 pb-32">
           <main>
