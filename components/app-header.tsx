@@ -5,6 +5,7 @@ import { ShoppingBag, ArrowLeft } from 'lucide-react'
 import { useState } from "react"
 import { LogoModal } from "./logo-modal"
 import { UserAvatar } from "./user-avatar"
+import { SearchHeader } from "./search-header"
 
 interface AppHeaderProps {
   showBackButton?: boolean
@@ -40,6 +41,8 @@ export function AppHeader({ showBackButton = false, backHref = "/" }: AppHeaderP
 
         <UserAvatar />
       </header>
+
+      <SearchHeader />
 
       <LogoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
