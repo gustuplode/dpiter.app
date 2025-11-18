@@ -34,9 +34,8 @@ export function ImageCropper({
     img.crossOrigin = "anonymous"
     img.onload = () => {
       setImage(img)
-      const scaleX = cropWidth / img.width
-      const scaleY = cropHeight / img.height
-      const initialScale = Math.max(scaleX, scaleY)
+      const minDimension = Math.min(img.width, img.height)
+      const initialScale = cropWidth / minDimension
       setScale(initialScale)
       setPosition({ x: 0, y: 0 })
     }
@@ -57,7 +56,6 @@ export function ImageCropper({
     ctx.fillStyle = "#ffffff"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Clip to circle
     ctx.save()
     ctx.beginPath()
     ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
@@ -143,9 +141,8 @@ export function ImageCropper({
 
   const handleReset = () => {
     if (!image) return
-    const scaleX = cropWidth / image.width
-    const scaleY = cropHeight / image.height
-    const initialScale = Math.max(scaleX, scaleY)
+    const minDimension = Math.min(image.width, image.height)
+    const initialScale = cropWidth / minDimension
     setScale(initialScale)
     setPosition({ x: 0, y: 0 })
   }
@@ -179,7 +176,7 @@ export function ImageCropper({
         }
       },
       "image/jpeg",
-      1.0,
+      0.95,
     )
   }
 
@@ -194,7 +191,7 @@ export function ImageCropper({
           ✕
         </button>
         <h2 className="text-gray-900 dark:text-gray-100 text-sm font-semibold flex-1 text-center">
-          Crop Profile Picture (1:1)
+          Crop Profile Picture
         </h2>
         <button
           onClick={handleReset}

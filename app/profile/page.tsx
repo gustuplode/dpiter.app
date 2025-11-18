@@ -148,8 +148,8 @@ export default function ProfilePage() {
       }
 
       setProfileImage(blob.url)
+      setShowEditProfile(false)
       
-      // Revoke the temporary URL
       if (tempImageUrl) {
         URL.revokeObjectURL(tempImageUrl)
         setTempImageUrl(null)
@@ -180,7 +180,6 @@ export default function ProfilePage() {
         displayName: displayName,
       })
 
-      // Update Supabase user_profiles table
       await supabase
         .from("user_profiles")
         .upsert({
