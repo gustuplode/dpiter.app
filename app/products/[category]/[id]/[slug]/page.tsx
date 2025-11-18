@@ -121,25 +121,12 @@ export default async function ProductDetailPage({
                 alt={product.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-4 left-4 flex items-center gap-1">
+              <div className="absolute top-4 right-4 flex flex-col gap-0.5">
                 <RatingButton
                   itemId={product.id}
                   itemType="category_product"
                   className="h-10 w-10 flex items-center justify-center rounded-full bg-white/90 dark:bg-slate-700/90 backdrop-blur-sm shadow-md"
                 />
-                <WishlistButton
-                  productId={product.id}
-                  type="product"
-                  className="h-10 w-10 flex items-center justify-center rounded-full bg-white/90 dark:bg-slate-700/90 backdrop-blur-sm shadow-md"
-                />
-                <LikeButton
-                  itemId={product.id}
-                  itemType="category_product"
-                  className="h-10 w-10 flex items-center justify-center rounded-full bg-white/90 dark:bg-slate-700/90 backdrop-blur-sm shadow-md"
-                />
-              </div>
-              {/* End of added buttons */}
-              <div className="absolute top-4 right-4 flex flex-col gap-0.5">
                 <WishlistButton
                   productId={product.id}
                   type="product"

@@ -6,6 +6,7 @@ import { CategoryHeader } from "@/components/category-header"
 import { WishlistButton } from "@/components/wishlist-button"
 import { LikeButton } from "@/components/like-button"
 import { ReviewSection } from "@/components/review-section"
+import { RatingButton } from "@/components/rating-button"
 import type { Metadata } from "next"
 import { getCollectionProductUrl, getCollectionUrl } from "@/lib/utils"
 import Link from "next/link"
@@ -124,6 +125,11 @@ export default async function CollectionProductDetailPage({
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-0.5">
+                <RatingButton
+                  itemId={product.id}
+                  itemType="product"
+                  className="h-10 w-10 flex items-center justify-center rounded-full bg-white/90 dark:bg-slate-700/90 backdrop-blur-sm shadow-md"
+                />
                 <WishlistButton
                   productId={product.id}
                   type="product"

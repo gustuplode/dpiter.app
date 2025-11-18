@@ -14,10 +14,10 @@ interface ImageCropperProps {
 
 export function ImageCropper({
   imageUrl,
-  aspectRatio = 3 / 4,
+  aspectRatio = 1,
   onCropComplete,
   onCancel,
-  cropWidth = 300,
+  cropWidth = 400,
   cropHeight = 400,
 }: ImageCropperProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -34,10 +34,9 @@ export function ImageCropper({
     img.crossOrigin = "anonymous"
     img.onload = () => {
       setImage(img)
-      // Calculate initial scale to cover the crop area (like bg-cover)
       const scaleX = cropWidth / img.width
       const scaleY = cropHeight / img.height
-      const initialScale = Math.max(scaleX, scaleY) // Use max for cover behavior
+      const initialScale = Math.max(scaleX, scaleY)
       setScale(initialScale)
       setPosition({ x: 0, y: 0 })
     }
@@ -51,25 +50,28 @@ export function ImageCropper({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Set display canvas size
-    const displayWidth = 300
-    const displayHeight = 400
-    canvas.width = displayWidth
-    canvas.height = displayHeight
+    const displaySize = 300
+    canvas.width = displaySize
+    canvas.height = displaySize
 
     ctx.fillStyle = "#ffffff"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Calculate scaled image dimensions
+    // Clip to circle
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
+    ctx.closePath()
+    ctx.clip()
+
     const imgWidth = image.width * scale
     const imgHeight = image.height * scale
-
-    // Center the image
     const centerX = canvas.width / 2
     const centerY = canvas.height / 2
 
-    // Draw image
     ctx.drawImage(image, centerX - imgWidth / 2 + position.x, centerY - imgHeight / 2 + position.y, imgWidth, imgHeight)
+    
+    ctx.restore()
   }, [image, scale, position])
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -192,7 +194,7 @@ export function ImageCropper({
           ✕
         </button>
         <h2 className="text-gray-900 dark:text-gray-100 text-sm font-semibold flex-1 text-center">
-          Crop to {cropWidth}×{cropHeight}px
+          Crop Profile Picture (1:1)
         </h2>
         <button
           onClick={handleReset}
@@ -204,11 +206,10 @@ export function ImageCropper({
       </div>
 
       <div className="flex-1 relative overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-4 px-3">
-        <div className="relative w-full max-w-[300px] aspect-[3/4]">
-          {/* Display canvas */}
+        <div className="relative w-full max-w-[300px] aspect-square">
           <canvas
             ref={displayCanvasRef}
-            className="absolute inset-0 w-full h-full cursor-move touch-none rounded-md"
+            className="absolute inset-0 w-full h-full cursor-move touch-none rounded-full"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -219,12 +220,10 @@ export function ImageCropper({
             onWheel={handleWheel}
           />
 
-          {/* Hidden canvas for cropping */}
           <canvas ref={canvasRef} className="hidden" />
 
           <div className="absolute inset-0 pointer-events-none">
-            <div className="relative w-full h-full border-2 border-blue-500 rounded-md">
-              {/* Corner indicators */}
+            <div className="relative w-full h-full border-2 border-blue-500 rounded-full">
               <div className="absolute -top-0.5 -left-0.5 size-2 bg-blue-500 rounded-full"></div>
               <div className="absolute -top-0.5 -right-0.5 size-2 bg-blue-500 rounded-full"></div>
               <div className="absolute -bottom-0.5 -left-0.5 size-2 bg-blue-500 rounded-full"></div>
@@ -232,7 +231,6 @@ export function ImageCropper({
             </div>
           </div>
 
-          {/* Help text */}
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
             <div className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
               <span>🤏</span>

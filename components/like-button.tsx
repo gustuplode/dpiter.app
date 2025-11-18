@@ -88,25 +88,6 @@ export function LikeButton({ itemId, itemType, className = "" }: LikeButtonProps
   }
 
   return (
-    <button
-      onClick={toggleLike}
-      disabled={isLoading}
-      className={`group relative flex items-center gap-1 ${className}`}
-    >
-      <div className="flex items-center justify-center">
-        <ThumbsUp 
-          className={`w-4 h-4 transition-all ${
-            isLiked 
-              ? 'fill-blue-500 text-blue-500' 
-              : 'text-slate-400 group-hover:text-blue-500'
-          }`}
-        />
-      </div>
-      {likeCount > 0 && (
-        <span className="text-xs text-slate-600 dark:text-slate-400">
-          {likeCount}
-        </span>
-      )}
-    </button>
+    null
   )
 }
