@@ -88,6 +88,24 @@ export function LikeButton({ itemId, itemType, className = "" }: LikeButtonProps
   }
 
   return (
-    null
+    <button
+      onClick={toggleLike}
+      disabled={isLoading}
+      className={`relative ${className}`}
+      aria-label={isLiked ? "Unlike" : "Like"}
+    >
+      <ThumbsUp
+        className={`w-5 h-5 transition-colors ${
+          isLiked
+            ? "fill-primary text-primary"
+            : "text-slate-600 dark:text-slate-400"
+        }`}
+      />
+      {likeCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+          {likeCount}
+        </span>
+      )}
+    </button>
   )
 }

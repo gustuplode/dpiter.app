@@ -6,6 +6,7 @@ import { CategoryHeader } from "@/components/category-header"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
+import { LikeButton } from "@/components/like-button"
 import { getProductUrl } from "@/lib/utils" // Add import for product URL helper
 
 export const metadata = {
@@ -69,13 +70,20 @@ export default async function GamingPage() {
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      <div className="absolute top-2 left-2">
-                        <RatingButton itemId={product.id} itemType="category_product" />
-                      </div>
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 right-2 flex flex-col gap-0.5">
+                        <RatingButton 
+                          itemId={product.id} 
+                          itemType="category_product"
+                          className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                        />
                         <WishlistButton
                           productId={product.id}
                           type="product"
+                          className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                        />
+                        <LikeButton
+                          itemId={product.id}
+                          itemType="category_product"
                           className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
                         />
                       </div>
