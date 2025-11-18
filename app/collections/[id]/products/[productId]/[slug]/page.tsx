@@ -5,7 +5,7 @@ import { FooterLinks } from "@/components/footer-links"
 import { CategoryHeader } from "@/components/category-header"
 import { WishlistButton } from "@/components/wishlist-button"
 import { LikeButton } from "@/components/like-button"
-import { RatingDisplay } from "@/components/rating-display"
+import { ReviewSection } from "@/components/review-section"
 import type { Metadata } from "next"
 import { getCollectionProductUrl, getCollectionUrl } from "@/lib/utils"
 import Link from "next/link"
@@ -124,7 +124,6 @@ export default async function CollectionProductDetailPage({
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-0.5">
-                <RatingDisplay itemId={product.id} itemType="product" />
                 <WishlistButton
                   productId={product.id}
                   type="product"
@@ -181,6 +180,13 @@ export default async function CollectionProductDetailPage({
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-12">
+            <ReviewSection
+              itemId={product.id}
+              itemType="product"
+            />
           </div>
         </div>
 
