@@ -24,7 +24,7 @@ export function BottomNav() {
   return (
     <footer className="fixed bottom-0 w-full bg-white dark:bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)]">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-around items-center h-14 md:h-20 relative">
+        <div className="flex justify-between items-center h-14 md:h-20">
           <Link
             href="/"
             className={`flex flex-col items-center transition-colors ${
@@ -42,32 +42,16 @@ export function BottomNav() {
             <span className="text-[9px] md:text-sm font-medium mt-0.5">Home</span>
           </Link>
 
-          <Link
-            href="/search"
-            className={`flex flex-col items-center transition-colors ${
-              pathname === "/search"
-                ? "text-[#F97316]"
-                : "text-slate-600 dark:text-slate-400 hover:text-[#F97316] dark:hover:text-[#F97316]"
-            }`}
+          <button 
+            onClick={() => setIsLogoModalOpen(true)}
+            className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105 overflow-hidden p-0"
           >
-            <span className="material-symbols-outlined text-lg md:text-4xl">search</span>
-            <span className="text-[9px] md:text-sm font-medium mt-0.5">Search</span>
-          </Link>
-
-          <div className="absolute -top-6 md:-top-12">
-            <button 
-              onClick={() => setIsLogoModalOpen(true)}
-              className="relative bg-white rounded-full w-12 h-12 md:w-20 md:h-20 flex items-center justify-center shadow-lg transform transition-all hover:scale-105 overflow-hidden p-0"
-            >
-              <img 
-                src="/images/design-mode/1000007078-01_imgupscaler_imgupscaler.ai_V1%28Fast%29_2K%20%282%29%20%281%29%20%281%29.jpg"
-                alt="Dpiter"
-                className="w-full h-full object-cover rounded-full"
-              />
-            </button>
-          </div>
-
-          <div className="w-10 md:w-20"></div>
+            <img 
+              src="/images/design-mode/1000007078-01_imgupscaler_imgupscaler.ai_V1%28Fast%29_2K%20%282%29%20%281%29%20%281%29.jpg"
+              alt="Dpiter"
+              className="w-full h-full object-cover rounded-full"
+            />
+          </button>
 
           <Link
             href="/wishlist"
@@ -83,20 +67,6 @@ export function BottomNav() {
               {wishlistFlash ? 'favorite' : 'favorite_border'}
             </span>
             <span className="text-[9px] md:text-sm font-medium mt-0.5">Wishlist</span>
-          </Link>
-
-          <Link
-            href="/profile"
-            className={`flex flex-col items-center transition-colors ${
-              pathname === "/profile"
-                ? "text-[#3B82F6]"
-                : "text-slate-600 dark:text-slate-400 hover:text-[#3B82F6] dark:hover:text-[#3B82F6]"
-            }`}
-          >
-            <div className="w-6 h-6 md:w-9 md:h-9">
-              <UserAvatar size="sm" className="w-full h-full" />
-            </div>
-            <span className="text-[9px] md:text-sm font-medium mt-0.5">Profile</span>
           </Link>
         </div>
       </div>
