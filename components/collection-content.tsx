@@ -80,7 +80,7 @@ export function CollectionContent({
                       loading="lazy"
                     />
                     <div 
-                      className="absolute top-2 right-2 flex flex-col gap-0.5"
+                      className="absolute top-2 left-2 flex items-center gap-1"
                       onClick={(e) => e.preventDefault()}
                     >
                       <RatingButton
@@ -92,6 +92,16 @@ export function CollectionContent({
                         productId={product.id}
                         className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
                       />
+                      <LikeButton
+                        itemId={product.id}
+                        itemType="product"
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div 
+                      className="absolute top-2 right-2"
+                      onClick={(e) => e.preventDefault()}
+                    >
                       <LikeButton
                         itemId={product.id}
                         itemType="product"
