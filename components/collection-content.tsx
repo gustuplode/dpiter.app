@@ -5,7 +5,6 @@ import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
 import { LikeButton } from "@/components/like-button"
 import { CurrencyDisplay } from "@/components/currency-display"
-import { Heart } from 'lucide-react'
 import { getCollectionProductUrl } from "@/lib/utils" // Add import for collection product URL helper
 import Link from "next/link" // Add Link import
 
@@ -81,11 +80,21 @@ export function CollectionContent({
                       loading="lazy"
                     />
                     <div 
-                      className="absolute top-2 left-2"
+                      className="absolute top-2 left-2 flex items-center gap-1"
                       onClick={(e) => e.preventDefault()}
                     >
+                      <RatingButton
+                        itemId={product.id}
+                        itemType="product"
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                      />
                       <WishlistButton
                         productId={product.id}
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
+                      />
+                      <LikeButton
+                        itemId={product.id}
+                        itemType="product"
                         className="h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm"
                       />
                     </div>

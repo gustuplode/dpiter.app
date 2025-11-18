@@ -57,14 +57,20 @@ export default function RequestProductPage() {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
       })
       setStream(mediaStream)
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream
+        videoRef.current.play()
       }
       setShowCamera(true)
     } catch (error) {
+      console.error('Camera error:', error)
       alert('Could not access camera. Please check permissions.')
     }
   }
@@ -233,28 +239,36 @@ export default function RequestProductPage() {
 
   if (showCamera) {
     return (
-      <div className="fixed inset-0 z-50 bg-black">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="w-full h-full object-cover"
-        />
-        <canvas ref={canvasRef} className="hidden" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-          <div className="flex items-center justify-center gap-4">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
+        <div className="flex-1 relative">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          />
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+        <div className="p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+          <div className="flex items-center justify-center gap-6">
             <Button
               onClick={stopCamera}
+              size="lg"
               variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-8"
             >
+              <X className="h-5 w-5 mr-2" />
               Cancel
             </Button>
             <button
               onClick={capturePhoto}
-              className="w-16 h-16 rounded-full bg-white border-4 border-white shadow-lg hover:scale-105 transition-transform"
-            />
+              className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-2xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-white border-4 border-slate-300" />
+            </button>
           </div>
+          <p className="text-center text-white/70 text-sm mt-4">Tap the button to capture</p>
         </div>
       </div>
     )

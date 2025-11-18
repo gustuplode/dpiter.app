@@ -17,6 +17,7 @@ import { FooterLinks } from "@/components/footer-links"
 import { createClient } from "@/lib/supabase/client"
 import { put } from "@vercel/blob"
 import { ImageCropper } from "@/components/admin/image-cropper"
+import { googleProvider } from "@/lib/firebase"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -346,7 +347,7 @@ export default function ProfilePage() {
                 <Link href="/profile/requests" className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl hover:scale-105 transition-transform">
                   <span className="material-symbols-outlined text-purple-500 text-3xl">inventory_2</span>
                   <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{requestsCount}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Requests</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Product Requests</p>
                 </Link>
               </div>
             </div>
