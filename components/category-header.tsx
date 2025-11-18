@@ -58,19 +58,7 @@ export function CategoryHeader({
   return (
     <>
       <div className="bg-white dark:bg-slate-800 sticky top-0 z-20 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-base">shopping_bag</span>
-            </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dpiter</h1>
-          </button>
-
-          <UserAvatar />
-        </div>
+        
 
         <div className="container mx-auto max-w-7xl px-2 py-2">
           <div className="grid grid-cols-5 gap-1 md:gap-2">
