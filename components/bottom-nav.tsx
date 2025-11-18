@@ -1,14 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LogoModal } from './logo-modal'
 import { UserAvatar } from './user-avatar'
 
 export function BottomNav() {
   const pathname = usePathname()
-  const router = useRouter()
   const [wishlistFlash, setWishlistFlash] = useState(false)
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false)
 
@@ -23,7 +22,7 @@ export function BottomNav() {
   }, [])
 
   return (
-    <footer className="fixed bottom-0 w-full bg-white dark:bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)] z-50">
+    <footer className="fixed bottom-0 w-full bg-white dark:bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)]">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-around items-center h-14 md:h-20 relative">
           <Link
@@ -86,17 +85,19 @@ export function BottomNav() {
             <span className="text-[9px] md:text-sm font-medium mt-0.5">Wishlist</span>
           </Link>
 
-          <button
-            onClick={() => router.push('/profile')}
+          <Link
+            href="/profile"
             className={`flex flex-col items-center transition-colors ${
               pathname === "/profile"
                 ? "text-[#3B82F6]"
                 : "text-slate-600 dark:text-slate-400 hover:text-[#3B82F6] dark:hover:text-[#3B82F6]"
             }`}
           >
-            <UserAvatar size="sm" asButton />
+            <div className="w-6 h-6 md:w-9 md:h-9">
+              <UserAvatar size="sm" className="w-full h-full" />
+            </div>
             <span className="text-[9px] md:text-sm font-medium mt-0.5">Profile</span>
-          </button>
+          </Link>
         </div>
       </div>
 

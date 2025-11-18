@@ -6,28 +6,17 @@ import { onAuthStateChanged, User } from "firebase/auth"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 
-interface UserAvatarProps {
-  size?: "sm" | "md" | "lg"
-  className?: string
-  asButton?: boolean
-}
-
-export function UserAvatar({ size = "md", className = "", asButton = false }: UserAvatarProps) {
+export function UserAvatar() {
   const [user, setUser] = useState<User | null>(null)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const supabase = createClient()
-
-  const sizeClasses = {
-    sm: "size-6 md:size-9",
-    md: "size-9",
-    lg: "size-12"
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
       
       if (currentUser) {
+        // Load profile image from Supabase
         const { data } = await supabase
           .from("user_profiles")
           .select("profile_image_url")
@@ -67,35 +56,33 @@ export function UserAvatar({ size = "md", className = "", asButton = false }: Us
     }
   }, [])
 
-  const avatarContent = (
-    <div className={`${sizeClasses[size]} ${className} shrink-0 rounded-full overflow-hidden border-2 transition-colors ${
-      user ? "border-[#F97316] hover:border-[#EA580C]" : "border-slate-200 dark:border-slate-700 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600"
-    }`}>
-      {user && profileImage ? (
+  if (!user) {
+    return (
+      <Link
+        href="/profile"
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+      >
+        <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-xl">person</span>
+      </Link>
+    )
+  }
+
+  return (
+    <Link
+      href="/profile"
+      className="flex size-9 shrink-0 items-center justify-center rounded-full overflow-hidden border-2 border-[#F97316] hover:border-[#EA580C] transition-colors"
+    >
+      {profileImage ? (
         <img 
           src={profileImage || "/placeholder.svg"} 
           alt={user.displayName || "User"} 
           className="w-full h-full object-cover"
         />
-      ) : user ? (
+      ) : (
         <div className="w-full h-full bg-gradient-to-br from-[#F97316] to-[#EA580C] flex items-center justify-center text-white text-sm font-bold">
           {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
         </div>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-xl">person</span>
-        </div>
       )}
-    </div>
-  )
-
-  if (asButton) {
-    return avatarContent
-  }
-
-  return (
-    <Link href="/profile">
-      {avatarContent}
     </Link>
   )
 }
