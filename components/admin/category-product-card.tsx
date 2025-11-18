@@ -2,10 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Loader2 } from 'lucide-react'
+import { Edit, Trash2, Loader2, MoreVertical } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface CategoryProduct {
   id: string
@@ -25,10 +31,7 @@ export function CategoryProductCard({ product }: CategoryProductCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const supabase = createClient()
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
+  const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this product?")) return
 
     setIsDeleting(true)
@@ -51,7 +54,7 @@ export function CategoryProductCard({ product }: CategoryProductCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#2a2a2e] rounded-lg p-3 shadow-sm relative group">
+    <div className="bg-white dark:bg-[#2a2a2e] rounded-lg p-3 shadow-sm relative">
       <img 
         src={product.image_url || "/placeholder.svg"} 
         alt={product.title} 
@@ -61,30 +64,38 @@ export function CategoryProductCard({ product }: CategoryProductCardProps) {
       <p className="text-xs text-slate-500 line-clamp-2">{product.title}</p>
       <p className="text-sm font-bold mt-1">₹{product.price}</p>
       
-      {/* Edit/Delete buttons shown on hover */}
-      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Link href={`/admin/categories/${product.id}/edit`}>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="h-8 w-8 p-0 bg-white dark:bg-slate-700"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-        </Link>
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="h-8 w-8 p-0"
-        >
-          {isDeleting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
-        </Button>
+      <div className="absolute top-2 right-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0 bg-white/90 dark:bg-slate-700/90 backdrop-blur-sm"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/categories/${product.id}/edit`} className="flex items-center gap-2 cursor-pointer">
+                <Edit className="h-4 w-4" />
+                <span>Edit</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer"
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

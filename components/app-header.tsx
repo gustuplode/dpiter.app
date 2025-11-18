@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ShoppingBag, ArrowLeft } from 'lucide-react'
 import { useState } from "react"
 import { LogoModal } from "./logo-modal"
+import { UserAvatar } from "./user-avatar"
 
 interface AppHeaderProps {
   showBackButton?: boolean
@@ -37,12 +38,7 @@ export function AppHeader({ showBackButton = false, backHref = "/" }: AppHeaderP
           <h1 className="text-2xl font-bold leading-tight tracking-tighter text-[#23150f] dark:text-[#f8f6f5]">Dpiter</h1>
         </button>
 
-        <Link
-          href="/profile"
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-        >
-          <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">person</span>
-        </Link>
+        <UserAvatar />
       </header>
 
       <LogoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

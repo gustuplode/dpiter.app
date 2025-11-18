@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { auth, googleProvider } from "@/lib/firebase"
+import { auth } from "@/lib/firebase"
 import { 
   signInWithPopup, 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
+  User,
+  updateProfile
 } from "firebase/auth"
 import { BottomNav } from "@/components/bottom-nav"
 import { FooterLinks } from "@/components/footer-links"
 import { createClient } from "@/lib/supabase/client"
+import { put } from "@vercel/blob"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -24,19 +26,26 @@ export default function ProfilePage() {
   const [error, setError] = useState("")
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
+  const [displayName, setDisplayName] = useState("")
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [userRatings, setUserRatings] = useState<any[]>([])
   const [wishlistCount, setWishlistCount] = useState(0)
   const [likedCount, setLikedCount] = useState(0)
+  const [requestsCount, setRequestsCount] = useState(0)
   const supabase = createClient()
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
       setLoading(false)
       
       if (currentUser) {
         localStorage.setItem("firebase_uid", currentUser.uid)
-        loadUserData(currentUser.uid)
+        setDisplayName(currentUser.displayName || "")
+        await loadUserData(currentUser.uid)
+        await loadProfileImage(currentUser.uid)
       } else {
         const timer = setTimeout(() => {
           setShowAuthModal(true)
@@ -48,7 +57,22 @@ export default function ProfilePage() {
     return () => unsubscribe()
   }, [])
 
+  const loadProfileImage = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_profiles")
+      .select("profile_image_url")
+      .eq("user_id", userId)
+      .single()
+    
+    if (data?.profile_image_url) {
+      setProfileImage(data.profile_image_url)
+    } else if (auth.currentUser?.photoURL) {
+      setProfileImage(auth.currentUser.photoURL)
+    }
+  }
+
   const loadUserData = async (userId: string) => {
+    // Load ratings
     const { data: ratings } = await supabase
       .from("ratings")
       .select("*")
@@ -59,6 +83,7 @@ export default function ProfilePage() {
       setUserRatings(ratings)
     }
 
+    // Load likes count
     const { count: likesCount } = await supabase
       .from("likes")
       .select("*", { count: "exact", head: true })
@@ -66,11 +91,75 @@ export default function ProfilePage() {
     
     setLikedCount(likesCount || 0)
 
+    // Load wishlist count
     const products = localStorage.getItem("wishlist")
     const collections = localStorage.getItem("wishlist_collections")
     const productCount = products ? JSON.parse(products).length : 0
     const collectionCount = collections ? JSON.parse(collections).length : 0
     setWishlistCount(productCount + collectionCount)
+
+    // Load product requests count
+    const { count: reqCount } = await supabase
+      .from("product_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+    
+    setRequestsCount(reqCount || 0)
+  }
+
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0] || !user) return
+
+    setUploading(true)
+    try {
+      const file = e.target.files[0]
+      const blob = await put(`profile/${user.uid}/${file.name}`, file, {
+        access: "public",
+      })
+
+      // Update Supabase user_profiles table
+      const { error: upsertError } = await supabase
+        .from("user_profiles")
+        .upsert({
+          user_id: user.uid,
+          profile_image_url: blob.url,
+          updated_at: new Date().toISOString(),
+        })
+
+      if (upsertError) throw upsertError
+
+      setProfileImage(blob.url)
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      setError("Failed to upload image")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleUpdateProfile = async () => {
+    if (!user) return
+
+    try {
+      await updateProfile(user, {
+        displayName: displayName,
+      })
+
+      // Update Supabase user_profiles table
+      await supabase
+        .from("user_profiles")
+        .upsert({
+          user_id: user.uid,
+          display_name: displayName,
+          updated_at: new Date().toISOString(),
+        })
+
+      setShowEditProfile(false)
+      setUser({ ...user, displayName })
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      setError("Failed to update profile")
+    }
   }
 
   const handleGoogleSignIn = async () => {
@@ -137,9 +226,23 @@ export default function ProfilePage() {
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 space-y-6">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#F97316] to-[#EA580C] flex items-center justify-center text-white text-3xl font-bold">
-                    {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
-                  </div>
+                  <button
+                    onClick={() => setShowEditProfile(true)}
+                    className="relative group"
+                  >
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-[#F97316]">
+                      {profileImage ? (
+                        <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#F97316] to-[#EA580C] flex items-center justify-center text-white text-3xl font-bold">
+                          {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-white text-2xl">edit</span>
+                    </div>
+                  </button>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
                       {user.displayName || "User"}
@@ -197,7 +300,7 @@ export default function ProfilePage() {
                 <Link href="/wishlist" className="p-4 bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 rounded-xl hover:scale-105 transition-transform">
                   <span className="material-symbols-outlined text-red-500 text-3xl">favorite</span>
                   <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{wishlistCount}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Wishlist</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Saved</p>
                 </Link>
                 
                 <Link href="/profile/liked" className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl hover:scale-105 transition-transform">
@@ -214,8 +317,8 @@ export default function ProfilePage() {
 
                 <Link href="/profile/requests" className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl hover:scale-105 transition-transform">
                   <span className="material-symbols-outlined text-purple-500 text-3xl">inventory_2</span>
-                  <p className="text-xs text-slate-800 dark:text-slate-100 mt-2 font-semibold">Requests</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">View products</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{requestsCount}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Requests</p>
                 </Link>
               </div>
             </div>
@@ -378,6 +481,66 @@ export default function ProfilePage() {
           </>
         )}
       </div>
+
+      {showEditProfile && user && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md p-6 space-y-4 animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 duration-300">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Edit Profile</h2>
+              <button
+                onClick={() => setShowEditProfile(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#F97316]">
+                  {profileImage ? (
+                    <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#F97316] to-[#EA580C] flex items-center justify-center text-white text-3xl font-bold">
+                      {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+                <label className="cursor-pointer bg-[#F97316] hover:bg-[#EA580C] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  {uploading ? "Uploading..." : "Change Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileImageUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <button
+                onClick={handleUpdateProfile}
+                className="w-full bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#EA580C] hover:to-[#F97316] text-white py-3 rounded-lg font-medium transition-all"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <FooterLinks />
       <BottomNav />

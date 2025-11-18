@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { LogoModal } from './logo-modal'
+import { UserAvatar } from './user-avatar'
 
 interface CategoryHeaderProps {
   fashionCount?: number
@@ -68,12 +69,7 @@ export function CategoryHeader({
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dpiter</h1>
           </button>
 
-          <Link
-            href="/profile"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-          >
-            <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-xl">person</span>
-          </Link>
+          <UserAvatar />
         </div>
 
         <div className="container mx-auto max-w-7xl px-2 py-2">
