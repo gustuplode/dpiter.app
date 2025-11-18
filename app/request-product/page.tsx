@@ -37,21 +37,16 @@ export default function RequestProductPage() {
   }, [stream])
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
+    const firebaseUid = localStorage.getItem("firebase_uid")
+    if (firebaseUid) {
+      // User is logged in with Firebase, treat as authenticated
+      setUser({ id: firebaseUid })
+    }
     setLoading(false)
   }
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/request-product`,
-      },
-    })
-    if (error) {
-      alert('Error signing in with Google')
-    }
+    window.location.href = '/profile'
   }
 
   const startCamera = async () => {
@@ -142,10 +137,17 @@ export default function RequestProductPage() {
     setSubmitting(true)
 
     try {
+      const firebaseUid = localStorage.getItem("firebase_uid")
+      if (!firebaseUid) {
+        alert('Please sign in first')
+        window.location.href = '/profile'
+        return
+      }
+
       const { error } = await supabase
         .from('product_requests')
         .insert([{
-          user_id: user.id,
+          user_id: firebaseUid,
           image_url: imageUrl,
           description: description || null,
           status: 'pending'

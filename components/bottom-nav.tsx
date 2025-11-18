@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LogoModal } from './logo-modal'
+import { UserAvatar } from './user-avatar'
 
 export function BottomNav() {
   const pathname = usePathname()
@@ -92,7 +93,9 @@ export function BottomNav() {
                 : "text-slate-600 dark:text-slate-400 hover:text-[#3B82F6] dark:hover:text-[#3B82F6]"
             }`}
           >
-            <span className="material-symbols-outlined text-lg md:text-4xl">person_outline</span>
+            <div className="w-6 h-6 md:w-9 md:h-9">
+              <UserAvatar size="sm" className="w-full h-full" />
+            </div>
             <span className="text-[9px] md:text-sm font-medium mt-0.5">Profile</span>
           </Link>
         </div>

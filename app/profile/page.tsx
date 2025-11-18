@@ -15,7 +15,6 @@ import {
 import { BottomNav } from "@/components/bottom-nav"
 import { FooterLinks } from "@/components/footer-links"
 import { createClient } from "@/lib/supabase/client"
-import { put } from "@vercel/blob"
 import { ImageCropper } from "@/components/admin/image-cropper"
 import { googleProvider } from "@/lib/firebase"
 
@@ -123,42 +122,62 @@ export default function ProfilePage() {
   const handleCropComplete = async (croppedBlob: Blob) => {
     if (!user) return
 
+    console.log('[v0] Starting profile image upload process')
     setUploading(true)
     setShowCropper(false)
     
     try {
+      console.log('[v0] User ID:', user.uid)
+      
+      const formData = new FormData()
       const file = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" })
-      const blob = await put(`profile/${user.uid}/${Date.now()}.jpg`, file, {
-        access: "public",
+      formData.append("file", file)
+      formData.append("userId", user.uid)
+
+      console.log('[v0] Uploading to blob storage...')
+      const response = await fetch("/api/upload-profile", {
+        method: "POST",
+        body: formData,
       })
 
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('[v0] Upload failed:', errorText)
+        throw new Error(`Upload failed: ${errorText}`)
+      }
+
+      const { url } = await response.json()
+      console.log('[v0] Upload successful, URL:', url)
+
+      console.log('[v0] Updating database with new profile image...')
       const { error: upsertError } = await supabase
         .from("user_profiles")
         .upsert({
           user_id: user.uid,
-          profile_image_url: blob.url,
+          profile_image_url: url,
+          display_name: user.displayName || user.email?.split('@')[0] || 'User',
           updated_at: new Date().toISOString(),
         }, {
-          onConflict: 'user_id'
+          onConflict: 'user_id',
+          ignoreDuplicates: false
         })
 
       if (upsertError) {
         console.error("[v0] Error upserting profile image:", upsertError)
-        throw upsertError
+        throw new Error(`Database update failed: ${upsertError.message}`)
       }
 
-      setProfileImage(blob.url)
+      console.log('[v0] Profile image updated successfully!')
+      setProfileImage(url)
       setShowEditProfile(false)
       
       if (tempImageUrl) {
         URL.revokeObjectURL(tempImageUrl)
         setTempImageUrl(null)
       }
-      
-      console.log("[v0] Profile image uploaded successfully:", blob.url)
-    } catch (error) {
-      console.error("[v0] Error uploading image:", error)
-      setError("Failed to upload image")
+    } catch (error: any) {
+      console.error("[v0] Error in handleCropComplete:", error)
+      setError(error.message || "Failed to upload profile picture")
     } finally {
       setUploading(false)
     }
@@ -186,6 +205,9 @@ export default function ProfilePage() {
           user_id: user.uid,
           display_name: displayName,
           updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
         })
 
       setShowEditProfile(false)
@@ -299,7 +321,7 @@ export default function ProfilePage() {
                   </button>
                   
                   {showMenu && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl z-50 overflow-hidden">
                       <div className="p-4 border-b border-slate-200 dark:border-slate-700 space-y-2">
                         <div className="flex items-center gap-2 text-sm">
                           <span className="material-symbols-outlined text-[#F97316]">email</span>
@@ -318,6 +340,16 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
+                      
+                      <Link
+                        href="/admin/login"
+                        className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 text-purple-600 dark:text-purple-400 border-b border-slate-200 dark:border-slate-700"
+                        onClick={() => setShowMenu(false)}
+                      >
+                        <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+                        <span className="text-sm font-medium">Admin Login</span>
+                      </Link>
+                      
                       <button
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 text-red-600 dark:text-red-400"
@@ -334,19 +366,19 @@ export default function ProfilePage() {
                 <Link href="/wishlist" className="p-4 bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 rounded-xl hover:scale-105 transition-transform">
                   <span className="material-symbols-outlined text-red-500 text-3xl">favorite</span>
                   <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{wishlistCount}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Saved</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Saved Products</p>
                 </Link>
                 
                 <Link href="/profile/liked" className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl hover:scale-105 transition-transform">
                   <span className="material-symbols-outlined text-blue-500 text-3xl">thumb_up</span>
                   <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{likedCount}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Likes</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Liked Products</p>
                 </Link>
 
                 <div className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl">
                   <span className="material-symbols-outlined text-yellow-600 text-3xl">star</span>
                   <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-2">{userRatings.length}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Reviews</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Reviews Given</p>
                 </div>
 
                 <Link href="/profile/requests" className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl hover:scale-105 transition-transform">
@@ -399,16 +431,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             )}
-
-            <Link
-              href="/admin/login"
-              className="block w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-lg font-medium transition-all text-center"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined">admin_panel_settings</span>
-                Admin Login
-              </span>
-            </Link>
           </div>
         ) : (
           <>
@@ -490,13 +512,6 @@ export default function ProfilePage() {
                   >
                     {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
                   </button>
-
-                  <Link
-                    href="/admin/login"
-                    className="block w-full text-center text-purple-600 hover:text-purple-700 dark:text-purple-400 text-sm font-medium"
-                  >
-                    Admin Login
-                  </Link>
                 </div>
               </div>
             )}
