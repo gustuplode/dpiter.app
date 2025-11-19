@@ -69,8 +69,8 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-background-light dark:bg-background-dark shadow-sm">
-        {/* Logo section - only show on home page when not scrolled */}
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
+        {/* Logo section */}
         {showLogo && (
           <div className="flex items-center justify-between gap-4 px-4 py-2 transition-all duration-300">
             <div className="flex items-center gap-2">
@@ -88,14 +88,14 @@ export function SearchHeader() {
             {showBackButton && (
               <button 
                 onClick={() => router.back()}
-                className="flex items-center justify-center h-10 w-10 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                className="flex items-center justify-center h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-2xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
+                <span className="material-symbols-outlined text-xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
               </button>
             )}
             
             <label className="flex flex-col min-w-40 h-10 w-full">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600" style={{ borderWidth: '0.5px' }}>
+              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border-[0.5px] border-gray-300 dark:border-gray-600">
                 <div className="text-text-secondary-light dark:text-text-secondary-dark flex items-center justify-center pl-3">
                   <span className="material-symbols-outlined text-lg">search</span>
                 </div>
@@ -122,7 +122,7 @@ export function SearchHeader() {
         </div>
 
         {showCategoryHeader && (
-          <div className="pb-2">
+          <div className="pb-2 bg-white dark:bg-gray-900">
             <CategoryHeader />
           </div>
         )}

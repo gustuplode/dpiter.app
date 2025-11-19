@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { useRouter } from 'next/navigation'
 
 export function AddToCartButton({ 
   productId, 
@@ -11,6 +12,7 @@ export function AddToCartButton({
   className?: string
 }) {
   const [isInCart, setIsInCart] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     checkCart()
@@ -35,13 +37,17 @@ export function AddToCartButton({
       ids = ids.filter((id) => id !== productId)
     } else {
       ids.push(productId)
-      window.dispatchEvent(new CustomEvent('cartAdded'))
+      window.dispatchEvent(new CustomEvent('cartAdded', { detail: { productId } }))
     }
 
     localStorage.setItem("cart", JSON.stringify(ids))
     setIsInCart(!isInCart)
     
     window.dispatchEvent(new CustomEvent('cartUpdated'))
+    
+    if (!isInCart) {
+      router.push('/cart')
+    }
   }
 
   return (

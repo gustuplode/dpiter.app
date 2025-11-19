@@ -3,9 +3,21 @@
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import { UserAvatar } from './user-avatar'
+import { useState, useEffect } from 'react'
 
 export function BottomNav() {
   const pathname = usePathname()
+  const [cartPulse, setCartPulse] = useState(false)
+
+  useEffect(() => {
+    const handleCartAdded = () => {
+      setCartPulse(true)
+      setTimeout(() => setCartPulse(false), 600)
+    }
+    
+    window.addEventListener('cartAdded', handleCartAdded)
+    return () => window.removeEventListener('cartAdded', handleCartAdded)
+  }, [])
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-12 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center z-50 shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
@@ -18,10 +30,13 @@ export function BottomNav() {
       </Link>
       <Link 
         href="/cart" 
-        className={`flex flex-col items-center justify-center gap-0 ${pathname === '/cart' ? 'text-primary' : 'text-text-secondary-light dark:text-text-secondary-dark'}`}
+        className={`flex flex-col items-center justify-center gap-0 relative ${pathname === '/cart' ? 'text-primary' : 'text-text-secondary-light dark:text-text-secondary-dark'} ${cartPulse ? 'animate-pulse' : ''}`}
       >
         <span className="material-symbols-outlined text-xl">shopping_cart</span>
         <span className="text-[9px] font-medium">Cart</span>
+        {cartPulse && (
+          <span className="absolute top-0 right-1/4 h-2 w-2 bg-primary rounded-full animate-ping"></span>
+        )}
       </Link>
       <Link 
         href="/offers" 

@@ -42,9 +42,9 @@ async function ProductList() {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {products.map((product, index) => (
-        <div key={product.id} className={`flex flex-col bg-white dark:bg-gray-800 overflow-hidden border border-black/10 dark:border-white/10 ${index % 2 !== 0 ? 'border-l-0' : ''} ${index >= 2 ? 'border-t-0' : ''}`}>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 p-4">
+      {products.map((product) => (
+        <div key={product.id} className="flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
           <Link href={getProductUrl(product.id, product.title, product.category)} className="block flex-1 flex flex-col">
             <div className="relative w-full bg-center bg-no-repeat aspect-square bg-cover" style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}>
               <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 text-white rounded-full px-2 py-1 text-xs backdrop-blur-sm">
@@ -124,7 +124,7 @@ export default function HomePage() {
         <div className="px-4 mb-4">
           <h2 className="font-display text-xl font-bold text-text-primary-light dark:text-text-primary-dark">All Products</h2>
         </div>
-        <main>
+        <main className="pb-20">
           <Suspense fallback={<CollectionGridSkeleton />}>
             <ProductList />
           </Suspense>
