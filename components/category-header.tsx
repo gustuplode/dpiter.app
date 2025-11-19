@@ -53,14 +53,20 @@ export function CategoryHeader({
             <Link
               key={category.name}
               href={category.path}
-              className="flex flex-col items-center justify-start gap-1 text-center"
+              className="flex flex-col items-center justify-start gap-1.5 text-center group"
             >
-              <div className="bg-secondary dark:bg-primary/20 flex items-center justify-center text-primary aspect-square rounded-full size-14">
-                <span className="material-symbols-outlined text-2xl">
+              <div className={`flex items-center justify-center aspect-square rounded-full size-12 transition-all duration-200 group-active:scale-95 ${
+                isActive 
+                  ? 'bg-primary text-white shadow-md' 
+                  : 'bg-secondary dark:bg-primary/10 text-primary hover:bg-primary/10 dark:hover:bg-primary/20'
+              }`}>
+                <span className="material-symbols-outlined text-xl">
                   {category.icon}
                 </span>
               </div>
-              <p className="text-xs font-semibold leading-tight text-foreground">
+              <p className={`text-[10px] font-medium leading-tight ${
+                isActive ? 'text-primary font-semibold' : 'text-muted-foreground'
+              }`}>
                 {category.name}
               </p>
             </Link>

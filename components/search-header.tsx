@@ -60,7 +60,7 @@ export function SearchHeader() {
   const isAdminPage = pathname.startsWith('/admin')
   
   // Early return AFTER all hooks
-  if (isCategoryPage || isProductPage || isProfilePage || isAdminPage) {
+  if (isProductPage || isProfilePage || isAdminPage) {
     return null
   }
 

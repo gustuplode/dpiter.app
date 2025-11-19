@@ -197,21 +197,21 @@ export function ImageCropper({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900">
-      <div className="flex items-center bg-white dark:bg-gray-800 px-3 py-2.5 justify-between border-b border-gray-200 dark:border-gray-700 shrink-0">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background-light dark:bg-background-dark">
+      <div className="flex items-center bg-background-light dark:bg-background-dark px-3 py-2.5 justify-between border-b border-gray-200 dark:border-gray-700 shrink-0">
         <button
           onClick={onCancel}
-          className="flex size-8 shrink-0 items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-lg"
+          className="flex size-8 shrink-0 items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-lg"
           aria-label="Close"
         >
           ✕
         </button>
-        <h2 className="text-gray-900 dark:text-gray-100 text-sm font-semibold flex-1 text-center">
+        <h2 className="text-text-primary-light dark:text-text-primary-dark text-sm font-semibold flex-1 text-center">
           {roundCrop ? 'Crop Profile Picture' : 'Crop Image'}
         </h2>
         <button
           onClick={handleReset}
-          className="flex size-8 shrink-0 items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-lg"
+          className="flex size-8 shrink-0 items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-lg"
           aria-label="Reset"
         >
           ↻
@@ -222,7 +222,7 @@ export function ImageCropper({
         <div className="relative" style={{ aspectRatio: aspectRatio }}>
           <canvas
             ref={displayCanvasRef}
-            className={`w-full h-full cursor-move touch-none ${roundCrop ? 'rounded-full' : 'rounded-lg'}`}
+            className={`w-full h-full cursor-move touch-none ${roundCrop ? 'rounded-full' : 'rounded-lg'} shadow-lg`}
             style={{ maxWidth: '400px', maxHeight: '400px' }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -237,11 +237,11 @@ export function ImageCropper({
           <canvas ref={canvasRef} className="hidden" />
 
           <div className="absolute inset-0 pointer-events-none">
-            <div className={`relative w-full h-full border-2 border-blue-500 ${roundCrop ? 'rounded-full' : 'rounded-lg'}`}>
-              <div className="absolute -top-0.5 -left-0.5 size-2 bg-blue-500 rounded-full"></div>
-              <div className="absolute -top-0.5 -right-0.5 size-2 bg-blue-500 rounded-full"></div>
-              <div className="absolute -bottom-0.5 -left-0.5 size-2 bg-blue-500 rounded-full"></div>
-              <div className="absolute -bottom-0.5 -right-0.5 size-2 bg-blue-500 rounded-full"></div>
+            <div className={`relative w-full h-full border-2 border-primary ${roundCrop ? 'rounded-full' : 'rounded-lg'}`}>
+              <div className="absolute -top-0.5 -left-0.5 size-2 bg-primary rounded-full"></div>
+              <div className="absolute -top-0.5 -right-0.5 size-2 bg-primary rounded-full"></div>
+              <div className="absolute -bottom-0.5 -left-0.5 size-2 bg-primary rounded-full"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 size-2 bg-primary rounded-full"></div>
             </div>
           </div>
 
@@ -254,16 +254,16 @@ export function ImageCropper({
         </div>
       </div>
 
-      <div className="flex gap-2 p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shrink-0">
+      <div className="flex gap-2 p-3 bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-700 shrink-0">
         <button
           onClick={onCancel}
-          className="flex-1 h-10 rounded-md bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+          className="flex-1 h-10 rounded-md bg-gray-200 dark:bg-gray-700 text-text-primary-light dark:text-text-primary-dark text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleCrop}
-          className="flex-1 h-10 rounded-md bg-[#4A90E2] hover:bg-[#4A90E2]/90 text-white text-sm font-medium transition-colors"
+          className="flex-1 h-10 rounded-md bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors"
         >
           Apply Crop
         </button>
