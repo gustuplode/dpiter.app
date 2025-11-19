@@ -42,9 +42,9 @@ async function ProductList() {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 p-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
       {products.map((product) => (
-        <div key={product.id} className="flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+        <div key={product.id} className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-black/10 dark:border-white/10 md:rounded-lg md:border hover:shadow-lg transition-shadow">
           <Link href={getProductUrl(product.id, product.title, product.category)} className="block flex-1 flex flex-col">
             <div className="relative w-full bg-center bg-no-repeat aspect-square bg-cover" style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}>
               <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 text-white rounded-full px-2 py-1 text-xs backdrop-blur-sm">

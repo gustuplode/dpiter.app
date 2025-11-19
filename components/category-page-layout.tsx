@@ -18,11 +18,11 @@ export function CategoryPageLayout({ title, products, error }: CategoryPageLayou
       <main className="flex-1 pb-20">
         <div className="flex flex-col">
           {products && products.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
               {products.map((product) => (
                 <div 
                   key={product.id} 
-                  className="flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
+                  className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-black/10 dark:border-white/10 md:rounded-lg md:border hover:shadow-lg transition-shadow"
                 >
                   <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
                     <div 
