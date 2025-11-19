@@ -54,7 +54,6 @@ export function SearchHeader() {
     return () => clearTimeout(debounce)
   }, [searchQuery])
   
-  const isCategoryPage = ['/fashion', '/gadgets', '/gaming', '/outfit'].includes(pathname)
   const isAdminPage = pathname.startsWith('/admin')
   
   if (isAdminPage) {
@@ -63,7 +62,7 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className={`relative z-30 bg-background-light dark:bg-background-dark transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
+      <div className={`relative z-30 bg-background-light dark:bg-background-dark transition-all duration-300 ${isScrolled && pathname === '/' ? 'h-0 overflow-hidden opacity-0' : 'h-auto opacity-100'}`}>
         <div className="flex items-center justify-between gap-4 px-4 py-2">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white">
@@ -74,7 +73,6 @@ export function SearchHeader() {
         </div>
       </div>
 
-      {/* Added z-50 and ensured solid background to prevent transparency issues */}
       <div className="sticky top-0 z-50 bg-background-light dark:bg-background-dark shadow-sm px-4 py-2 border-b border-gray-100 dark:border-gray-800">
         <label className="flex flex-col min-w-40 h-12 w-full">
           <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">

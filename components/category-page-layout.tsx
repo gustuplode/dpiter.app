@@ -15,27 +15,6 @@ interface CategoryPageLayoutProps {
 export function CategoryPageLayout({ title, products, error }: CategoryPageLayoutProps) {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
-      <header className="sticky top-0 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-between gap-4 p-4">
-          <div className="flex items-center gap-3">
-            <Link className="flex items-center justify-center h-10 w-10" href="/">
-              <span className="material-symbols-outlined text-3xl">arrow_back</span>
-            </Link>
-            <h1 className="font-display text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">{title}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="flex items-center justify-center rounded-full h-10 w-10">
-              <span className="material-symbols-outlined text-2xl">search</span>
-            </button>
-            <button className="flex items-center justify-center rounded-full h-10 w-10">
-              <span className="material-symbols-outlined text-2xl">favorite_border</span>
-            </button>
-            <button className="flex items-center justify-center rounded-full h-10 w-10">
-              <span className="material-symbols-outlined text-2xl">shopping_bag</span>
-            </button>
-          </div>
-        </div>
-      </header>
       
       <main className="flex-1 pb-20">
         <div className="flex flex-col">
