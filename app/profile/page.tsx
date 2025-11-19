@@ -17,6 +17,7 @@ import { FooterLinks } from "@/components/footer-links"
 import { createClient } from "@/lib/supabase/client"
 import { ImageCropper } from "@/components/admin/image-cropper"
 import { googleProvider } from "@/lib/firebase"
+import { SearchHeader } from "@/components/search-header"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -276,17 +277,8 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
-      {/* Added Profile Header */}
-      <header className="sticky top-0 z-30 bg-background-light dark:bg-background-dark shadow-sm">
-        <div className="flex items-center justify-between gap-4 p-4">
-          <div className="flex items-center gap-3">
-            <Link className="flex items-center justify-center h-10 w-10" href="/">
-              <span className="material-symbols-outlined text-3xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
-            </Link>
-            <h1 className="font-display text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">Profile</h1>
-          </div>
-        </div>
-      </header>
+      {/* Using main SearchHeader from layout */}
+      <SearchHeader />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 pb-32">
         {user ? (

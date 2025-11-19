@@ -55,12 +55,9 @@ export function SearchHeader() {
   }, [searchQuery])
   
   const isCategoryPage = ['/fashion', '/gadgets', '/gaming', '/outfit'].includes(pathname)
-  const isProductPage = pathname.startsWith('/products/')
-  const isProfilePage = pathname.startsWith('/profile')
   const isAdminPage = pathname.startsWith('/admin')
   
-  // Early return AFTER all hooks
-  if (isProductPage || isProfilePage || isAdminPage) {
+  if (isAdminPage) {
     return null
   }
 

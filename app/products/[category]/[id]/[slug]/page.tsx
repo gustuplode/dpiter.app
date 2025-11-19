@@ -32,23 +32,7 @@ export default async function ProductDetailPage({
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
-      <header className="sticky top-0 z-30 bg-background-light dark:bg-background-dark shadow-sm">
-        <div className="flex items-center justify-between gap-4 p-4">
-          <Link href={category ? `/products/${category}` : "/"} className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <span className="material-symbols-outlined text-2xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link href="/wishlist" className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined text-2xl text-text-secondary-light dark:text-text-secondary-dark">favorite_border</span>
-            </Link>
-            <Link href="/cart" className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined text-2xl text-text-secondary-light dark:text-text-secondary-dark">shopping_cart</span>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-20 pt-4">
         <div className="relative w-full">
           <div className="flex overflow-x-auto snap-x snap-mandatory [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex-shrink-0 w-full snap-center">

@@ -148,7 +148,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
@@ -156,6 +156,6 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
       <CollectionContent collection={collection} products={products || []} />
       <FooterLinks />
       <BottomNav />
-    </div>
+    </>
   )
 }
