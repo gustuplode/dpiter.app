@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
-import { useRouter } from 'next/router';
 
 export default async function ProductDetailPage({
   params,
@@ -11,7 +10,6 @@ export default async function ProductDetailPage({
 }) {
   const { category, id, slug } = await params
   const supabase = await createClient()
-  const router = useRouter();
 
   const { data: product } = await supabase
     .from("category_products")
@@ -36,7 +34,7 @@ export default async function ProductDetailPage({
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
       <header className="sticky top-0 z-30 bg-background-light dark:bg-background-dark shadow-sm">
         <div className="flex items-center justify-between gap-4 p-4">
-          <Link href={router.query.category ? `/products/${router.query.category}` : "/"} className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <Link href={category ? `/products/${category}` : "/"} className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <span className="material-symbols-outlined text-2xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
           </Link>
           <div className="flex items-center gap-2">
