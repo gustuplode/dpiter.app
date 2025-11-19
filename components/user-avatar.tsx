@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User } from "firebase/auth"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 
 interface UserAvatarProps {
-  size?: "sm" | "md" | "lg"
-  asButton?: boolean
+  size?: "sm" | "md" | "lg" | "xs"
+  showFallback?: boolean
 }
 
-export function UserAvatar({ size = "md", asButton = false }: UserAvatarProps) {
+export function UserAvatar({ size = "md", showFallback = true }: UserAvatarProps) {
   const [user, setUser] = useState<User | null>(null)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const supabase = createClient()
@@ -72,6 +71,7 @@ export function UserAvatar({ size = "md", asButton = false }: UserAvatarProps) {
   }, [])
 
   const sizeClasses = {
+    xs: "size-6",
     sm: "size-8",
     md: "size-9",
     lg: "size-12"
@@ -89,28 +89,21 @@ export function UserAvatar({ size = "md", asButton = false }: UserAvatarProps) {
     </div>
   )
 
+  if (!user && !showFallback) {
+    return null
+  }
+
   if (!user) {
-    const loginButton = (
-      <div className={`flex ${sizeClasses[size]} shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors`}>
+    return (
+      <div className={`flex ${sizeClasses[size]} shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700`}>
         <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-xl">person</span>
       </div>
     )
-
-    if (asButton) {
-      return <Link href="/profile">{loginButton}</Link>
-    }
-    return <Link href="/profile">{loginButton}</Link>
   }
 
-  const avatar = (
-    <div className={`flex ${sizeClasses[size]} shrink-0 items-center justify-center rounded-full overflow-hidden border-2 border-[#F97316] hover:border-[#EA580C] transition-colors`}>
+  return (
+    <div className={`flex ${sizeClasses[size]} shrink-0 items-center justify-center rounded-full overflow-hidden border-2 border-[#F97316]`}>
       {content}
     </div>
   )
-
-  if (asButton) {
-    return <Link href="/profile">{avatar}</Link>
-  }
-
-  return <Link href="/profile">{avatar}</Link>
 }

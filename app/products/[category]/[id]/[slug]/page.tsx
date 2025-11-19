@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound, redirect } from 'next/navigation'
-import { getProductUrl } from "@/lib/utils"
 import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
-import { CurrencyDisplay } from "@/components/currency-display"
 
 export default async function ProductDetailPage({
   params,
@@ -24,23 +22,16 @@ export default async function ProductDetailPage({
     notFound()
   }
 
-  const correctUrl = getProductUrl(product.id, product.title, product.category)
-  const currentUrl = `/products/${category}/${id}/${slug}`
-
-  if (correctUrl !== currentUrl) {
-    redirect(correctUrl)
-  }
-
-  // Fetch related products
   const { data: relatedProducts } = await supabase
     .from("category_products")
     .select("*")
     .eq("category", category)
+    .eq("is_visible", true)
     .neq("id", id)
-    .limit(4)
+    .limit(6)
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
       <header className="sticky top-0 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
         <div className="flex items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
@@ -49,15 +40,15 @@ export default async function ProductDetailPage({
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center justify-center h-10 w-10">
+            <Link href="/" className="flex items-center justify-center h-10 w-10">
               <span className="material-symbols-outlined text-2xl">search</span>
-            </button>
-            <button className="flex items-center justify-center h-10 w-10">
+            </Link>
+            <Link href="/wishlist" className="flex items-center justify-center h-10 w-10">
               <span className="material-symbols-outlined text-2xl">favorite_border</span>
-            </button>
-            <button className="flex items-center justify-center h-10 w-10">
+            </Link>
+            <Link href="/cart" className="flex items-center justify-center h-10 w-10">
               <span className="material-symbols-outlined text-2xl">shopping_cart</span>
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -71,7 +62,6 @@ export default async function ProductDetailPage({
                 style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
               ></div>
             </div>
-            {/* Placeholder for additional images if available */}
             <div className="flex-shrink-0 w-full snap-center">
               <div 
                 className="w-full bg-center bg-no-repeat aspect-square bg-cover" 
@@ -95,13 +85,12 @@ export default async function ProductDetailPage({
           <div>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-lg font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">{product.brand || "Brand"}</p>
+                <p className="text-lg font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">{product.brand || "BRAND"}</p>
                 <h1 className="text-xl font-display font-semibold text-text-primary-light dark:text-text-primary-dark">{product.title}</h1>
               </div>
-              <WishlistButton 
-                productId={product.id} 
-                className="flex items-center justify-center size-10 text-primary dark:text-primary-light"
-              />
+              <button className="flex items-center justify-center size-10 text-primary dark:text-primary-light">
+                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+              </button>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex items-center gap-1 text-yellow-500">
@@ -116,14 +105,10 @@ export default async function ProductDetailPage({
           </div>
 
           <div className="flex items-baseline gap-3">
-            <p className="text-3xl font-bold font-sans text-text-primary-light dark:text-white">
-              <CurrencyDisplay price={product.price} />
-            </p>
+            <p className="text-3xl font-bold font-sans text-text-primary-light dark:text-white">₹{product.price}</p>
             {product.original_price && (
               <>
-                <p className="text-base font-normal text-text-secondary-light dark:text-text-secondary-dark line-through">
-                  <CurrencyDisplay price={product.original_price} />
-                </p>
+                <p className="text-base font-normal text-text-secondary-light dark:text-text-secondary-dark line-through">₹{product.original_price}</p>
                 <p className="text-base font-bold text-green-600 dark:text-green-400">
                   {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
                 </p>
@@ -155,7 +140,7 @@ export default async function ProductDetailPage({
               {relatedProducts?.map((related, index) => (
                 <Link 
                   key={related.id}
-                  href={getProductUrl(related.id, related.title, related.category)}
+                  href={`/products/${related.category}/${related.id}/${related.title.toLowerCase().replace(/\s+/g, '-')}`}
                   className={`flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-y border-r border-black/10 dark:border-y dark:border-r dark:border-white/10 w-44 ${index === 0 ? 'border-l' : ''}`}
                 >
                   <div 
@@ -163,12 +148,10 @@ export default async function ProductDetailPage({
                     style={{ backgroundImage: `url("${related.image_url || "/placeholder.svg"}")` }}
                   ></div>
                   <div className="p-3 flex flex-col gap-1 flex-1">
-                    <p className="text-sm font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">{related.brand || "Brand"}</p>
+                    <p className="text-sm font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">{related.brand || "BRAND"}</p>
                     <p className="text-text-primary-light dark:text-text-primary-dark text-xs font-semibold leading-snug truncate">{related.title}</p>
                     <div className="flex items-center gap-2 mt-auto pt-1">
-                      <p className="text-text-primary-light dark:text-white text-base font-bold">
-                        <CurrencyDisplay price={related.price} />
-                      </p>
+                      <p className="text-text-primary-light dark:text-white text-base font-bold">₹{related.price}</p>
                     </div>
                   </div>
                 </Link>
