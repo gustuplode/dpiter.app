@@ -82,8 +82,7 @@ export function SearchHeader() {
           </div>
         )}
 
-        {/* Search bar section */}
-        <div className="px-4 py-2">
+        <div className="px-4 py-2 space-y-1.5">
           <div className="flex items-center gap-3">
             {showBackButton && (
               <button
@@ -121,13 +120,13 @@ export function SearchHeader() {
               </div>
             </label>
           </div>
-        </div>
 
-        {showCategoryHeader && (
-          <div className="pb-1.5 bg-white dark:bg-gray-900">
-            <CategoryHeader />
-          </div>
-        )}
+          {showCategoryHeader && (
+            <div className="bg-white dark:bg-gray-900">
+              <CategoryHeader />
+            </div>
+          )}
+        </div>
       </div>
 
       {showResults && searchQuery && (
