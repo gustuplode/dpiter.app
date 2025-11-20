@@ -1,19 +1,17 @@
-'use client'
-
-import { Search } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { CategoryHeader } from './category-header'
+"use client"
+import { useState, useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
+import { CategoryHeader } from "./category-header"
 
 export function SearchHeader() {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("")
   const [products, setProducts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  
+
   const pathname = usePathname()
   const router = useRouter()
 
@@ -21,8 +19,8 @@ export function SearchHeader() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   useEffect(() => {
@@ -54,13 +52,13 @@ export function SearchHeader() {
 
     return () => clearTimeout(debounce)
   }, [searchQuery])
-  
-  const isAdminPage = pathname.startsWith('/admin')
-  const isProductPage = pathname.startsWith('/products/')
-  const isProfilePage = pathname === '/profile'
-  const isCollectionPage = pathname.startsWith('/collections/')
+
+  const isAdminPage = pathname.startsWith("/admin")
+  const isProductPage = pathname.startsWith("/products/")
+  const isProfilePage = pathname === "/profile"
+  const isCollectionPage = pathname.startsWith("/collections/")
   const showBackButton = isProductPage || isProfilePage || isCollectionPage
-  const showLogo = pathname === '/' && !isScrolled
+  const showLogo = pathname === "/" && !isScrolled
   const showCategoryHeader = !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage
 
   if (isAdminPage) {
@@ -69,15 +67,17 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200/50 dark:border-gray-700/50">
         {/* Logo section */}
         {showLogo && (
-          <div className="flex items-center justify-between gap-4 px-4 py-2 transition-all duration-300">
+          <div className="flex items-center justify-between gap-4 px-4 py-1.5 transition-all duration-300">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center h-7 w-7 rounded-full bg-primary text-white">
                 <span className="font-display font-bold text-lg">D</span>
               </div>
-              <h1 className="font-display text-lg font-bold text-text-primary-light dark:text-text-primary-dark">Dpiter</h1>
+              <h1 className="font-display text-lg font-bold text-text-primary-light dark:text-text-primary-dark">
+                Dpiter
+              </h1>
             </div>
           </div>
         )}
@@ -86,16 +86,18 @@ export function SearchHeader() {
         <div className="px-4 py-2">
           <div className="flex items-center gap-3">
             {showBackButton && (
-              <button 
+              <button
                 onClick={() => router.back()}
                 className="flex items-center justify-center h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xl text-text-primary-light dark:text-text-primary-dark">arrow_back</span>
+                <span className="material-symbols-outlined text-xl text-text-primary-light dark:text-text-primary-dark">
+                  arrow_back
+                </span>
               </button>
             )}
-            
+
             <label className="flex flex-col min-w-40 h-10 w-full">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border-[0.5px] border-gray-300 dark:border-gray-600">
+              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
                 <div className="text-text-secondary-light dark:text-text-secondary-dark flex items-center justify-center pl-3">
                   <span className="material-symbols-outlined text-lg">search</span>
                 </div>
@@ -122,7 +124,7 @@ export function SearchHeader() {
         </div>
 
         {showCategoryHeader && (
-          <div className="pb-2 bg-white dark:bg-gray-900">
+          <div className="pb-1.5 bg-white dark:bg-gray-900">
             <CategoryHeader />
           </div>
         )}
@@ -143,7 +145,7 @@ export function SearchHeader() {
               {products.map((product) => (
                 <Link
                   key={product.id}
-                  href={`/products/${product.category}/${product.id}/${product.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  href={`/products/${product.category}/${product.id}/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
                   className="flex flex-col bg-white dark:bg-slate-700 rounded-md overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div className="relative w-full aspect-square bg-slate-200 dark:bg-slate-600">
@@ -160,9 +162,7 @@ export function SearchHeader() {
                     <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark line-clamp-1">
                       {product.title}
                     </p>
-                    <p className="text-sm font-bold text-text-primary-light dark:text-white mt-1">
-                      ₹{product.price}
-                    </p>
+                    <p className="text-sm font-bold text-text-primary-light dark:text-white mt-1">₹{product.price}</p>
                   </div>
                 </Link>
               ))}
