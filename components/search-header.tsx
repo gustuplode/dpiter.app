@@ -68,15 +68,6 @@ export function SearchHeader() {
   return (
     <>
       <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200/50 dark:border-gray-700/50">
-        {/* Logo section */}
-        {showLogo && (
-          <div className="flex items-center justify-between gap-4 px-4 py-1.5 transition-all duration-300">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-white">
-              <span className="font-display font-bold text-xl">D</span>
-            </div>
-          </div>
-        )}
-
         <div className="px-4 py-2 space-y-1.5">
           <div className="flex items-center gap-3">
             {showBackButton && (
@@ -117,7 +108,7 @@ export function SearchHeader() {
           </div>
 
           {showCategoryHeader && (
-            <div className="bg-white dark:bg-gray-900">
+            <div className="bg-white dark:bg-slate-800">
               <CategoryHeader />
             </div>
           )}

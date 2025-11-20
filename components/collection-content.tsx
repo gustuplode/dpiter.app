@@ -3,7 +3,6 @@
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { RatingDisplay } from "@/components/rating-display"
-import { LikeButton } from "@/components/like-button"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { getCollectionProductUrl } from "@/lib/utils"
 import Link from "next/link"
@@ -24,10 +23,10 @@ interface Product {
   affiliate_link: string
 }
 
-export function CollectionContent({ 
-  collection, 
-  products 
-}: { 
+export function CollectionContent({
+  collection,
+  products,
+}: {
   collection: Collection
   products: Product[]
 }) {
@@ -49,14 +48,9 @@ export function CollectionContent({
                 <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white truncate">
                   {collection.title}
                 </h1>
-                <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
-                  {collection.brand}
-                </p>
+                <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">{collection.brand}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <RatingDisplay
-                    itemId={collection.id}
-                    itemType="collection"
-                  />
+                  <RatingDisplay itemId={collection.id} itemType="collection" />
                   <span className="text-xs text-slate-500">{productCount} items</span>
                 </div>
               </div>
@@ -67,7 +61,10 @@ export function CollectionContent({
         {products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
             {products.map((product) => (
-              <div key={product.id} className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-black/10 dark:border-white/10 md:rounded-lg md:border hover:shadow-lg transition-shadow">
+              <div
+                key={product.id}
+                className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-black/10 dark:border-white/10 md:rounded-lg md:border hover:shadow-lg transition-shadow"
+              >
                 <Link
                   href={getCollectionProductUrl(collection.id, product.id, product.title)}
                   className="block flex-1 flex flex-col"
@@ -79,42 +76,55 @@ export function CollectionContent({
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
-                    <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 text-white rounded-full px-2 py-1 text-xs backdrop-blur-sm">
-                      <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      <span className="font-semibold">4.1</span>
-                    </div>
                   </div>
-                  
-                  <div className="p-3 flex flex-col gap-2 flex-1">
-                    <p className="text-sm font-bold uppercase text-muted-foreground tracking-wide">{product.brand || 'Brand'}</p>
-                    <p className="text-foreground text-xs font-semibold leading-snug truncate">{product.title}</p>
-                    
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-foreground text-base font-bold">
-                        <CurrencyDisplay price={product.price} />
-                      </p>
-                      <p className="text-muted-foreground text-xs font-normal line-through">
-                        <CurrencyDisplay price={product.price * 1.4} />
-                      </p>
+
+                  <div className="p-2 flex flex-col gap-1 bg-[#F7F7F7] dark:bg-gray-800">
+                    <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-wide">
+                      {product.brand || "Brand"}
+                    </p>
+                    <p className="text-foreground text-[10px] font-semibold leading-tight line-clamp-2">
+                      {product.title}
+                    </p>
+                  </div>
+
+                  <div className="px-2 pb-2 flex flex-col gap-2 bg-white dark:bg-gray-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <p className="text-foreground text-sm font-bold">
+                          <CurrencyDisplay price={product.price} />
+                        </p>
+                        <p className="text-muted-foreground text-[10px] font-normal line-through">
+                          <CurrencyDisplay price={product.price * 1.4} />
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-0.5 bg-green-600 text-white rounded px-1.5 py-0.5">
+                        <span className="text-[9px] font-bold">4.1</span>
+                        <span
+                          className="material-symbols-outlined text-[10px]"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          star
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="mt-auto pt-2 flex flex-col gap-2">
-                      <div className="border-t border-black/10 dark:border-white/10"></div>
-                      <div className="flex items-center justify-end text-muted-foreground -mt-1" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-1">
-                          <WishlistButton
-                            productId={product.id}
-                            className="flex items-center justify-center h-8 w-8 text-foreground hover:text-primary transition-colors"
-                          />
-                          <RatingButton
-                            itemId={product.id}
-                            itemType="product"
-                            className="flex items-center justify-center h-8 w-8 text-foreground hover:text-primary transition-colors"
-                          />
-                          <button className="flex items-center justify-center h-8 w-8 text-primary hover:text-primary/80 transition-colors">
-                            <span className="material-symbols-outlined text-xl">add_shopping_cart</span>
-                          </button>
-                        </div>
+                    <div
+                      className="flex items-center justify-end text-muted-foreground -mt-1"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <div className="flex items-center gap-1">
+                        <WishlistButton
+                          productId={product.id}
+                          className="flex items-center justify-center h-7 w-7 text-foreground hover:text-primary transition-colors"
+                        />
+                        <RatingButton
+                          itemId={product.id}
+                          itemType="product"
+                          className="flex items-center justify-center h-7 w-7 text-foreground hover:text-primary transition-colors"
+                        />
+                        <button className="flex items-center justify-center h-7 w-7 text-primary hover:text-primary/80 transition-colors">
+                          <span className="material-symbols-outlined text-xl">add_shopping_cart</span>
+                        </button>
                       </div>
                     </div>
                   </div>

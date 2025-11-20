@@ -39,39 +39,49 @@ export function CategoryPageLayout({ title, products, error }: CategoryPageLayou
                       </div>
                     </div>
                   </Link>
-                  <div className="p-3 flex flex-col gap-2 flex-1 bg-[#F7F7F7] dark:bg-gray-800">
-                    <p className="text-[10px] font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">
+                  <div className="p-2 flex flex-col gap-1 bg-[#F7F7F7] dark:bg-gray-800">
+                    <p className="text-[9px] font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">
                       {product.brand || "Brand"}
                     </p>
-                    <p className="text-text-primary-light dark:text-text-primary-dark text-[11px] font-semibold leading-snug line-clamp-2">
+                    <p className="text-text-primary-light dark:text-text-primary-dark text-[10px] font-semibold leading-tight line-clamp-2">
                       {product.title}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-text-primary-light dark:text-white text-sm font-bold">₹{product.price}</p>
-                      {product.original_price && (
-                        <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-normal line-through">
-                          ₹{product.original_price}
-                        </p>
-                      )}
+                  </div>
+                  <div className="px-2 pb-2 flex flex-col gap-2 bg-white dark:bg-gray-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <p className="text-text-primary-light dark:text-white text-sm font-bold">₹{product.price}</p>
+                        {product.original_price && (
+                          <p className="text-text-secondary-light dark:text-text-secondary-dark text-[10px] font-normal line-through">
+                            ₹{product.original_price}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-0.5 bg-green-600 text-white rounded px-1.5 py-0.5">
+                        <span className="text-[9px] font-bold">4.1</span>
+                        <span
+                          className="material-symbols-outlined text-[10px]"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          star
+                        </span>
+                      </div>
                     </div>
-                    <div className="mt-auto pt-2 flex flex-col gap-2">
-                      <div className="border-t border-black/10 dark:border-white/10 opacity-50"></div>
-                      <div className="flex items-center justify-end text-text-secondary-light dark:text-text-secondary-dark -mt-1">
-                        <div className="flex items-center gap-1">
-                          <WishlistButton
-                            productId={product.id}
-                            className="flex items-center justify-center h-8 w-8 text-text-primary-light dark:text-text-primary-dark hover:text-primary transition-colors"
-                          />
-                          <RatingButton
-                            itemId={product.id}
-                            itemType="product"
-                            className="flex items-center justify-center h-8 w-8 text-text-primary-light dark:text-text-primary-dark hover:text-primary transition-colors"
-                          />
-                          <AddToCartButton
-                            productId={product.id}
-                            className="flex items-center justify-center h-8 w-8 text-primary dark:text-primary-light hover:text-primary/80 transition-colors"
-                          />
-                        </div>
+                    <div className="flex items-center justify-end text-text-secondary-light dark:text-text-secondary-dark -mt-1">
+                      <div className="flex items-center gap-1">
+                        <WishlistButton
+                          productId={product.id}
+                          className="flex items-center justify-center h-7 w-7 text-text-primary-light dark:text-text-primary-dark hover:text-primary transition-colors"
+                        />
+                        <RatingButton
+                          itemId={product.id}
+                          itemType="product"
+                          className="flex items-center justify-center h-7 w-7 text-text-primary-light dark:text-text-primary-dark hover:text-primary transition-colors"
+                        />
+                        <AddToCartButton
+                          productId={product.id}
+                          className="flex items-center justify-center h-7 w-7 text-primary dark:text-primary-light hover:text-primary/80 transition-colors"
+                        />
                       </div>
                     </div>
                   </div>
