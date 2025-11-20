@@ -95,27 +95,26 @@ export function SearchHeader() {
               </button>
             )}
 
-            {/* Amazon-Style Search Bar */}
-            <label className="flex flex-col min-w-40 h-12 w-full">
-              <div
-                className="flex w-full flex-1 items-center rounded-full bg-white border-2 border-[#febd69] focus-within:border-[#f08804] shadow-sm transition-all"
-                style={{ boxShadow: "0 2px 5px 0 rgba(251, 189, 105, 0.10)" }}
-              >
-                <div className="pl-4 pr-2 flex items-center">
-                  <span className="material-symbols-outlined text-lg text-[#f08804]">search</span>
+            <label className="flex flex-col min-w-40 h-10 w-full">
+              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+                <div className="text-text-secondary-light dark:text-text-secondary-dark flex items-center justify-center pl-3">
+                  <span className="material-symbols-outlined text-lg">search</span>
                 </div>
                 <input
-                  className="flex w-full min-w-0 flex-1 bg-transparent h-10 outline-none border-0 placeholder:text-[#a6a6a6] px-2 text-base"
-                  placeholder="Search for products…"
+                  className="flex w-full min-w-0 flex-1 resize-none overflow-hidden text-text-primary-light dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark px-2 text-sm font-normal leading-normal"
+                  placeholder="Search for products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setShowResults(true)}
                   onBlur={() => setTimeout(() => setShowResults(false), 200)}
-                  style={{ borderRadius: "9999px" }}
                 />
-                <div className="pr-4 flex items-center gap-1">
-                  <button className="hover:bg-[#febd69] bg-transparent rounded-full h-8 w-8 flex items-center justify-center transition-colors">
-                    <span className="material-symbols-outlined text-lg text-[#f08804]">mic</span>
+                <div className="flex items-center pr-2 gap-1">
+                  <button className="flex items-center justify-center rounded-md h-7 w-7 bg-transparent text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span className="material-symbols-outlined text-lg">mic</span>
+                  </button>
+                  <div className="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
+                  <button className="flex items-center justify-center rounded-md h-7 w-7 bg-transparent text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span className="material-symbols-outlined text-lg">photo_camera</span>
                   </button>
                 </div>
               </div>
