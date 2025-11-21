@@ -1,9 +1,7 @@
 import type React from "react"
 import "./globals.css"
 import { Suspense } from "react"
-import { SearchHeader } from "@/components/search-header"
-import { BottomNav } from "@/components/bottom-nav"
-import { SwipeablePageWrapper } from "@/components/swipeable-page-wrapper"
+import { ConditionalLayout } from "@/components/conditional-layout" // Import ConditionalLayout component
 
 export const metadata = {
   title: "Dpiter - E-commerce Collections",
@@ -32,12 +30,8 @@ export default function RootLayout({
       </head>
       <body className="bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark overflow-x-hidden">
         <Suspense fallback={<div className="h-32 bg-background-light dark:bg-background-dark" />}>
-          <SearchHeader />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </Suspense>
-        <main className="pb-16 min-h-screen">
-          <SwipeablePageWrapper>{children}</SwipeablePageWrapper>
-        </main>
-        <BottomNav />
       </body>
     </html>
   )
