@@ -9,7 +9,7 @@ import { getProductUrl } from "@/lib/utils"
 import { Suspense } from "react"
 import { CollectionGridSkeleton } from "@/components/collection-skeleton"
 import { CurrencyDisplay } from "@/components/currency-display"
-import { BannerCarousel } from "@/components/banner-carousel"
+import { DynamicBannerCarousel } from "@/components/dynamic-banner-carousel"
 
 async function ProductList() {
   const supabase = await createClient()
@@ -106,14 +106,9 @@ async function ProductList() {
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
-      <BannerCarousel />
+      <DynamicBannerCarousel />
 
       <div className="flex flex-col">
-        <div className="px-4 mb-3">
-          <h2 className="font-display text-lg font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight">
-            All Products
-          </h2>
-        </div>
         <main className="pb-20">
           <Suspense fallback={<CollectionGridSkeleton />}>
             <ProductList />
