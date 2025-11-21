@@ -64,7 +64,7 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
       setShowCropper(false)
       setTempImageUrl(null)
     } catch (error) {
-      console.error("[v0] Error uploading image:", error)
+      console.error("Error uploading image:", error)
       alert("Failed to upload image. Please try again.")
     } finally {
       setLoading(false)

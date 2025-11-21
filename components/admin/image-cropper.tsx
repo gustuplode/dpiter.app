@@ -1,7 +1,9 @@
 "use client"
 
 import type React from "react"
+
 import { useEffect, useRef, useState } from "react"
+import { ZoomIn, ZoomOut } from "lucide-react"
 
 interface ImageCropperProps {
   imageUrl: string
@@ -10,7 +12,6 @@ interface ImageCropperProps {
   onCancel: () => void
   cropWidth?: number
   cropHeight?: number
-  roundCrop?: boolean
 }
 
 export function ImageCropper({
@@ -18,84 +19,53 @@ export function ImageCropper({
   aspectRatio = 1,
   onCropComplete,
   onCancel,
-  cropWidth = 400,
-  cropHeight = 400,
-  roundCrop = false,
+  cropWidth = 1080,
+  cropHeight = 1080,
 }: ImageCropperProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const displayCanvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
   const [image, setImage] = useState<HTMLImageElement | null>(null)
-  const [scale, setScale] = useState(1)
+  const [zoom, setZoom] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null)
+  const [containerSize, setContainerSize] = useState({ width: 400, height: 400 })
 
   useEffect(() => {
     const img = new Image()
     img.crossOrigin = "anonymous"
     img.onload = () => {
       setImage(img)
-      const minDimension = Math.min(img.width, img.height)
-      const initialScale = cropWidth / minDimension
-      setScale(initialScale)
-      setPosition({ x: 0, y: 0 })
+      // Calculate initial zoom to fit image in container
+      const scale = Math.max(containerSize.width / img.width, containerSize.height / img.height)
+      setZoom(scale)
     }
     img.src = imageUrl
-  }, [imageUrl, cropWidth, cropHeight])
+  }, [imageUrl, containerSize])
 
   useEffect(() => {
-    if (!image || !displayCanvasRef.current) return
-
-    const canvas = displayCanvasRef.current
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    const maxDisplaySize = Math.min(window.innerWidth * 0.9, 500)
-    let displayWidth, displayHeight
-    
-    if (aspectRatio >= 1) {
-      displayWidth = maxDisplaySize
-      displayHeight = maxDisplaySize / aspectRatio
-    } else {
-      displayHeight = maxDisplaySize
-      displayWidth = maxDisplaySize * aspectRatio
+    const updateSize = () => {
+      if (containerRef.current) {
+        const size = Math.min(window.innerWidth - 40, window.innerHeight - 200, 500)
+        setContainerSize({ width: size, height: size })
+      }
     }
+    updateSize()
+    window.addEventListener("resize", updateSize)
+    return () => window.removeEventListener("resize", updateSize)
+  }, [])
 
-    canvas.width = displayWidth
-    canvas.height = displayHeight
-
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    if (roundCrop) {
-      ctx.save()
-      ctx.beginPath()
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
-      ctx.closePath()
-      ctx.clip()
-    }
-
-    const imgWidth = image.width * scale
-    const imgHeight = image.height * scale
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-
-    ctx.drawImage(image, centerX - imgWidth / 2 + position.x, centerY - imgHeight / 2 + position.y, imgWidth, imgHeight)
-    
-    if (roundCrop) {
-      ctx.restore()
-    }
-  }, [image, scale, position, aspectRatio, roundCrop])
-
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsDragging(true)
-    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    })
   }
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !image) return
     e.preventDefault()
     setPosition({
       x: e.clientX - dragStart.x,
@@ -103,89 +73,68 @@ export function ImageCropper({
     })
   }
 
-  const handlePointerUp = () => {
+  const handleMouseUp = () => {
     setIsDragging(false)
   }
 
-  const getTouchDistance = (touches: React.TouchList) => {
-    const dx = touches[0].clientX - touches[1].clientX
-    const dy = touches[0].clientY - touches[1].clientY
-    return Math.sqrt(dx * dx + dy * dy)
-  }
-
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      e.preventDefault()
-      setLastTouchDistance(getTouchDistance(e.touches))
-      setIsDragging(false)
-    } else if (e.touches.length === 1) {
+    if (e.touches.length === 1) {
       const touch = e.touches[0]
       setIsDragging(true)
-      setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y })
-    }
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && lastTouchDistance) {
-      e.preventDefault()
-      const distance = getTouchDistance(e.touches)
-      const delta = distance - lastTouchDistance
-      const newScale = Math.max(0.5, Math.min(5, scale + delta * 0.01))
-      setScale(newScale)
-      setLastTouchDistance(distance)
-    } else if (e.touches.length === 1 && isDragging) {
-      e.preventDefault()
-      const touch = e.touches[0]
-      setPosition({
-        x: touch.clientX - dragStart.x,
-        y: touch.clientY - dragStart.y,
+      setDragStart({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y,
       })
     }
   }
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1 || !image) return
+    e.preventDefault()
+    const touch = e.touches[0]
+    setPosition({
+      x: touch.clientX - dragStart.x,
+      y: touch.clientY - dragStart.y,
+    })
+  }
+
   const handleTouchEnd = () => {
-    setLastTouchDistance(null)
     setIsDragging(false)
   }
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault()
-    const delta = -e.deltaY * 0.002
-    const newScale = Math.max(0.1, Math.min(8, scale + delta))
-    setScale(newScale)
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.1, 3))
   }
 
-  const handleReset = () => {
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.1, 0.5))
+  }
+
+  const handleApplyCrop = () => {
     if (!image) return
-    const minDimension = Math.min(image.width, image.height)
-    const initialScale = cropWidth / minDimension
-    setScale(initialScale)
-    setPosition({ x: 0, y: 0 })
-  }
 
-  const handleCrop = () => {
-    if (!image || !displayCanvasRef.current) return
-
-    const outputCanvas = document.createElement("canvas")
-    outputCanvas.width = cropWidth
-    outputCanvas.height = cropHeight
-    const ctx = outputCanvas.getContext("2d", { alpha: false })
+    const canvas = document.createElement("canvas")
+    canvas.width = cropWidth
+    canvas.height = cropHeight
+    const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = "high"
-
+    // White background
     ctx.fillStyle = "#ffffff"
     ctx.fillRect(0, 0, cropWidth, cropHeight)
 
-    const imgWidth = image.width * scale
-    const imgHeight = image.height * scale
-    const centerX = cropWidth / 2
-    const centerY = cropHeight / 2
+    // Calculate scaling factor from display to output
+    const scale = cropWidth / containerSize.width
 
-    ctx.drawImage(image, centerX - imgWidth / 2 + position.x, centerY - imgHeight / 2 + position.y, imgWidth, imgHeight)
+    // Calculate image dimensions and position in output canvas
+    const imgWidth = image.width * zoom * scale
+    const imgHeight = image.height * zoom * scale
+    const imgX = cropWidth / 2 + position.x * scale - imgWidth / 2
+    const imgY = cropHeight / 2 + position.y * scale - imgHeight / 2
 
-    outputCanvas.toBlob(
+    ctx.drawImage(image, imgX, imgY, imgWidth, imgHeight)
+
+    canvas.toBlob(
       (blob) => {
         if (blob) {
           onCropComplete(blob)
@@ -196,76 +145,106 @@ export function ImageCropper({
     )
   }
 
+  const previewStyle = image
+    ? {
+        width: `${image.width * zoom}px`,
+        height: `${image.height * zoom}px`,
+        transform: `translate(${position.x}px, ${position.y}px)`,
+      }
+    : {}
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background-light dark:bg-background-dark">
-      <div className="flex items-center bg-background-light dark:bg-background-dark px-3 py-2.5 justify-between border-b border-gray-200 dark:border-gray-700 shrink-0">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={onCancel}
-          className="flex size-8 shrink-0 items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-lg"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-        <h2 className="text-text-primary-light dark:text-text-primary-dark text-sm font-semibold flex-1 text-center">
-          {roundCrop ? 'Crop Profile Picture' : 'Crop Image'}
-        </h2>
-        <button
-          onClick={handleReset}
-          className="flex size-8 shrink-0 items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-lg"
-          aria-label="Reset"
-        >
-          ↻
-        </button>
-      </div>
-
-      <div className="flex-1 relative overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-4 px-3">
-        <div className="relative" style={{ aspectRatio: aspectRatio }}>
-          <canvas
-            ref={displayCanvasRef}
-            className={`w-full h-full cursor-move touch-none ${roundCrop ? 'rounded-full' : 'rounded-lg'} shadow-lg`}
-            style={{ maxWidth: '400px', maxHeight: '400px' }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onWheel={handleWheel}
-          />
-
-          <canvas ref={canvasRef} className="hidden" />
-
-          <div className="absolute inset-0 pointer-events-none">
-            <div className={`relative w-full h-full border-2 border-primary ${roundCrop ? 'rounded-full' : 'rounded-lg'}`}>
-              <div className="absolute -top-0.5 -left-0.5 size-2 bg-primary rounded-full"></div>
-              <div className="absolute -top-0.5 -right-0.5 size-2 bg-primary rounded-full"></div>
-              <div className="absolute -bottom-0.5 -left-0.5 size-2 bg-primary rounded-full"></div>
-              <div className="absolute -bottom-0.5 -right-0.5 size-2 bg-primary rounded-full"></div>
-            </div>
-          </div>
-
-          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <div className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
-              <span>🤏</span>
-              <span>Pinch to zoom, drag to move</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-2 p-3 bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-700 shrink-0">
-        <button
-          onClick={onCancel}
-          className="flex-1 h-10 rounded-md bg-gray-200 dark:bg-gray-700 text-text-primary-light dark:text-text-primary-dark text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
         >
           Cancel
         </button>
-        <button
-          onClick={handleCrop}
-          className="flex-1 h-10 rounded-md bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors"
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Adjust Image</h2>
+        <button onClick={handleApplyCrop} className="text-primary hover:text-primary/80 font-medium">
+          Done
+        </button>
+      </div>
+
+      {/* Crop Area */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800">
+        <div
+          ref={containerRef}
+          className="relative bg-white dark:bg-gray-900 overflow-hidden shadow-2xl"
+          style={{
+            width: `${containerSize.width}px`,
+            height: `${containerSize.height}px`,
+            aspectRatio: "1/1",
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
-          Apply Crop
+          <div className="absolute inset-0 flex items-center justify-center cursor-move">
+            {image && (
+              <img
+                ref={imageRef}
+                src={imageUrl || "/placeholder.svg"}
+                alt="Crop preview"
+                className="absolute pointer-events-none select-none"
+                style={previewStyle}
+                draggable={false}
+              />
+            )}
+          </div>
+
+          {/* Grid overlay */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="w-full h-full border-2 border-primary/50">
+              <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="border border-primary/20" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preview label */}
+        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">Preview (1080×1080)</div>
+      </div>
+
+      {/* Zoom Controls */}
+      <div className="flex items-center justify-center gap-4 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <button
+          onClick={handleZoomOut}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Zoom out"
+        >
+          <ZoomOut className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+        </button>
+
+        <div className="flex-1 max-w-xs">
+          <input
+            type="range"
+            min="0.5"
+            max="3"
+            step="0.1"
+            value={zoom}
+            onChange={(e) => setZoom(Number.parseFloat(e.target.value))}
+            className="w-full"
+          />
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-1">{Math.round(zoom * 100)}%</div>
+        </div>
+
+        <button
+          onClick={handleZoomIn}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Zoom in"
+        >
+          <ZoomIn className="w-5 h-5 text-gray-700 dark:text-gray-300" />
         </button>
       </div>
     </div>

@@ -54,14 +54,8 @@ async function ProductList() {
               className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
               style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
             >
-              <div className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+              <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
                 <span className="text-[10px] font-semibold text-gray-800">4.1</span>
-                <span
-                  className="material-symbols-outlined text-[11px] text-yellow-500"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  star
-                </span>
               </div>
             </div>
           </Link>
