@@ -46,35 +46,21 @@ export function CollectionContent({
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                  <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-green-600 text-white rounded px-1.5 py-0.5">
+                  <div className="absolute top-2 left-2 flex items-center bg-green-600 text-white rounded px-1.5 py-0.5">
                     <span className="text-[9px] font-bold">4.1</span>
-                    <span
-                      className="material-symbols-outlined text-[10px]"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
                   </div>
                 </div>
               </Link>
 
-              <div className="p-2 flex flex-col gap-1 bg-[#F7F7F7] dark:bg-gray-800">
+              <div className="p-2 flex flex-col gap-1.5 bg-[#F7F7F7] dark:bg-gray-800">
                 <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-wide">
                   {product.brand || "Brand"}
                 </p>
                 <p className="text-foreground text-[10px] font-semibold leading-tight line-clamp-2">{product.title}</p>
-              </div>
 
-              <div className="px-2 pb-2 flex flex-col gap-2 bg-white dark:bg-gray-800">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-0.5">
                   <p className="text-foreground text-sm font-bold">₹{product.price.toLocaleString()}</p>
-                </div>
-
-                <div
-                  className="flex items-center justify-end text-muted-foreground -mt-1"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
                     <WishlistButton
                       productId={product.id}
                       className="flex items-center justify-center h-7 w-7 text-foreground hover:text-primary transition-colors"
