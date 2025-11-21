@@ -36,7 +36,7 @@ export function CollectionContent({
           {products.map((product, index) => (
             <div
               key={product.id}
-              className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-black/10 dark:border-white/10 lg:rounded-lg lg:border hover:shadow-lg transition-shadow"
+              className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-[#8A3224]/20 dark:border-[#8A3224]/30 lg:rounded-lg lg:border hover:shadow-lg transition-shadow"
             >
               <Link href={getCollectionProductUrl(collection.id, product.id, product.title)} className="block">
                 <div className="relative w-full bg-center bg-no-repeat aspect-square bg-cover">
