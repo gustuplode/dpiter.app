@@ -45,7 +45,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
       onTouchMove={handleBannerInteraction}
       onTouchEnd={handleBannerInteraction}
     >
-      <div className="w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+      <div className="w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg">
         {banners[currentBanner].type === "image" ? (
           <img
             src={banners[currentBanner].media_url || "/placeholder.svg"}
@@ -64,13 +64,13 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           />
         )}
       </div>
-      <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-4">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4">
         <button
           onClick={(e) => {
             e.stopPropagation()
             setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
           }}
-          className="flex items-center justify-center h-8 w-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors"
+          className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
         >
           <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
             chevron_left
@@ -84,8 +84,8 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
                 e.stopPropagation()
                 setCurrentBanner(index)
               }}
-              className={`h-2 rounded-full transition-all ${
-                index === currentBanner ? "w-6 bg-white" : "w-2 bg-white/50"
+              className={`h-2.5 rounded-full transition-all shadow-sm ${
+                index === currentBanner ? "w-8 bg-white" : "w-2.5 bg-white/60"
               }`}
             />
           ))}
@@ -95,7 +95,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
             e.stopPropagation()
             setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
           }}
-          className="flex items-center justify-center h-8 w-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors"
+          className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
         >
           <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
             chevron_right

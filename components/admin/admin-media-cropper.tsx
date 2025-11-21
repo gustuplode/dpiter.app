@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import Cropper from "react-easy-crop"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { ZoomIn, ZoomOut, Check, X } from "lucide-react"
+import { ZoomIn, ZoomOut, Check, X, RotateCw } from "lucide-react"
 
 interface AdminMediaCropperProps {
   file: File
@@ -19,13 +19,16 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [videoPosition, setVideoPosition] = useState({ x: 0, y: 0 })
+  const [videoScale, setVideoScale] = useState(1)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  useState(() => {
+  useEffect(() => {
     const reader = new FileReader()
     reader.onload = () => setMediaSrc(reader.result as string)
     reader.readAsDataURL(file)
-  })
+  }, [file])
 
   const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
     setCroppedAreaPixels(croppedAreaPixels)
@@ -64,15 +67,24 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
   }
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
-      <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
-        <h2 className="text-white font-semibold">Adjust {mediaType === "image" ? "Image" : "Video"}</h2>
-        <Button onClick={onCancel} variant="ghost" size="icon" className="text-white">
+    <div className="fixed inset-0 bg-white dark:bg-gray-950 z-50 flex flex-col">
+      <div className="bg-white dark:bg-gray-900 px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+        <h2 className="text-text-primary-light dark:text-text-primary-dark font-semibold">
+          Adjust {mediaType === "image" ? "Image" : "Video"}
+        </h2>
+        <Button onClick={onCancel} variant="ghost" size="icon">
           <X className="h-5 w-5" />
         </Button>
       </div>
 
-      <div className="flex-1 relative bg-black">
+      <div
+        className="flex-1 relative bg-gray-50 dark:bg-gray-900"
+        style={{
+          backgroundImage: "repeating-conic-gradient(#f0f0f0 0% 25%, #ffffff 0% 50%)",
+          backgroundSize: "20px 20px",
+          backgroundPosition: "0 0, 10px 10px",
+        }}
+      >
         {mediaType === "image" ? (
           <Cropper
             image={mediaSrc}
@@ -85,34 +97,64 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
             objectFit="contain"
           />
         ) : (
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div ref={containerRef} className="relative w-full h-full flex items-center justify-center overflow-hidden">
             <video
               ref={videoRef}
               src={mediaSrc}
               controls
-              className="max-w-full max-h-full object-contain"
-              style={{ aspectRatio: "16/7" }}
+              className="max-w-full max-h-full"
+              style={{
+                transform: `translate(${videoPosition.x}px, ${videoPosition.y}px) scale(${videoScale})`,
+                aspectRatio: "16/7",
+                objectFit: "contain",
+              }}
             />
           </div>
         )}
       </div>
 
-      <div className="bg-gray-900 px-4 py-4 space-y-4">
+      <div className="bg-white dark:bg-gray-900 px-4 py-4 space-y-4 border-t border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-4">
-          <ZoomOut className="h-5 w-5 text-white flex-shrink-0" />
+          <ZoomOut className="h-5 w-5 text-text-primary-light dark:text-text-primary-dark flex-shrink-0" />
           <Slider
-            value={[zoom]}
-            onValueChange={([value]) => setZoom(value)}
-            min={1}
+            value={mediaType === "image" ? [zoom] : [videoScale]}
+            onValueChange={([value]) => (mediaType === "image" ? setZoom(value) : setVideoScale(value))}
+            min={0.5}
             max={3}
             step={0.1}
             className="flex-1"
           />
-          <ZoomIn className="h-5 w-5 text-white flex-shrink-0" />
+          <ZoomIn className="h-5 w-5 text-text-primary-light dark:text-text-primary-dark flex-shrink-0" />
+          <Button
+            onClick={() => (mediaType === "image" ? setZoom(1) : setVideoScale(1))}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            <RotateCw className="h-4 w-4" />
+            Reset
+          </Button>
         </div>
+
+        {mediaType === "video" && (
+          <div className="grid grid-cols-2 gap-3">
+            <Button onClick={() => setVideoPosition((p) => ({ ...p, y: p.y - 10 }))} variant="outline" size="sm">
+              Move Up
+            </Button>
+            <Button onClick={() => setVideoPosition((p) => ({ ...p, y: p.y + 10 }))} variant="outline" size="sm">
+              Move Down
+            </Button>
+            <Button onClick={() => setVideoPosition((p) => ({ ...p, x: p.x - 10 }))} variant="outline" size="sm">
+              Move Left
+            </Button>
+            <Button onClick={() => setVideoPosition((p) => ({ ...p, x: p.x + 10 }))} variant="outline" size="sm">
+              Move Right
+            </Button>
+          </div>
+        )}
       </div>
 
-      <div className="bg-gray-900 px-4 py-3 flex gap-3">
+      <div className="bg-white dark:bg-gray-900 px-4 py-3 flex gap-3 border-t border-gray-200 dark:border-gray-800">
         <Button onClick={onCancel} variant="outline" className="flex-1 bg-transparent">
           Cancel
         </Button>

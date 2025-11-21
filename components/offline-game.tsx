@@ -7,10 +7,22 @@ export function OfflineGame() {
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
-  const gameStateRef = useRef<any>(null)
+  const gameLoopRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!gameStarted || gameOver) return
+    const timer = setTimeout(() => {
+      setGameStarted(true)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!gameStarted || gameOver) {
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current)
+      }
+      return
+    }
 
     const canvas = canvasRef.current
     if (!canvas) return
@@ -23,12 +35,9 @@ export function OfflineGame() {
     const obstacleSpeed = 3
     let frameCount = 0
     let currentScore = 0
-    let animationId: number
-
-    gameStateRef.current = { player, obstacles, frameCount, currentScore }
 
     const handleJump = () => {
-      if (!gameOver && player.y + player.height >= canvas.height - 20) {
+      if (player.y + player.height >= canvas.height - 20) {
         player.velocityY = player.jumpPower
       }
     }
@@ -47,6 +56,7 @@ export function OfflineGame() {
     const gameLoop = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+      // Update player
       player.velocityY += player.gravity
       player.y += player.velocityY
 
@@ -60,12 +70,15 @@ export function OfflineGame() {
         player.velocityY = 0
       }
 
+      // Draw ground
       ctx.fillStyle = "#8A3224"
       ctx.fillRect(0, canvas.height - 20, canvas.width, 20)
 
+      // Draw player
       ctx.fillStyle = "#FF6B35"
       ctx.fillRect(player.x, player.y, player.width, player.height)
 
+      // Spawn obstacles
       frameCount++
       if (frameCount % 90 === 0) {
         const height = Math.random() * 80 + 40
@@ -77,6 +90,7 @@ export function OfflineGame() {
         })
       }
 
+      // Update and draw obstacles
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const obs = obstacles[i]
         obs.x -= obstacleSpeed
@@ -84,6 +98,7 @@ export function OfflineGame() {
         ctx.fillStyle = "#8A3224"
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height)
 
+        // Collision detection
         if (
           player.x < obs.x + obs.width &&
           player.x + player.width > obs.x &&
@@ -91,28 +106,34 @@ export function OfflineGame() {
           player.y + player.height > obs.y
         ) {
           setGameOver(true)
-          cancelAnimationFrame(animationId)
+          if (gameLoopRef.current) {
+            cancelAnimationFrame(gameLoopRef.current)
+          }
           return
         }
 
+        // Score increment
         if (obs.x + obs.width < player.x && !obs.passed) {
           obs.passed = true
           currentScore++
           setScore(currentScore)
         }
 
+        // Remove off-screen obstacles
         if (obs.x < -obs.width) {
           obstacles.splice(i, 1)
         }
       }
 
-      animationId = requestAnimationFrame(gameLoop)
+      gameLoopRef.current = requestAnimationFrame(gameLoop)
     }
 
-    animationId = requestAnimationFrame(gameLoop)
+    gameLoopRef.current = requestAnimationFrame(gameLoop)
 
     return () => {
-      cancelAnimationFrame(animationId)
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current)
+      }
       canvas.removeEventListener("click", handleClick)
       document.removeEventListener("keydown", handleKeyDown)
     }
@@ -121,37 +142,41 @@ export function OfflineGame() {
   const handleRestart = () => {
     setScore(0)
     setGameOver(false)
-    setGameStarted(true)
+    setGameStarted(false)
+    setTimeout(() => setGameStarted(true), 50)
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 py-8">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
-          <span className="material-symbols-outlined text-5xl text-gray-400">cloud_off</span>
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 mb-4">
+          <span className="material-symbols-outlined text-5xl text-[#8A3224]">cloud_off</span>
         </div>
-        <h2 className="text-2xl font-bold mb-2">You're Offline</h2>
+        <h2 className="text-2xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">You're Offline</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-4">No internet connection. Play this game while you wait!</p>
       </div>
 
       {!gameStarted ? (
         <button
           onClick={handleRestart}
-          className="px-8 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          className="px-8 py-3 bg-[#8A3224] text-white rounded-lg font-medium hover:bg-[#6B2619] transition-colors shadow-lg"
         >
           Start Game
         </button>
       ) : (
         <div className="w-full max-w-md">
           <div className="flex justify-between items-center mb-4">
-            <div className="text-xl font-bold">Score: {score}</div>
+            <div className="text-2xl font-bold text-[#8A3224]">Score: {score}</div>
             {gameOver && (
-              <button
-                onClick={handleRestart}
-                className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
-              >
-                Restart
-              </button>
+              <div className="flex gap-2 items-center">
+                <span className="text-lg font-bold text-red-600">Game Over!</span>
+                <button
+                  onClick={handleRestart}
+                  className="px-6 py-2 bg-[#8A3224] text-white rounded-lg font-medium hover:bg-[#6B2619] transition-colors shadow-lg"
+                >
+                  Restart
+                </button>
+              </div>
             )}
           </div>
 
@@ -159,11 +184,11 @@ export function OfflineGame() {
             ref={canvasRef}
             width={400}
             height={300}
-            className="w-full border-4 border-[#8A3224] rounded-lg bg-white dark:bg-gray-900"
+            className="w-full border-4 border-[#8A3224] rounded-xl bg-white dark:bg-gray-900 shadow-2xl"
           />
 
           <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
-            {gameOver ? "Game Over! Tap restart to play again" : "Tap or press Space to jump"}
+            {gameOver ? "Tap restart to play again!" : "Tap screen or press Space to jump over obstacles"}
           </p>
         </div>
       )}
