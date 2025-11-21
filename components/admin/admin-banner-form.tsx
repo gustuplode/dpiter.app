@@ -68,6 +68,29 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
     }
   }
 
+  const handleDelete = async () => {
+    if (!banner || !confirm("Are you sure you want to delete this banner?")) return
+
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/admin/banners/${banner.id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        router.push("/admin/banners")
+        router.refresh()
+      } else {
+        alert("Failed to delete banner")
+      }
+    } catch (error) {
+      console.error("Error deleting banner:", error)
+      alert("Error deleting banner")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (showCropper && selectedFile) {
     return (
       <AdminMediaCropper
@@ -189,14 +212,20 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
         </div>
 
         <div className="flex gap-3">
+          {banner && (
+            <Button
+              type="button"
+              onClick={handleDelete}
+              disabled={loading}
+              variant="outline"
+              className="flex-1 text-red-600 hover:text-red-700 bg-transparent"
+            >
+              Delete
+            </Button>
+          )}
           <Button type="submit" disabled={loading || !mediaUrl} className="flex-1 bg-primary hover:bg-primary/90">
             {loading ? "Saving..." : banner ? "Update Banner" : "Publish Banner"}
           </Button>
-          <Link href="/admin/banners" className="flex-1">
-            <Button type="button" variant="outline" className="w-full bg-transparent">
-              Cancel
-            </Button>
-          </Link>
         </div>
       </form>
     </div>

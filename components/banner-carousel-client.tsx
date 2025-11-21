@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
 
 interface Banner {
   id: string
@@ -12,9 +14,37 @@ interface Banner {
 
 export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   const [currentBanner, setCurrentBanner] = useState(0)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (banners[currentBanner].type === "image") {
+      timerRef.current = setTimeout(() => {
+        setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
+      }, 4000)
+    }
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [currentBanner, banners])
+
+  const handleVideoEnd = () => {
+    setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
+  }
+
+  const handleBannerInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation()
+  }
 
   return (
-    <div className="mb-4 relative">
+    <div
+      className="mb-4 relative"
+      onClick={handleBannerInteraction}
+      onTouchStart={handleBannerInteraction}
+      onTouchMove={handleBannerInteraction}
+      onTouchEnd={handleBannerInteraction}
+    >
       <div className="w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {banners[currentBanner].type === "image" ? (
           <img
@@ -24,18 +54,22 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           />
         ) : (
           <video
+            ref={videoRef}
             src={banners[currentBanner].media_url}
             autoPlay
-            loop
             muted
             playsInline
+            onEnded={handleVideoEnd}
             className="w-full h-full object-cover"
           />
         )}
       </div>
       <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-4">
         <button
-          onClick={() => setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))}
+          onClick={(e) => {
+            e.stopPropagation()
+            setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+          }}
           className="flex items-center justify-center h-8 w-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors"
         >
           <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
@@ -46,7 +80,10 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           {banners.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentBanner(index)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setCurrentBanner(index)
+              }}
               className={`h-2 rounded-full transition-all ${
                 index === currentBanner ? "w-6 bg-white" : "w-2 bg-white/50"
               }`}
@@ -54,7 +91,10 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           ))}
         </div>
         <button
-          onClick={() => setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))}
+          onClick={(e) => {
+            e.stopPropagation()
+            setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
+          }}
           className="flex items-center justify-center h-8 w-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors"
         >
           <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">

@@ -7,6 +7,7 @@ export function OfflineGame() {
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
+  const gameStateRef = useRef<any>(null)
 
   useEffect(() => {
     if (!gameStarted || gameOver) return
@@ -17,57 +18,54 @@ export function OfflineGame() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Game state
     const player = { x: 50, y: 150, width: 30, height: 30, velocityY: 0, gravity: 0.6, jumpPower: -12 }
-    let obstacles: Array<{ x: number; y: number; width: number; height: number }> = []
+    const obstacles: Array<{ x: number; y: number; width: number; height: number; passed?: boolean }> = []
     const obstacleSpeed = 3
     let frameCount = 0
     let currentScore = 0
+    let animationId: number
 
-    // Handle jump
+    gameStateRef.current = { player, obstacles, frameCount, currentScore }
+
     const handleJump = () => {
-      if (!gameOver) {
+      if (!gameOver && player.y + player.height >= canvas.height - 20) {
         player.velocityY = player.jumpPower
       }
     }
 
-    canvas.addEventListener("click", handleJump)
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Space") handleJump()
-    })
+    const handleClick = () => handleJump()
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault()
+        handleJump()
+      }
+    }
 
-    // Game loop
+    canvas.addEventListener("click", handleClick)
+    document.addEventListener("keydown", handleKeyDown)
+
     const gameLoop = () => {
-      if (gameOver) return
-
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      // Update player
       player.velocityY += player.gravity
       player.y += player.velocityY
 
-      // Ground collision
       if (player.y + player.height >= canvas.height - 20) {
         player.y = canvas.height - 20 - player.height
         player.velocityY = 0
       }
 
-      // Top collision
       if (player.y <= 0) {
         player.y = 0
         player.velocityY = 0
       }
 
-      // Draw ground
       ctx.fillStyle = "#8A3224"
       ctx.fillRect(0, canvas.height - 20, canvas.width, 20)
 
-      // Draw player
       ctx.fillStyle = "#FF6B35"
       ctx.fillRect(player.x, player.y, player.width, player.height)
 
-      // Generate obstacles
       frameCount++
       if (frameCount % 90 === 0) {
         const height = Math.random() * 80 + 40
@@ -79,15 +77,13 @@ export function OfflineGame() {
         })
       }
 
-      // Update and draw obstacles
-      obstacles = obstacles.filter((obs) => {
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i]
         obs.x -= obstacleSpeed
 
-        // Draw obstacle
         ctx.fillStyle = "#8A3224"
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height)
 
-        // Collision detection
         if (
           player.x < obs.x + obs.width &&
           player.x + player.width > obs.x &&
@@ -95,26 +91,30 @@ export function OfflineGame() {
           player.y + player.height > obs.y
         ) {
           setGameOver(true)
-          return false
+          cancelAnimationFrame(animationId)
+          return
         }
 
-        // Score when passing obstacle
         if (obs.x + obs.width < player.x && !obs.passed) {
           obs.passed = true
           currentScore++
           setScore(currentScore)
         }
 
-        return obs.x > -obs.width
-      })
+        if (obs.x < -obs.width) {
+          obstacles.splice(i, 1)
+        }
+      }
 
-      requestAnimationFrame(gameLoop)
+      animationId = requestAnimationFrame(gameLoop)
     }
 
-    gameLoop()
+    animationId = requestAnimationFrame(gameLoop)
 
     return () => {
-      canvas.removeEventListener("click", handleJump)
+      cancelAnimationFrame(animationId)
+      canvas.removeEventListener("click", handleClick)
+      document.removeEventListener("keydown", handleKeyDown)
     }
   }, [gameStarted, gameOver])
 
