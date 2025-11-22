@@ -21,7 +21,7 @@ export function OfflineGame() {
       if (!gameStarted && !gameOver) {
         setGameStarted(true)
       }
-    }, 500)
+    }, 100)
     return () => clearTimeout(timer)
   }, [gameStarted, gameOver])
 
@@ -39,31 +39,32 @@ export function OfflineGame() {
 
     const gameState = {
       dino: {
-        x: 80,
+        x: 50,
         y: 0,
         width: 44,
-        height: 48,
+        height: 47,
         velocityY: 0,
         isJumping: false,
-        jumpForce: -16,
-        gravity: 0.85,
+        jumpForce: -12,
+        gravity: 0.6,
+        legFrame: 0,
       },
       obstacles: [] as Array<{ x: number; width: number; height: number; scored: boolean; type: string }>,
-      ground: canvas.height - 60,
-      gameSpeed: 7,
+      ground: canvas.height - 20,
+      gameSpeed: 6,
       frameCount: 0,
       score: 0,
-      clouds: [] as Array<{ x: number; y: number; speed: number }>,
+      clouds: [] as Array<{ x: number; y: number }>,
     }
 
     gameState.dino.y = gameState.ground - gameState.dino.height
     gameStateRef.current = gameState
 
-    for (let i = 0; i < 3; i++) {
+    // Initialize clouds
+    for (let i = 0; i < 4; i++) {
       gameState.clouds.push({
         x: Math.random() * canvas.width,
-        y: 30 + Math.random() * 80,
-        speed: 0.5 + Math.random() * 1,
+        y: 20 + Math.random() * 50,
       })
     }
 
@@ -91,39 +92,108 @@ export function OfflineGame() {
     canvas.addEventListener("click", handleClick)
     canvas.addEventListener("touchstart", handleTouch)
 
+    const drawDino = () => {
+      const { x, y, legFrame } = gameState.dino
+
+      // Body
+      ctx.fillStyle = "#535353"
+      ctx.fillRect(x + 6, y + 20, 34, 22)
+
+      // Neck
+      ctx.fillRect(x + 20, y + 12, 14, 8)
+
+      // Head
+      ctx.fillRect(x + 30, y + 4, 12, 12)
+
+      // Eye
+      ctx.fillStyle = "#ffffff"
+      ctx.fillRect(x + 36, y + 7, 3, 3)
+
+      // Tail
+      ctx.fillStyle = "#535353"
+      ctx.fillRect(x, y + 24, 8, 6)
+      ctx.fillRect(x - 4, y + 28, 6, 4)
+
+      // Legs (animated running)
+      ctx.fillStyle = "#535353"
+      if (!gameState.dino.isJumping) {
+        if (legFrame < 10) {
+          // Left leg forward
+          ctx.fillRect(x + 12, y + 42, 6, 5)
+          ctx.fillRect(x + 24, y + 42, 6, 5)
+        } else {
+          // Right leg forward
+          ctx.fillRect(x + 14, y + 42, 6, 5)
+          ctx.fillRect(x + 26, y + 42, 6, 5)
+        }
+      } else {
+        // Both legs centered when jumping
+        ctx.fillRect(x + 13, y + 42, 6, 5)
+        ctx.fillRect(x + 25, y + 42, 6, 5)
+      }
+
+      // Front arm
+      ctx.fillRect(x + 20, y + 20, 4, 8)
+    }
+
+    const drawCactus = (x: number, y: number, width: number, height: number) => {
+      ctx.fillStyle = "#535353"
+      // Main body
+      ctx.fillRect(x, y, width, height)
+      // Arms
+      const armY = y + height / 3
+      ctx.fillRect(x - 4, armY, 4, height / 3)
+      ctx.fillRect(x + width, armY, 4, height / 3)
+    }
+
+    const drawBird = (x: number, y: number) => {
+      ctx.fillStyle = "#535353"
+      // Body
+      ctx.fillRect(x + 4, y + 6, 16, 8)
+      // Head
+      ctx.fillRect(x + 16, y + 4, 8, 6)
+      // Beak
+      ctx.fillRect(x + 22, y + 6, 4, 2)
+      // Wings (animated)
+      const wingY = Math.sin(gameState.frameCount * 0.3) * 3
+      ctx.fillRect(x, y + 8 + wingY, 12, 4)
+      ctx.fillRect(x + 12, y + 8 - wingY, 12, 4)
+    }
+
     const gameLoop = () => {
-      // Sky gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-      gradient.addColorStop(0, "#87CEEB")
-      gradient.addColorStop(1, "#E0F6FF")
-      ctx.fillStyle = gradient
+      // Clear and draw sky
+      ctx.fillStyle = "#f7f7f7"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Clouds
-      gameState.clouds.forEach((cloud) => {
-        cloud.x -= cloud.speed
-        if (cloud.x < -60) cloud.x = canvas.width + 60
+      // Draw clouds
+      gameState.clouds.forEach((cloud, i) => {
+        cloud.x -= 0.5
+        if (cloud.x < -50) cloud.x = canvas.width + 50
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
+        ctx.fillStyle = "#e0e0e0"
         ctx.beginPath()
-        ctx.arc(cloud.x, cloud.y, 20, 0, Math.PI * 2)
-        ctx.arc(cloud.x + 15, cloud.y - 5, 25, 0, Math.PI * 2)
-        ctx.arc(cloud.x + 30, cloud.y, 20, 0, Math.PI * 2)
+        ctx.arc(cloud.x, cloud.y, 15, 0, Math.PI * 2)
+        ctx.arc(cloud.x + 15, cloud.y - 5, 18, 0, Math.PI * 2)
+        ctx.arc(cloud.x + 30, cloud.y, 15, 0, Math.PI * 2)
         ctx.fill()
       })
 
-      // Ground
-      ctx.fillStyle = "#8A3224"
-      ctx.fillRect(0, gameState.ground + 48, canvas.width, 12)
-
-      // Ground line
-      ctx.strokeStyle = "#6B2619"
+      // Draw ground line
+      ctx.strokeStyle = "#535353"
       ctx.lineWidth = 2
       ctx.beginPath()
-      ctx.moveTo(0, gameState.ground + 48)
-      ctx.lineTo(canvas.width, gameState.ground + 48)
+      ctx.moveTo(0, gameState.ground)
+      ctx.lineTo(canvas.width, gameState.ground)
       ctx.stroke()
 
+      // Ground dashes
+      for (let i = 0; i < canvas.width; i += 40) {
+        const offset = (gameState.frameCount * gameState.gameSpeed) % 40
+        ctx.fillStyle = "#535353"
+        ctx.fillRect(i - offset, gameState.ground + 2, 20, 2)
+      }
+
+      // Update dino physics
       gameState.dino.velocityY += gameState.dino.gravity
       gameState.dino.y += gameState.dino.velocityY
 
@@ -133,71 +203,48 @@ export function OfflineGame() {
         gameState.dino.isJumping = false
       }
 
-      // Draw dino body
-      ctx.fillStyle = "#FF6B35"
-      ctx.fillRect(gameState.dino.x, gameState.dino.y + 8, gameState.dino.width, gameState.dino.height - 8)
+      // Animate legs
+      if (!gameState.dino.isJumping) {
+        gameState.dino.legFrame = (gameState.dino.legFrame + 1) % 20
+      }
 
-      // Dino head
-      ctx.fillRect(gameState.dino.x + 24, gameState.dino.y, 20, 20)
+      drawDino()
 
-      // Eye
-      ctx.fillStyle = "#fff"
-      ctx.fillRect(gameState.dino.x + 32, gameState.dino.y + 6, 6, 6)
-      ctx.fillStyle = "#000"
-      ctx.fillRect(gameState.dino.x + 34, gameState.dino.y + 8, 3, 3)
-
-      // Legs
-      ctx.fillStyle = "#FF6B35"
-      const legOffset = Math.floor(gameState.frameCount / 8) % 2 === 0 ? 0 : 4
-      ctx.fillRect(gameState.dino.x + 8, gameState.dino.y + gameState.dino.height - 8, 8, 8)
-      ctx.fillRect(gameState.dino.x + 24 + legOffset, gameState.dino.y + gameState.dino.height - 8, 8, 8)
-
-      // Tail
-      ctx.fillRect(gameState.dino.x - 8, gameState.dino.y + 16, 12, 8)
-
-      // Obstacles
+      // Spawn obstacles
       gameState.frameCount++
-      if (gameState.frameCount % 75 === 0) {
-        const types = ["cactus", "rock", "bird"]
-        const type = types[Math.floor(Math.random() * types.length)]
-        const height = type === "bird" ? 20 : 35 + Math.random() * 25
+      if (gameState.frameCount % 80 === 0) {
+        const type = Math.random() > 0.7 ? "bird" : "cactus"
+        const height = type === "bird" ? 24 : 30 + Math.random() * 20
+        const width = type === "bird" ? 30 : 12
 
         gameState.obstacles.push({
           x: canvas.width,
-          width: type === "bird" ? 30 : 20,
+          width: width,
           height: height,
           scored: false,
           type: type,
         })
       }
 
+      // Update and draw obstacles
       for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
         const obs = gameState.obstacles[i]
         obs.x -= gameState.gameSpeed
 
-        const obsY = obs.type === "bird" ? gameState.ground - obs.height - 60 : gameState.ground + 48 - obs.height
+        const obsY = obs.type === "bird" ? gameState.ground - obs.height - 40 : gameState.ground - obs.height
 
-        // Draw obstacle based on type
         if (obs.type === "bird") {
-          ctx.fillStyle = "#333"
-          ctx.fillRect(obs.x, obsY, obs.width, obs.height)
-          // Wings
-          ctx.fillRect(obs.x - 5, obsY + 5, 10, 5)
-          ctx.fillRect(obs.x + obs.width - 5, obsY + 5, 10, 5)
+          drawBird(obs.x, obsY)
         } else {
-          ctx.fillStyle = "#8A3224"
-          ctx.fillRect(obs.x, obsY, obs.width, obs.height)
-          // Details
-          ctx.fillStyle = "#6B2619"
-          ctx.fillRect(obs.x + 3, obsY + 3, obs.width - 6, 3)
+          drawCactus(obs.x, obsY, obs.width, obs.height)
         }
 
-        // Collision detection
+        // Collision detection (more precise)
         if (
-          gameState.dino.x < obs.x + obs.width - 5 &&
-          gameState.dino.x + gameState.dino.width - 5 > obs.x &&
-          gameState.dino.y < obsY + obs.height &&
-          gameState.dino.y + gameState.dino.height > obsY
+          gameState.dino.x + 10 < obs.x + obs.width - 5 &&
+          gameState.dino.x + gameState.dino.width - 10 > obs.x + 5 &&
+          gameState.dino.y + 5 < obsY + obs.height &&
+          gameState.dino.y + gameState.dino.height > obsY + 5
         ) {
           setGameOver(true)
           const newScore = Math.floor(gameState.score)
@@ -218,16 +265,18 @@ export function OfflineGame() {
           gameState.score += 1
         }
 
-        if (obs.x < -obs.width) {
+        if (obs.x < -obs.width - 20) {
           gameState.obstacles.splice(i, 1)
         }
       }
 
-      // Update score display
+      // Update score
       setScore(Math.floor(gameState.score))
 
       // Gradually increase speed
-      gameState.gameSpeed += 0.002
+      if (gameState.gameSpeed < 12) {
+        gameState.gameSpeed += 0.001
+      }
 
       gameLoopRef.current = requestAnimationFrame(gameLoop)
     }
@@ -254,24 +303,22 @@ export function OfflineGame() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 py-8">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 mb-4">
-          <span className="material-symbols-outlined text-5xl text-[#8A3224]">cloud_off</span>
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+          <span className="material-symbols-outlined text-5xl text-gray-600 dark:text-gray-400">cloud_off</span>
         </div>
-        <h2 className="text-2xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
-          No Internet Connection
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">Play while you wait for connection to restore!</p>
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">No Internet Connection</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">Play the T-Rex game while waiting!</p>
       </div>
 
       <div className="w-full max-w-2xl">
         <div className="flex justify-between items-center mb-4">
-          <div className="text-xl font-bold text-[#8A3224]">
-            Score: {score} | HI: {highScore}
+          <div className="text-lg font-mono text-gray-700 dark:text-gray-300">
+            HI: {highScore.toString().padStart(5, "0")} {score.toString().padStart(5, "0")}
           </div>
           {gameOver && (
             <button
               onClick={handleRestart}
-              className="px-6 py-2 bg-[#8A3224] text-white rounded-lg font-medium hover:bg-[#6B2619] transition-colors shadow-lg"
+              className="px-6 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
             >
               Restart
             </button>
@@ -281,20 +328,20 @@ export function OfflineGame() {
         <canvas
           ref={canvasRef}
           width={800}
-          height={300}
-          className="w-full border-4 border-[#8A3224] rounded-xl shadow-2xl"
+          height={200}
+          className="w-full border-2 border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900"
         />
 
         {gameOver && (
           <div className="text-center mt-4">
-            <p className="text-2xl font-bold text-red-600 mb-2">Game Over!</p>
-            <p className="text-gray-600 dark:text-gray-400">Tap Restart to play again</p>
+            <p className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">G A M E O V E R</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Press Space or Tap to Restart</p>
           </div>
         )}
 
-        <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
-          Tap screen or press Space/Arrow Up to jump
-        </p>
+        {!gameOver && (
+          <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">Press Space or Tap to Jump</p>
+        )}
       </div>
     </div>
   )
