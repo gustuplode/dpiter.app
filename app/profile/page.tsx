@@ -516,6 +516,10 @@ export default function ProfilePage() {
                   >
                     {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
                   </button>
+
+                  <Link href="/admin/login" className="text-sm text-center block mt-2 text-gray-500 hover:underline">
+                    Admin Login
+                  </Link>
                 </div>
               </div>
             )}
