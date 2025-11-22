@@ -9,6 +9,7 @@ export async function createClient() {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error("[v0] Missing Supabase environment variables")
+    throw new Error("Supabase configuration is missing")
   }
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
