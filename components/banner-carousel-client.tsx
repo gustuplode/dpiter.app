@@ -20,6 +20,15 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
+    if (banners[currentBanner].type === "video" && videoRef.current) {
+      videoRef.current.load()
+      videoRef.current.play().catch((err) => {
+        console.log("[v0] Video autoplay failed:", err)
+      })
+    }
+  }, [currentBanner, banners])
+
+  useEffect(() => {
     if (banners[currentBanner].type === "image") {
       timerRef.current = setTimeout(() => {
         setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
@@ -35,7 +44,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
     if (videoRef.current) {
       videoRef.current.muted = isMuted
     }
-  }, [isMuted, currentBanner])
+  }, [isMuted])
 
   const handleVideoEnd = () => {
     setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
@@ -67,6 +76,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           />
         ) : (
           <video
+            key={banners[currentBanner].id}
             ref={videoRef}
             src={banners[currentBanner].media_url}
             autoPlay
@@ -74,7 +84,9 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
             playsInline
             onEnded={handleVideoEnd}
             className="w-full h-full object-cover"
-          />
+          >
+            <source src={banners[currentBanner].media_url} type="video/mp4" />
+          </video>
         )}
       </div>
 

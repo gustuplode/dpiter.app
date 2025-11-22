@@ -1,8 +1,6 @@
 import type React from "react"
 import "./globals.css"
-import { Suspense } from "react"
 import { ConditionalLayout } from "@/components/conditional-layout"
-import { LoadingScreen } from "@/components/loading-screen"
 
 export const metadata = {
   title: "Dpiter - E-commerce Collections",
@@ -13,7 +11,7 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#8A3324",
+  themeColor: "#8A3224",
 }
 
 export default function RootLayout({
@@ -28,12 +26,22 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
+        <style>{`
+          body { opacity: 0; transition: opacity 0.2s ease-in; }
+          body.loaded { opacity: 1; }
+        `}</style>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('loaded');
+              });
+            `,
+          }}
+        />
       </head>
       <body className="bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark overflow-x-hidden">
-        <LoadingScreen />
-        <Suspense fallback={<div className="h-32 bg-background-light dark:bg-background-dark" />}>
-          <ConditionalLayout>{children}</ConditionalLayout>
-        </Suspense>
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   )
