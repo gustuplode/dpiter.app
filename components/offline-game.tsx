@@ -30,15 +30,25 @@ export function OfflineGame() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const player = { x: 50, y: 150, width: 30, height: 30, velocityY: 0, gravity: 0.6, jumpPower: -12 }
+    const player = {
+      x: 50,
+      y: 150,
+      width: 30,
+      height: 30,
+      velocityY: 0,
+      gravity: 0.6,
+      jumpPower: -12,
+      isJumping: false,
+    }
     const obstacles: Array<{ x: number; y: number; width: number; height: number; passed?: boolean }> = []
     const obstacleSpeed = 3
     let frameCount = 0
     let currentScore = 0
 
     const handleJump = () => {
-      if (player.y + player.height >= canvas.height - 20) {
+      if (!player.isJumping) {
         player.velocityY = player.jumpPower
+        player.isJumping = true
       }
     }
 
@@ -63,6 +73,7 @@ export function OfflineGame() {
       if (player.y + player.height >= canvas.height - 20) {
         player.y = canvas.height - 20 - player.height
         player.velocityY = 0
+        player.isJumping = false
       }
 
       if (player.y <= 0) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useEffect } from "react"
 import Cropper from "react-easy-crop"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -19,10 +19,9 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [videoPosition, setVideoPosition] = useState({ x: 0, y: 0 })
-  const [videoScale, setVideoScale] = useState(1)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [videoCrop, setVideoCrop] = useState({ x: 0, y: 0 })
+  const [videoZoom, setVideoZoom] = useState(1)
+  const [videoCroppedArea, setVideoCroppedArea] = useState(null)
 
   useEffect(() => {
     const reader = new FileReader()
@@ -34,6 +33,10 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
     setCroppedAreaPixels(croppedAreaPixels)
   }, [])
 
+  const onVideoCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setVideoCroppedArea(croppedAreaPixels)
+  }, [])
+
   const handleDone = async () => {
     setUploading(true)
     try {
@@ -43,7 +46,8 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
         const croppedImage = await getCroppedImg(mediaSrc, croppedAreaPixels)
         finalBlob = croppedImage
       } else {
-        finalBlob = file
+        const croppedVideo = await getCroppedVideo(mediaSrc, videoCroppedArea)
+        finalBlob = croppedVideo
       }
 
       const formData = new FormData()
@@ -97,19 +101,16 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
             objectFit="contain"
           />
         ) : (
-          <div ref={containerRef} className="relative w-full h-full flex items-center justify-center overflow-hidden">
-            <video
-              ref={videoRef}
-              src={mediaSrc}
-              controls
-              className="max-w-full max-h-full"
-              style={{
-                transform: `translate(${videoPosition.x}px, ${videoPosition.y}px) scale(${videoScale})`,
-                aspectRatio: "16/7",
-                objectFit: "contain",
-              }}
-            />
-          </div>
+          <Cropper
+            video={mediaSrc}
+            crop={videoCrop}
+            zoom={videoZoom}
+            aspect={16 / 7}
+            onCropChange={setVideoCrop}
+            onZoomChange={setVideoZoom}
+            onCropComplete={onVideoCropComplete}
+            objectFit="contain"
+          />
         )}
       </div>
 
@@ -117,8 +118,8 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
         <div className="flex items-center gap-4">
           <ZoomOut className="h-5 w-5 text-text-primary-light dark:text-text-primary-dark flex-shrink-0" />
           <Slider
-            value={mediaType === "image" ? [zoom] : [videoScale]}
-            onValueChange={([value]) => (mediaType === "image" ? setZoom(value) : setVideoScale(value))}
+            value={mediaType === "image" ? [zoom] : [videoZoom]}
+            onValueChange={([value]) => (mediaType === "image" ? setZoom(value) : setVideoZoom(value))}
             min={0.5}
             max={3}
             step={0.1}
@@ -126,7 +127,7 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
           />
           <ZoomIn className="h-5 w-5 text-text-primary-light dark:text-text-primary-dark flex-shrink-0" />
           <Button
-            onClick={() => (mediaType === "image" ? setZoom(1) : setVideoScale(1))}
+            onClick={() => (mediaType === "image" ? setZoom(1) : setVideoZoom(1))}
             variant="outline"
             size="sm"
             className="flex items-center gap-1"
@@ -138,16 +139,16 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
 
         {mediaType === "video" && (
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => setVideoPosition((p) => ({ ...p, y: p.y - 10 }))} variant="outline" size="sm">
+            <Button onClick={() => setVideoCrop((p) => ({ ...p, y: p.y - 10 }))} variant="outline" size="sm">
               Move Up
             </Button>
-            <Button onClick={() => setVideoPosition((p) => ({ ...p, y: p.y + 10 }))} variant="outline" size="sm">
+            <Button onClick={() => setVideoCrop((p) => ({ ...p, y: p.y + 10 }))} variant="outline" size="sm">
               Move Down
             </Button>
-            <Button onClick={() => setVideoPosition((p) => ({ ...p, x: p.x - 10 }))} variant="outline" size="sm">
+            <Button onClick={() => setVideoCrop((p) => ({ ...p, x: p.x - 10 }))} variant="outline" size="sm">
               Move Left
             </Button>
-            <Button onClick={() => setVideoPosition((p) => ({ ...p, x: p.x + 10 }))} variant="outline" size="sm">
+            <Button onClick={() => setVideoCrop((p) => ({ ...p, x: p.x + 10 }))} variant="outline" size="sm">
               Move Right
             </Button>
           </div>
@@ -193,11 +194,46 @@ async function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<Blob> {
   })
 }
 
+async function getCroppedVideo(videoSrc: string, pixelCrop: any): Promise<Blob> {
+  const video = await createVideo(videoSrc)
+  const canvas = document.createElement("canvas")
+  const ctx = canvas.getContext("2d")
+
+  const outputWidth = 1920
+  const outputHeight = 840
+
+  canvas.width = outputWidth
+  canvas.height = outputHeight
+
+  if (ctx && pixelCrop) {
+    ctx.drawImage(video, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, outputWidth, outputHeight)
+  }
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => {
+        resolve(blob!)
+      },
+      "image/jpeg",
+      0.95,
+    )
+  })
+}
+
 function createImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.addEventListener("load", () => resolve(image))
     image.addEventListener("error", (error) => reject(error))
     image.src = url
+  })
+}
+
+function createVideo(url: string): Promise<HTMLVideoElement> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video")
+    video.addEventListener("loadeddata", () => resolve(video))
+    video.addEventListener("error", (error) => reject(error))
+    video.src = url
   })
 }

@@ -82,7 +82,7 @@ export function SearchHeader() {
             )}
 
             <label className="flex flex-col min-w-40 h-10 w-full">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus-within:ring-2 focus-within:ring-orange-500">
+              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
                 <div className="text-text-secondary-light dark:text-text-secondary-dark flex items-center justify-center pl-3">
                   <span className="material-symbols-outlined text-lg">search</span>
                 </div>
