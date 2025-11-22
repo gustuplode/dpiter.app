@@ -4,7 +4,6 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { ImageIcon, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -32,22 +31,28 @@ function BannerItem({ banner }: { banner: any }) {
     try {
       const response = await fetch(`/api/admin/banners/${banner.id}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
       })
 
-      if (response.ok) {
-        router.refresh()
-      } else {
-        alert("Failed to delete banner")
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(`Failed to delete banner: ${errorData.error || "Unknown error"}`)
+        return
       }
+
+      // Force hard refresh of the page
+      window.location.reload()
     } catch (error) {
       console.error("Failed to delete:", error)
-      alert("Failed to delete banner")
+      alert("Failed to delete banner. Please try again.")
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    router.push(`/admin/banners/edit/${banner.id}`)
   }
 
   return (
@@ -77,17 +82,15 @@ function BannerItem({ banner }: { banner: any }) {
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/admin/banners/edit/${banner.id}`}>
-              <Button variant="outline" size="sm">
-                Edit
-              </Button>
-            </Link>
+            <Button onClick={handleEdit} variant="outline" size="sm">
+              Edit
+            </Button>
             <Button
               onClick={handleDelete}
               disabled={isDeleting}
               variant="outline"
               size="sm"
-              className="text-red-600 hover:text-red-700 bg-transparent"
+              className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50 bg-transparent"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
