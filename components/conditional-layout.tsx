@@ -12,8 +12,10 @@ import { OfflineDetector } from "@/components/offline-detector"
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdminPage = pathname?.startsWith("/admin")
+  const isProfilePage = pathname === "/profile"
+  const hideNav = isAdminPage || isProfilePage
 
-  if (isAdminPage) {
+  if (hideNav) {
     return <main className="min-h-screen">{children}</main>
   }
 
