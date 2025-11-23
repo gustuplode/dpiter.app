@@ -5,6 +5,9 @@ import { ConditionalLayout } from "@/components/conditional-layout"
 export const metadata = {
   title: "Dpiter - E-commerce Collections",
   description: "Shop the latest fashion, gadgets, and gaming products",
+  icons: {
+    icon: "/favicon.ico",
+  },
     generator: 'v0.app'
 }
 
