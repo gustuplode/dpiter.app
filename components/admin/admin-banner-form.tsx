@@ -10,8 +10,9 @@ import Link from "next/link"
 
 export function AdminBannerForm({ banner }: { banner?: any }) {
   const router = useRouter()
-  const [mediaType, setMediaType] = useState<"image" | "video">(banner?.type || "image")
+  const [mediaType, setMediaType] = useState<"image" | "video" | "ad_code">(banner?.type || "image")
   const [mediaUrl, setMediaUrl] = useState(banner?.media_url || "")
+  const [adCode, setAdCode] = useState(banner?.ad_code || "")
   const [position, setPosition] = useState(banner?.position || 0)
   const [isActive, setIsActive] = useState(banner?.is_active ?? true)
   const [showCropper, setShowCropper] = useState(false)
@@ -45,9 +46,10 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: mediaType === "image" ? "Image Banner" : "Video Banner",
+          title: mediaType === "image" ? "Image Banner" : mediaType === "video" ? "Video Banner" : "Ad Code Banner",
           type: mediaType,
-          media_url: mediaUrl,
+          media_url: mediaType === "ad_code" ? "" : mediaUrl,
+          ad_code: mediaType === "ad_code" ? adCode : null,
           position,
           is_active: isActive,
         }),
@@ -94,7 +96,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
     return (
       <AdminMediaCropper
         file={selectedFile}
-        mediaType={mediaType}
+        mediaType={mediaType === "ad_code" ? "image" : mediaType}
         onComplete={handleMediaProcessed}
         onCancel={() => {
           setShowCropper(false)
@@ -122,9 +124,9 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
       <form onSubmit={handleSubmit} className="p-4 max-w-2xl mx-auto space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Media Type
+            Banner Type
           </label>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -143,29 +145,61 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
               />
               <span>Video</span>
             </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                checked={mediaType === "ad_code"}
+                onChange={() => setMediaType("ad_code")}
+                className="w-4 h-4"
+              />
+              <span>Ad Code</span>
+            </label>
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Upload {mediaType === "image" ? "Image" : "Video"}
-          </label>
-          <input
-            type="file"
-            accept={mediaType === "image" ? "image/*" : "video/*"}
-            onChange={handleFileSelect}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-          />
-          {mediaUrl && (
-            <div className="mt-4 relative w-full aspect-[16/7] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
-              {mediaType === "image" ? (
-                <img src={mediaUrl || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
-              ) : (
-                <video src={mediaUrl} controls className="w-full h-full object-cover" />
-              )}
-            </div>
-          )}
-        </div>
+        {mediaType === "ad_code" ? (
+          <div>
+            <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+              Ad Code (Script/Iframe)
+            </label>
+            <textarea
+              value={adCode}
+              onChange={(e) => setAdCode(e.target.value)}
+              placeholder="Paste your ad script or iframe code here, e.g., <script>...</script> or <iframe>...</iframe>"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-mono text-sm"
+              rows={10}
+            />
+            {adCode && (
+              <div className="mt-4 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
+                <div className="w-full aspect-[16/7] rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                  <div dangerouslySetInnerHTML={{ __html: adCode }} />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+              Upload {mediaType === "image" ? "Image" : "Video"}
+            </label>
+            <input
+              type="file"
+              accept={mediaType === "image" ? "image/*" : "video/*"}
+              onChange={handleFileSelect}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+            />
+            {mediaUrl && (
+              <div className="mt-4 relative w-full aspect-[16/7] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                {mediaType === "image" ? (
+                  <img src={mediaUrl || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <video src={mediaUrl} controls className="w-full h-full object-cover" />
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
@@ -208,7 +242,11 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
               Delete
             </Button>
           )}
-          <Button type="submit" disabled={loading || !mediaUrl} className="flex-1 bg-primary hover:bg-primary/90">
+          <Button
+            type="submit"
+            disabled={loading || (mediaType !== "ad_code" && !mediaUrl) || (mediaType === "ad_code" && !adCode)}
+            className="flex-1 bg-primary hover:bg-primary/90"
+          >
             {loading ? "Saving..." : banner ? "Update Banner" : "Publish Banner"}
           </Button>
         </div>
