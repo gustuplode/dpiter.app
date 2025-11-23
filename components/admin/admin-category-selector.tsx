@@ -94,7 +94,7 @@ export function AdminCategorySelector() {
               {categories.map((category) => (
                 <Link
                   key={category.name}
-                  href={`${category.href}/add`}
+                  href={category.href}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   onClick={() => setShowCategories(false)}
                 >

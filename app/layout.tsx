@@ -6,7 +6,23 @@ export const metadata = {
   title: "Dpiter - E-commerce Collections",
   description: "Shop the latest fashion, gadgets, and gaming products",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    title: "Dpiter - E-commerce Collections",
+    description: "Shop the latest fashion, gadgets, and gaming products",
+    type: "website",
+    images: ["/apple-touch-icon.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dpiter - E-commerce Collections",
+    description: "Shop the latest fashion, gadgets, and gaming products",
+    images: ["/apple-touch-icon.png"],
   },
     generator: 'v0.app'
 }
