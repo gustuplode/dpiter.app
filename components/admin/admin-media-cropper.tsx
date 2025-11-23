@@ -5,6 +5,7 @@ import Cropper from "react-easy-crop"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { ZoomIn, ZoomOut, Check, X, RotateCw } from "lucide-react"
+import { upload } from "@vercel/blob/client"
 
 interface AdminMediaCropperProps {
   file: File
@@ -35,58 +36,32 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
     setUploading(true)
     try {
       if (mediaType === "video") {
-        console.log("[v0] Uploading video directly:", file.name, "Size:", file.size)
+        console.log("[v0] Uploading video directly to Blob:", file.name, "Size:", file.size)
 
-        const formData = new FormData()
-        formData.append("file", file, file.name)
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
+        const blob = await upload(file.name, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload-blob",
         })
 
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error("[v0] Video upload failed:", errorText)
-          throw new Error(`Upload failed: ${response.status} - ${errorText}`)
-        }
-
-        const data = await response.json()
-        console.log("[v0] Video upload successful:", data.url)
-
-        if (data.url) {
-          onComplete(data.url)
-        } else {
-          throw new Error("No URL returned from upload")
-        }
+        console.log("[v0] Video upload successful:", blob.url)
+        onComplete(blob.url)
       } else {
         const croppedImage = await getCroppedImg(mediaSrc, croppedAreaPixels)
         console.log("[v0] Image cropped successfully, size:", croppedImage.size)
 
-        const formData = new FormData()
-        formData.append("file", croppedImage, file.name)
-
-        console.log("[v0] Uploading cropped image:", file.name)
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
+        const croppedFile = new File([croppedImage], file.name, {
+          type: "image/jpeg",
         })
 
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error("[v0] Upload failed:", errorText)
-          throw new Error(`Upload failed: ${response.status}`)
-        }
+        console.log("[v0] Uploading cropped image to Blob:", file.name)
 
-        const data = await response.json()
-        console.log("[v0] Upload successful:", data.url)
+        const blob = await upload(file.name, croppedFile, {
+          access: "public",
+          handleUploadUrl: "/api/upload-blob",
+        })
 
-        if (data.url) {
-          onComplete(data.url)
-        } else {
-          throw new Error("No URL returned from upload")
-        }
+        console.log("[v0] Image upload successful:", blob.url)
+        onComplete(blob.url)
       }
     } catch (error) {
       console.error("[v0] Error uploading:", error)
