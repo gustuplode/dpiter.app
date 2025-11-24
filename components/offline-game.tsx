@@ -14,16 +14,9 @@ export function OfflineGame() {
   useEffect(() => {
     const saved = localStorage.getItem("dinoHighScore")
     if (saved) setHighScore(Number.parseInt(saved))
-  }, [])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!gameStarted && !gameOver) {
-        setGameStarted(true)
-      }
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [gameStarted, gameOver])
+    setGameStarted(true)
+  }, [])
 
   useEffect(() => {
     if (!canvasRef.current || !gameStarted || gameOver) {
@@ -296,8 +289,7 @@ export function OfflineGame() {
   const handleRestart = () => {
     setScore(0)
     setGameOver(false)
-    setGameStarted(false)
-    setTimeout(() => setGameStarted(true), 50)
+    setGameStarted(true) // Start immediately on restart
   }
 
   return (

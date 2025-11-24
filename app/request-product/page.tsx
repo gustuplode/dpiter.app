@@ -156,24 +156,36 @@ export default function RequestProductPage() {
         return
       }
 
-      const { error } = await supabase.from("product_requests").insert([
-        {
+      console.log("[v0] Submitting product request with user_id:", firebaseUid)
+
+      const response = await fetch("/api/product-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           user_id: firebaseUid,
           image_url: imageUrl,
-          description: description || null,
-          status: "pending",
-        },
-      ])
+          description: description || "",
+        }),
+      })
 
-      if (error) throw error
+      const data = await response.json()
+
+      if (!response.ok) {
+        console.error("[v0] Submit error response:", data)
+        throw new Error(data.error || "Failed to submit request")
+      }
+
+      console.log("[v0] Product request submitted successfully:", data)
 
       setSuccess(true)
       setTimeout(() => {
         router.push("/profile/requests")
       }, 3000)
-    } catch (error) {
-      console.error("Error submitting request:", error)
-      alert("Failed to submit request. Please try again.")
+    } catch (error: any) {
+      console.error("[v0] Submit error:", error)
+      alert("Failed to submit request: " + error.message)
     } finally {
       setSubmitting(false)
     }
