@@ -264,30 +264,36 @@ export default function RequestProductPage() {
 
   if (showCamera) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col">
-        <div className="flex-1 relative">
+      <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+        <div className="flex-1 relative overflow-hidden">
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
           <canvas ref={canvasRef} className="hidden" />
         </div>
-        <div className="p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-          <div className="flex items-center justify-center gap-6">
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/70 to-transparent">
+          <div className="flex items-center justify-center gap-8">
             <Button
               onClick={stopCamera}
               size="lg"
-              variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-8"
+              className="h-14 px-8 bg-white/20 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/30 rounded-full shadow-2xl"
             >
-              <X className="h-5 w-5 mr-2" />
+              <X className="h-6 w-6 mr-2" />
               Cancel
             </Button>
             <button
               onClick={capturePhoto}
-              className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-2xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center"
+              disabled={uploading}
+              className="relative w-20 h-20 rounded-full bg-white border-[6px] border-white/50 shadow-2xl hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
             >
-              <div className="w-16 h-16 rounded-full bg-white border-4 border-slate-300" />
+              {uploading ? (
+                <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-white group-hover:bg-blue-50 transition-colors" />
+              )}
             </button>
           </div>
-          <p className="text-center text-white/70 text-sm mt-4">Tap the button to capture</p>
+          <p className="text-center text-white/90 text-sm mt-6 font-medium">
+            {uploading ? "Uploading image..." : "Tap to capture product image"}
+          </p>
         </div>
       </div>
     )
