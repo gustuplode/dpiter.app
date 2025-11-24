@@ -39,6 +39,7 @@ export default function ProfilePage() {
   const [wishlistCount, setWishlistCount] = useState(0)
   const [likedCount, setLikedCount] = useState(0)
   const [requestsCount, setRequestsCount] = useState(0)
+  const [cartCount, setCartCount] = useState(0)
   const [showCropper, setShowCropper] = useState(false)
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
   const supabase = createClient()
@@ -108,6 +109,17 @@ export default function ProfilePage() {
       .eq("user_id", userId)
 
     setRequestsCount(reqCount || 0)
+
+    const loadCartCount = () => {
+      const savedCart = localStorage.getItem("cart")
+      if (savedCart) {
+        const ids: string[] = JSON.parse(savedCart)
+        return ids.length
+      }
+      return 0
+    }
+
+    setCartCount(loadCartCount())
   }
 
   const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -395,21 +407,33 @@ export default function ProfilePage() {
                   <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Liked</p>
                 </Link>
 
+                <Link
+                  href="/cart"
+                  className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
+                >
+                  <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">{cartCount}</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Cart</p>
+                </Link>
+
                 <div className="text-center p-3">
                   <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {userRatings.length}
                   </p>
                   <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Reviews</p>
                 </div>
+              </div>
 
+              <div className="pt-3">
                 <Link
                   href="/profile/requests"
-                  className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
+                  className="block text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
                 >
                   <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {requestsCount}
                   </p>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Requests</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                    Product Requests
+                  </p>
                 </Link>
               </div>
 

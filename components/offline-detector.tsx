@@ -7,6 +7,7 @@ import { OfflineGame } from "./offline-game"
 export function OfflineDetector({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(true)
   const [showGame, setShowGame] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
     const checkOnline = () => {
@@ -15,6 +16,7 @@ export function OfflineDetector({ children }: { children: React.ReactNode }) {
       if (!online) {
         setShowGame(true)
       }
+      setIsInitialized(true)
     }
 
     checkOnline()
@@ -22,8 +24,7 @@ export function OfflineDetector({ children }: { children: React.ReactNode }) {
     const handleOnline = () => {
       console.log("[v0] Internet connected")
       setIsOnline(true)
-      // Hide game after a short delay to show smooth transition
-      setTimeout(() => setShowGame(false), 500)
+      setShowGame(false)
     }
 
     const handleOffline = () => {
@@ -40,6 +41,10 @@ export function OfflineDetector({ children }: { children: React.ReactNode }) {
       window.removeEventListener("offline", handleOffline)
     }
   }, [])
+
+  if (!isInitialized) {
+    return null
+  }
 
   if (showGame && !isOnline) {
     return (
