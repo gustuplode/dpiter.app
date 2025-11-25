@@ -41,6 +41,9 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
         const blob = await upload(file.name, file, {
           access: "public",
           handleUploadUrl: "/api/upload-blob",
+          options: {
+            addRandomSuffix: true,
+          },
         })
 
         console.log("[v0] Video upload successful:", blob.url)
@@ -58,6 +61,9 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
         const blob = await upload(file.name, croppedFile, {
           access: "public",
           handleUploadUrl: "/api/upload-blob",
+          options: {
+            addRandomSuffix: true,
+          },
         })
 
         console.log("[v0] Image upload successful:", blob.url)

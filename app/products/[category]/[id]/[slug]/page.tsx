@@ -4,6 +4,50 @@ import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
 import { LikeButton } from "@/components/like-button"
 import { RatingButton } from "@/components/rating-button"
+import type { Metadata } from "next"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string; id: string; slug: string }>
+}): Promise<Metadata> {
+  const { id, category } = await params
+  const supabase = await createClient()
+
+  const { data: product } = await supabase.from("category_products").select("*").eq("id", id).single()
+
+  if (!product) {
+    return {
+      title: "Product Not Found | DPITER.shop",
+      description: "The product you're looking for is not available.",
+    }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
+  const productUrl = `${baseUrl}/products/${category}/${id}/${product.title.toLowerCase().replace(/\s+/g, "-")}`
+
+  return {
+    title: `${product.title} - ${product.brand || category} | Buy Online at Best Price | DPITER.shop`,
+    description: `Shop ${product.title} by ${product.brand || category} at ₹${product.price}. ${product.original_price ? `Save ${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Best price online"}. Buy from trusted sellers on Amazon, Flipkart, Meesho. Free delivery, easy returns. 4.1★ rated fashion discovery platform.`,
+    keywords: `${product.title}, ${product.brand || ""}, ${category} online, buy ${category}, ${product.title} price, ${product.title} online shopping, fashion shopping, dpiter shop, amazon ${category}, flipkart ${category}, meesho ${category}`,
+    openGraph: {
+      title: `${product.title} - ₹${product.price}`,
+      description: `Shop ${product.title} at best price. ${product.original_price ? `${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Great deal"}!`,
+      images: [product.image_url || "/placeholder.svg"],
+      url: productUrl,
+      type: "product",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} - ₹${product.price}`,
+      description: `Shop ${product.title} online at DPITER.shop`,
+      images: [product.image_url || "/placeholder.svg"],
+    },
+    alternates: {
+      canonical: productUrl,
+    },
+  }
+}
 
 export default async function ProductDetailPage({
   params,
@@ -132,7 +176,7 @@ export default async function ProductDetailPage({
             </div>
 
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg lg:text-xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+              <h2 className="font-display text-xl lg:text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
                 Product Details
               </h2>
               <div className="space-y-2 text-sm lg:text-base text-text-secondary-light dark:text-text-secondary-dark">
