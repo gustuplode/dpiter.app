@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { SearchIcon } from 'lucide-react'
-import { BottomNav } from "@/components/bottom-nav"
+import { SearchIcon } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { getProductUrl } from "@/lib/utils"
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -23,11 +23,10 @@ export default function SearchPage() {
 
       const query = searchQuery.toLowerCase().trim()
 
-      // Search by title, brand name (starting with query), or exact price match
       const { data } = await supabase
-        .from("products")
+        .from("category_products")
         .select("*")
-        .or(`title.ilike.${query}%,brand.ilike.${query}%,price.eq.${Number.parseFloat(query) || -1}`)
+        .or(`title.ilike.%${query}%,brand.ilike.%${query}%`)
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .limit(50)
@@ -38,24 +37,24 @@ export default function SearchPage() {
 
     const debounce = setTimeout(() => {
       searchProducts()
-    }, 100)
+    }, 300)
 
     return () => clearTimeout(debounce)
   }, [searchQuery])
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-[#F8FAFC] dark:bg-[#1E293B]">
-      <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full">
+    <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+      <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full pb-20">
         <div className="mb-6">
           <div className="relative">
             <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by title, brand, or price..."
+              placeholder="Search by title, brand..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
-              className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#F97316] transition-colors"
+              className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-primary transition-colors"
             />
           </div>
           {searchQuery && (
@@ -67,7 +66,7 @@ export default function SearchPage() {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F97316]" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -84,15 +83,13 @@ export default function SearchPage() {
             {products.map((product) => (
               <Link
                 key={product.id}
-                href={product.affiliate_link || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={getProductUrl(product.id, product.title, product.category)}
                 className="flex flex-col bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="relative w-full overflow-hidden">
                   <div
                     className="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover"
-                    style={{ backgroundImage: `url('${product.image_url}')` }}
+                    style={{ backgroundImage: `url('${product.image_url || "/placeholder.svg"}')` }}
                   />
                 </div>
                 <div className="flex flex-col p-3">
@@ -103,7 +100,7 @@ export default function SearchPage() {
                     {product.title}
                   </p>
                   <p className="text-sm font-medium leading-normal text-slate-800 dark:text-slate-100 pt-1">
-                    ₹{product.price.toFixed(2)}
+                    ₹{product.price?.toFixed(2)}
                   </p>
                 </div>
               </Link>
@@ -111,8 +108,6 @@ export default function SearchPage() {
           </div>
         )}
       </main>
-
-      <BottomNav />
     </div>
   )
 }

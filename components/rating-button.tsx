@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Star } from 'lucide-react'
+import { Star } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 interface RatingButtonProps {
@@ -51,22 +51,20 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
       const userId = localStorage.getItem("firebase_uid") || localStorage.getItem("userId") || `user_${Date.now()}`
       localStorage.setItem("userId", userId)
 
-      const { error } = await supabase
-        .from("ratings")
-        .upsert({
-          item_id: itemId,
-          item_type: itemType,
-          user_id: userId,
-          rating: rating,
-          comment: comment || null,
-        })
+      const { error } = await supabase.from("ratings").upsert({
+        item_id: itemId,
+        item_type: itemType,
+        user_id: userId,
+        rating: rating,
+        comment: comment || null,
+      })
 
       if (!error) {
         setUserRating(rating)
         setShowRatingModal(false)
         setComment("")
         // Trigger a custom event to update the display
-        window.dispatchEvent(new CustomEvent('ratingUpdated', { detail: { itemId, itemType } }))
+        window.dispatchEvent(new CustomEvent("ratingUpdated", { detail: { itemId, itemType } }))
       }
     } catch (error) {
       console.error("Error saving rating:", error)
@@ -82,9 +80,9 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
           e.stopPropagation()
           setShowRatingModal(true)
         }}
-        className={`h-7 w-7 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600 transition-colors ${className}`}
+        className={`flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-yellow-500 transition-colors ${className}`}
       >
-        <Star className={`w-4 h-4 ${userRating > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+        <Star className={`w-4 h-4 ${userRating > 0 ? "fill-yellow-400 text-yellow-400" : ""}`} />
       </button>
 
       {showRatingModal && (
@@ -103,9 +101,7 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
               e.stopPropagation()
             }}
           >
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center">
-              Rate this {itemType}
-            </h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center">Rate this {itemType}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
               Tap a star to give your rating
             </p>
@@ -137,19 +133,17 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Share your thoughts..."
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F97316] resize-none"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
               />
             </div>
             <div className="text-center mb-4">
               {userRating > 0 ? (
                 <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                  ✓ Your rating: {userRating} {userRating === 1 ? 'star' : 'stars'}
+                  Your rating: {userRating} {userRating === 1 ? "star" : "stars"}
                 </p>
               ) : (
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Click a star to rate
-                </p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Click a star to rate</p>
               )}
             </div>
             <div className="flex gap-3">
@@ -170,7 +164,7 @@ export function RatingButton({ itemId, itemType, className = "" }: RatingButtonP
                   if (userRating > 0) submitRating(userRating)
                 }}
                 disabled={userRating === 0 || isLoading}
-                className="flex-1 py-3 bg-[#F97316] text-white rounded-lg font-medium hover:bg-[#ea580c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Submitting..." : "Submit"}
               </button>

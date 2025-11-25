@@ -1,6 +1,5 @@
 "use client"
 
-import { BottomNav } from "@/components/bottom-nav"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -8,7 +7,7 @@ import Image from "next/image"
 
 interface Product {
   id: string
-  brand_name: string
+  brand: string
   title: string
   price: number
   image_url: string
@@ -115,7 +114,7 @@ export default function CartPage() {
                     className="flex gap-3 bg-white dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
                   >
                     <Link
-                      href={`/products/${product.category}/${product.id}/${product.slug}`}
+                      href={`/products/${product.category}/${product.id}/${product.slug || product.title?.toLowerCase().replace(/\s+/g, "-")}`}
                       className="relative w-24 h-24 flex-shrink-0"
                     >
                       <Image
@@ -128,9 +127,11 @@ export default function CartPage() {
 
                     <div className="flex-1 py-2 pr-2 flex flex-col justify-between">
                       <div>
-                        <Link href={`/products/${product.category}/${product.id}/${product.slug}`}>
+                        <Link
+                          href={`/products/${product.category}/${product.id}/${product.slug || product.title?.toLowerCase().replace(/\s+/g, "-")}`}
+                        >
                           <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
-                            {product.brand_name}
+                            {product.brand}
                           </p>
                           <p className="text-[11px] text-gray-600 dark:text-gray-400 line-clamp-1">{product.title}</p>
                         </Link>
@@ -167,8 +168,6 @@ export default function CartPage() {
           )}
         </div>
       </main>
-
-      <BottomNav />
     </div>
   )
 }

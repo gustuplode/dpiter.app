@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Heart, Trash2 } from 'lucide-react'
-import { BottomNav } from "@/components/bottom-nav"
+import { Heart, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { getProductUrl, getCollectionUrl } from "@/lib/utils"
 
 type WishlistItem = {
   id: string
@@ -13,45 +13,46 @@ type WishlistItem = {
   price?: number
   image_url: string
   type: "product" | "collection"
+  category?: string
 }
 
 export default function WishlistPage() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
   useEffect(() => {
     loadWishlist()
-    
+
     const handleWishlistUpdate = () => {
       loadWishlist()
     }
-    
-    window.addEventListener('wishlistUpdated', handleWishlistUpdate)
-    return () => window.removeEventListener('wishlistUpdated', handleWishlistUpdate)
+
+    window.addEventListener("wishlistUpdated", handleWishlistUpdate)
+    return () => window.removeEventListener("wishlistUpdated", handleWishlistUpdate)
   }, [])
 
   const loadWishlist = async () => {
     try {
+      const supabase = createClient()
+
       // Load products
       const savedProducts = localStorage.getItem("wishlist")
       const productIds: string[] = savedProducts ? JSON.parse(savedProducts) : []
-      
+
       // Load collections
       const savedCollections = localStorage.getItem("wishlist_collections")
       const collectionIds: string[] = savedCollections ? JSON.parse(savedCollections) : []
 
       const items: WishlistItem[] = []
 
-      // Fetch products
       if (productIds.length > 0) {
         const { data: products } = await supabase
-          .from("products")
-          .select("id, title, brand, price, image_url")
+          .from("category_products")
+          .select("id, title, brand, price, image_url, category")
           .in("id", productIds)
 
         if (products) {
-          items.push(...products.map(p => ({ ...p, type: "product" as const })))
+          items.push(...products.map((p) => ({ ...p, type: "product" as const })))
         }
       }
 
@@ -63,13 +64,13 @@ export default function WishlistPage() {
           .in("id", collectionIds)
 
         if (collections) {
-          items.push(...collections.map(c => ({ ...c, type: "collection" as const })))
+          items.push(...collections.map((c) => ({ ...c, type: "collection" as const })))
         }
       }
 
       setWishlistItems(items)
     } catch (error) {
-      console.error("[v0] Error loading wishlist:", error)
+      console.error("Error loading wishlist:", error)
       setWishlistItems([])
     } finally {
       setLoading(false)
@@ -83,17 +84,24 @@ export default function WishlistPage() {
     const updatedIds = ids.filter((id) => id !== itemId)
     localStorage.setItem(key, JSON.stringify(updatedIds))
     setWishlistItems(wishlistItems.filter((item) => !(item.id === itemId && item.type === type)))
-    window.dispatchEvent(new CustomEvent('wishlistUpdated'))
+    window.dispatchEvent(new CustomEvent("wishlistUpdated"))
+  }
+
+  const getItemUrl = (item: WishlistItem) => {
+    if (item.type === "collection") {
+      return getCollectionUrl(item.id, item.title)
+    }
+    return getProductUrl(item.id, item.title, item.category || "fashion")
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-[#F8FAFC] dark:bg-[#1E293B]">
-      <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full">
+    <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+      <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full pb-20">
         <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-6">My Wishlist</h2>
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#F97316] border-t-transparent"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
         ) : wishlistItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -104,9 +112,9 @@ export default function WishlistPage() {
             </p>
             <Link
               href="/"
-              className="mt-4 px-6 py-2 bg-[#F97316] text-white rounded-full font-medium hover:bg-[#F97316]/90 transition-colors"
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-full font-medium hover:bg-primary/90 transition-colors"
             >
-              Browse Collections
+              Browse Products
             </Link>
           </div>
         ) : (
@@ -123,11 +131,11 @@ export default function WishlistPage() {
                 >
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </button>
-                <Link href={`/collections/${item.id}`} className="flex flex-col">
+                <Link href={getItemUrl(item)} className="flex flex-col">
                   <div className="relative w-full overflow-hidden">
                     <div
                       className="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover"
-                      style={{ backgroundImage: `url('${item.image_url}')` }}
+                      style={{ backgroundImage: `url('${item.image_url || "/placeholder.svg"}')` }}
                     />
                   </div>
                   <div className="flex flex-col p-3">
@@ -152,8 +160,6 @@ export default function WishlistPage() {
           </div>
         )}
       </main>
-
-      <BottomNav />
     </div>
   )
 }

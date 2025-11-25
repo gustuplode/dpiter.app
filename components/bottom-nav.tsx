@@ -37,11 +37,11 @@ export function BottomNav() {
         {cartPulse && <span className="absolute top-0 right-1/4 h-2 w-2 bg-primary rounded-full animate-ping"></span>}
       </Link>
       <Link
-        href="/offers"
-        className={`flex flex-col items-center justify-center gap-0 ${pathname === "/offers" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
+        href="/wishlist"
+        className={`flex flex-col items-center justify-center gap-0 ${pathname === "/wishlist" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
       >
-        <span className="material-symbols-outlined text-xl">sell</span>
-        <span className="text-[9px] font-medium">Offers</span>
+        <span className="material-symbols-outlined text-xl">favorite</span>
+        <span className="text-[9px] font-medium">Wishlist</span>
       </Link>
       <Link
         href="/profile"
