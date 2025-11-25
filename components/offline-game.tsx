@@ -17,10 +17,13 @@ export function OfflineGame() {
   }, [])
 
   useEffect(() => {
-    if (!gameStarted && !gameOver) {
-      setGameStarted(true)
-    }
-  }, [])
+    const timer = setTimeout(() => {
+      if (!gameStarted && !gameOver) {
+        setGameStarted(true)
+      }
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [gameStarted, gameOver])
 
   useEffect(() => {
     if (!canvasRef.current || !gameStarted || gameOver) {
@@ -42,13 +45,13 @@ export function OfflineGame() {
         height: 47,
         velocityY: 0,
         isJumping: false,
-        jumpForce: -13,
-        gravity: 0.65,
+        jumpForce: -12,
+        gravity: 0.6,
         legFrame: 0,
       },
       obstacles: [] as Array<{ x: number; width: number; height: number; scored: boolean; type: string }>,
       ground: canvas.height - 20,
-      gameSpeed: 7,
+      gameSpeed: 6,
       frameCount: 0,
       score: 0,
       clouds: [] as Array<{ x: number; y: number }>,
@@ -58,10 +61,10 @@ export function OfflineGame() {
     gameStateRef.current = gameState
 
     // Initialize clouds
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       gameState.clouds.push({
         x: Math.random() * canvas.width,
-        y: 20 + Math.random() * 60,
+        y: 20 + Math.random() * 50,
       })
     }
 
@@ -75,29 +78,14 @@ export function OfflineGame() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
         e.preventDefault()
-        if (gameOver) {
-          handleRestart()
-        } else {
-          jump()
-        }
-      }
-    }
-
-    const handleClick = () => {
-      if (gameOver) {
-        handleRestart()
-      } else {
         jump()
       }
     }
 
+    const handleClick = () => jump()
     const handleTouch = (e: TouchEvent) => {
       e.preventDefault()
-      if (gameOver) {
-        handleRestart()
-      } else {
-        jump()
-      }
+      jump()
     }
 
     document.addEventListener("keydown", handleKeyDown)
@@ -107,37 +95,52 @@ export function OfflineGame() {
     const drawDino = () => {
       const { x, y, legFrame } = gameState.dino
 
+      // Body
       ctx.fillStyle = "#535353"
       ctx.fillRect(x + 6, y + 20, 34, 22)
+
+      // Neck
       ctx.fillRect(x + 20, y + 12, 14, 8)
+
+      // Head
       ctx.fillRect(x + 30, y + 4, 12, 12)
 
+      // Eye
       ctx.fillStyle = "#ffffff"
       ctx.fillRect(x + 36, y + 7, 3, 3)
 
+      // Tail
       ctx.fillStyle = "#535353"
       ctx.fillRect(x, y + 24, 8, 6)
       ctx.fillRect(x - 4, y + 28, 6, 4)
 
+      // Legs (animated running)
+      ctx.fillStyle = "#535353"
       if (!gameState.dino.isJumping) {
         if (legFrame < 10) {
+          // Left leg forward
           ctx.fillRect(x + 12, y + 42, 6, 5)
           ctx.fillRect(x + 24, y + 42, 6, 5)
         } else {
+          // Right leg forward
           ctx.fillRect(x + 14, y + 42, 6, 5)
           ctx.fillRect(x + 26, y + 42, 6, 5)
         }
       } else {
+        // Both legs centered when jumping
         ctx.fillRect(x + 13, y + 42, 6, 5)
         ctx.fillRect(x + 25, y + 42, 6, 5)
       }
 
+      // Front arm
       ctx.fillRect(x + 20, y + 20, 4, 8)
     }
 
     const drawCactus = (x: number, y: number, width: number, height: number) => {
       ctx.fillStyle = "#535353"
+      // Main body
       ctx.fillRect(x, y, width, height)
+      // Arms
       const armY = y + height / 3
       ctx.fillRect(x - 4, armY, 4, height / 3)
       ctx.fillRect(x + width, armY, 4, height / 3)
@@ -145,20 +148,26 @@ export function OfflineGame() {
 
     const drawBird = (x: number, y: number) => {
       ctx.fillStyle = "#535353"
+      // Body
       ctx.fillRect(x + 4, y + 6, 16, 8)
+      // Head
       ctx.fillRect(x + 16, y + 4, 8, 6)
+      // Beak
       ctx.fillRect(x + 22, y + 6, 4, 2)
+      // Wings (animated)
       const wingY = Math.sin(gameState.frameCount * 0.3) * 3
       ctx.fillRect(x, y + 8 + wingY, 12, 4)
       ctx.fillRect(x + 12, y + 8 - wingY, 12, 4)
     }
 
     const gameLoop = () => {
+      // Clear and draw sky
       ctx.fillStyle = "#f7f7f7"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      gameState.clouds.forEach((cloud) => {
-        cloud.x -= 0.8
+      // Draw clouds
+      gameState.clouds.forEach((cloud, i) => {
+        cloud.x -= 0.5
         if (cloud.x < -50) cloud.x = canvas.width + 50
 
         ctx.fillStyle = "#e0e0e0"
@@ -169,6 +178,7 @@ export function OfflineGame() {
         ctx.fill()
       })
 
+      // Draw ground line
       ctx.strokeStyle = "#535353"
       ctx.lineWidth = 2
       ctx.beginPath()
@@ -176,12 +186,14 @@ export function OfflineGame() {
       ctx.lineTo(canvas.width, gameState.ground)
       ctx.stroke()
 
+      // Ground dashes
       for (let i = 0; i < canvas.width; i += 40) {
         const offset = (gameState.frameCount * gameState.gameSpeed) % 40
         ctx.fillStyle = "#535353"
         ctx.fillRect(i - offset, gameState.ground + 2, 20, 2)
       }
 
+      // Update dino physics
       gameState.dino.velocityY += gameState.dino.gravity
       gameState.dino.y += gameState.dino.velocityY
 
@@ -191,14 +203,16 @@ export function OfflineGame() {
         gameState.dino.isJumping = false
       }
 
+      // Animate legs
       if (!gameState.dino.isJumping) {
         gameState.dino.legFrame = (gameState.dino.legFrame + 1) % 20
       }
 
       drawDino()
 
+      // Spawn obstacles
       gameState.frameCount++
-      if (gameState.frameCount % 75 === 0) {
+      if (gameState.frameCount % 80 === 0) {
         const type = Math.random() > 0.7 ? "bird" : "cactus"
         const height = type === "bird" ? 24 : 30 + Math.random() * 20
         const width = type === "bird" ? 30 : 12
@@ -212,6 +226,7 @@ export function OfflineGame() {
         })
       }
 
+      // Update and draw obstacles
       for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
         const obs = gameState.obstacles[i]
         obs.x -= gameState.gameSpeed
@@ -224,6 +239,7 @@ export function OfflineGame() {
           drawCactus(obs.x, obsY, obs.width, obs.height)
         }
 
+        // Collision detection (more precise)
         if (
           gameState.dino.x + 10 < obs.x + obs.width - 5 &&
           gameState.dino.x + gameState.dino.width - 10 > obs.x + 5 &&
@@ -243,6 +259,7 @@ export function OfflineGame() {
           return
         }
 
+        // Score
         if (!obs.scored && obs.x + obs.width < gameState.dino.x) {
           obs.scored = true
           gameState.score += 1
@@ -253,10 +270,12 @@ export function OfflineGame() {
         }
       }
 
+      // Update score
       setScore(Math.floor(gameState.score))
 
-      if (gameState.gameSpeed < 14) {
-        gameState.gameSpeed += 0.002
+      // Gradually increase speed
+      if (gameState.gameSpeed < 12) {
+        gameState.gameSpeed += 0.001
       }
 
       gameLoopRef.current = requestAnimationFrame(gameLoop)
@@ -282,52 +301,46 @@ export function OfflineGame() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-white dark:bg-gray-900">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-red-500 to-orange-500 mb-6 shadow-2xl">
-          <span className="material-symbols-outlined text-6xl text-white">cloud_off</span>
+    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 py-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+          <span className="material-symbols-outlined text-5xl text-gray-600 dark:text-gray-400">cloud_off</span>
         </div>
-        <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-white">No Internet Connection</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-2 text-lg">Play the T-Rex game while waiting!</p>
-        <p className="text-sm text-gray-500 dark:text-gray-500">
-          The website will automatically load when connection is restored
-        </p>
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">No Internet Connection</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">Play the T-Rex game while waiting!</p>
       </div>
 
-      <div className="w-full max-w-4xl">
-        <div className="flex justify-between items-center mb-6 px-4">
-          <div className="text-2xl font-mono font-bold text-gray-700 dark:text-gray-300">
-            HI {highScore.toString().padStart(5, "0")}
+      <div className="w-full max-w-2xl">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-lg font-mono text-gray-700 dark:text-gray-300">
+            HI: {highScore.toString().padStart(5, "0")} {score.toString().padStart(5, "0")}
           </div>
-          <div className="text-2xl font-mono font-bold text-gray-900 dark:text-white">
-            {score.toString().padStart(5, "0")}
-          </div>
+          {gameOver && (
+            <button
+              onClick={handleRestart}
+              className="px-6 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            >
+              Restart
+            </button>
+          )}
         </div>
 
         <canvas
           ref={canvasRef}
-          width={1000}
-          height={250}
-          className="w-full border-4 border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-900 shadow-2xl"
+          width={800}
+          height={200}
+          className="w-full border-2 border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900"
         />
 
         {gameOver && (
-          <div className="text-center mt-8">
-            <p className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4 tracking-widest">G A M E O V E R</p>
-            <button
-              onClick={handleRestart}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105"
-            >
-              Restart Game
-            </button>
+          <div className="text-center mt-4">
+            <p className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">G A M E O V E R</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Press Space or Tap to Restart</p>
           </div>
         )}
 
         {!gameOver && (
-          <p className="text-center mt-6 text-lg text-gray-600 dark:text-gray-400 font-medium">
-            Press <kbd className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md font-mono text-sm">Space</kbd> or{" "}
-            <span className="font-semibold">Tap</span> to Jump
-          </p>
+          <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">Press Space or Tap to Jump</p>
         )}
       </div>
     </div>

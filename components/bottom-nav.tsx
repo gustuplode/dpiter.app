@@ -8,36 +8,15 @@ import { useState, useEffect } from "react"
 export function BottomNav() {
   const pathname = usePathname()
   const [cartPulse, setCartPulse] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
-    const loadCartCount = () => {
-      const cart = localStorage.getItem("cart")
-      const count = cart ? JSON.parse(cart).length : 0
-      setCartCount(count)
-    }
-
-    loadCartCount()
-
     const handleCartAdded = () => {
       setCartPulse(true)
       setTimeout(() => setCartPulse(false), 600)
-      loadCartCount()
-    }
-
-    const handleCartUpdated = () => {
-      loadCartCount()
     }
 
     window.addEventListener("cartAdded", handleCartAdded)
-    window.addEventListener("cartUpdated", handleCartUpdated)
-    window.addEventListener("storage", loadCartCount)
-
-    return () => {
-      window.removeEventListener("cartAdded", handleCartAdded)
-      window.removeEventListener("cartUpdated", handleCartUpdated)
-      window.removeEventListener("storage", loadCartCount)
-    }
+    return () => window.removeEventListener("cartAdded", handleCartAdded)
   }, [])
 
   return (
@@ -53,14 +32,7 @@ export function BottomNav() {
         href="/cart"
         className={`flex flex-col items-center justify-center gap-0 relative ${pathname === "/cart" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"} ${cartPulse ? "animate-pulse" : ""}`}
       >
-        <div className="relative">
-          <span className="material-symbols-outlined text-xl">shopping_cart</span>
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
-              {cartCount > 99 ? "99+" : cartCount}
-            </span>
-          )}
-        </div>
+        <span className="material-symbols-outlined text-xl">shopping_cart</span>
         <span className="text-[9px] font-medium">Cart</span>
         {cartPulse && <span className="absolute top-0 right-1/4 h-2 w-2 bg-primary rounded-full animate-ping"></span>}
       </Link>
