@@ -26,13 +26,18 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
   const productUrl = `${baseUrl}/products/${category}/${id}/${product.title.toLowerCase().replace(/\s+/g, "-")}`
 
+  const discountText =
+    product.original_price && product.original_price > product.price
+      ? `Save ${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off`
+      : "Best price online"
+
   return {
     title: `${product.title} - ${product.brand || category} | Buy Online at Best Price | DPITER.shop`,
-    description: `Shop ${product.title} by ${product.brand || category} at ₹${product.price}. ${product.original_price ? `Save ${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Best price online"}. Buy from trusted sellers on Amazon, Flipkart, Meesho. Free delivery, easy returns. 4.1★ rated fashion discovery platform.`,
+    description: `Shop ${product.title} by ${product.brand || category} at ₹${product.price}. ${discountText}. Buy from trusted sellers on Amazon, Flipkart, Meesho. Free delivery, easy returns. 4.1★ rated fashion discovery platform.`,
     keywords: `${product.title}, ${product.brand || ""}, ${category} online, buy ${category}, ${product.title} price, ${product.title} online shopping, fashion shopping, dpiter shop, amazon ${category}, flipkart ${category}, meesho ${category}`,
     openGraph: {
       title: `${product.title} - ₹${product.price}`,
-      description: `Shop ${product.title} at best price. ${product.original_price ? `${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Great deal"}!`,
+      description: `Shop ${product.title} at best price. ${discountText}!`,
       images: [product.image_url || "/placeholder.svg"],
       url: productUrl,
       type: "product",
@@ -57,8 +62,6 @@ export default async function ProductDetailPage({
   try {
     const { category, id, slug } = await params
     const supabase = await createClient()
-
-    console.log("[v0] Loading product:", { category, id, slug })
 
     const { data: product, error: productError } = await supabase
       .from("category_products")
