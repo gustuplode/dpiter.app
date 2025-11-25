@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { BottomNav } from "@/components/bottom-nav"
-import { FooterLinks } from "@/components/footer-links"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { AddToCartButton } from "@/components/add-to-cart-button"
@@ -134,15 +132,12 @@ export default function HomePage() {
       </Suspense>
 
       <div className="flex flex-col">
-        <main className="pb-20">
+        <main className="pb-4">
           <Suspense fallback={<CollectionGridSkeleton />}>
             <ProductList />
           </Suspense>
         </main>
       </div>
-
-      <FooterLinks />
-      <BottomNav />
     </div>
   )
 }

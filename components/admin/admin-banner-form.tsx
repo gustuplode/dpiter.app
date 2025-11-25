@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { AdminMediaCropper } from "./admin-media-cropper"
 import Link from "next/link"
+import { Check } from "lucide-react"
 
 export function AdminBannerForm({ banner }: { banner?: any }) {
   const router = useRouter()
@@ -18,6 +19,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
   const [showCropper, setShowCropper] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -37,6 +39,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setSuccessMessage(null)
 
     try {
       const method = banner ? "PUT" : "POST"
@@ -56,10 +59,19 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
       })
 
       if (response.ok) {
-        router.push("/admin/banners")
-        router.refresh()
+        if (banner) {
+          // If editing, go back
+          router.push("/admin/banners")
+          router.refresh()
+        } else {
+          setSuccessMessage("Banner added successfully! You can add another banner or go back.")
+          setMediaUrl("")
+          setAdCode("")
+          setPosition(position + 1) // Auto-increment position
+        }
       } else {
-        alert("Failed to save banner")
+        const error = await response.json()
+        alert("Failed to save banner: " + (error.error || "Unknown error"))
       }
     } catch (error) {
       console.error("Error saving banner:", error)
@@ -121,13 +133,21 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
         </div>
       </header>
 
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mx-4 mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+          <Check className="h-5 w-5 text-green-600" />
+          <p className="text-green-700 dark:text-green-400 font-medium">{successMessage}</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="p-4 max-w-2xl mx-auto space-y-6">
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
             Banner Type
           </label>
           <div className="flex gap-4 flex-wrap">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 checked={mediaType === "image"}
@@ -136,7 +156,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
               />
               <span>Image</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 checked={mediaType === "video"}
@@ -145,7 +165,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
               />
               <span>Video</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 checked={mediaType === "ad_code"}
@@ -165,7 +185,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             <textarea
               value={adCode}
               onChange={(e) => setAdCode(e.target.value)}
-              placeholder="Paste your ad script or iframe code here, e.g., <script>...</script> or <iframe>...</iframe>"
+              placeholder="Paste your ad script or iframe code here..."
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark font-mono text-sm"
               rows={10}
             />
@@ -189,6 +209,11 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
               onChange={handleFileSelect}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
             />
+            <p className="text-xs text-gray-500 mt-2">
+              {mediaType === "image"
+                ? "Images will be cropped to 16:7 ratio (1920x840px)"
+                : "Videos up to 500MB supported (MP4, WebM, MOV)"}
+            </p>
             {mediaUrl && (
               <div className="mt-4 relative w-full aspect-[16/7] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
                 {mediaType === "image" ? (
@@ -212,6 +237,9 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark"
             min="0"
           />
+          <p className="text-xs text-gray-500 mt-1">
+            Lower numbers appear first. Use same number to display multiple banners at once.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -224,7 +252,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           />
           <label
             htmlFor="is-active"
-            className="text-sm font-medium text-text-primary-light dark:text-text-primary-dark"
+            className="text-sm font-medium text-text-primary-light dark:text-text-primary-dark cursor-pointer"
           >
             Active (Show on website)
           </label>
@@ -247,9 +275,15 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             disabled={loading || (mediaType !== "ad_code" && !mediaUrl) || (mediaType === "ad_code" && !adCode)}
             className="flex-1 bg-primary hover:bg-primary/90"
           >
-            {loading ? "Saving..." : banner ? "Update Banner" : "Publish Banner"}
+            {loading ? "Saving..." : banner ? "Update Banner" : "Add Banner"}
           </Button>
         </div>
+
+        {!banner && (
+          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+            You can add multiple banners with the same image/video - each will be saved as a unique entry.
+          </p>
+        )}
       </form>
     </div>
   )

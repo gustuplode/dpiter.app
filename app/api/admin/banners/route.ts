@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, type, media_url, position, is_active } = body
+  const { title, type, media_url, ad_code, position, is_active } = body
 
   const { data, error } = await supabase
     .from("banners")
@@ -21,11 +21,26 @@ export async function POST(request: Request) {
       title,
       type,
       media_url,
+      ad_code: ad_code || null,
       position,
       is_active,
+      created_at: new Date().toISOString(),
     })
     .select()
     .single()
+
+  if (error) {
+    console.error("[v0] Banner insert error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json(data)
+}
+
+export async function GET() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from("banners").select("*").order("position", { ascending: true })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

@@ -8,24 +8,37 @@ import { BottomNav } from "@/components/bottom-nav"
 import { SwipeablePageWrapper } from "@/components/swipeable-page-wrapper"
 import { PullToRefresh } from "@/components/pull-to-refresh"
 import { OfflineDetector } from "@/components/offline-detector"
+import { FooterLinks } from "@/components/footer-links"
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdminPage = pathname?.startsWith("/admin")
   const isProfilePage = pathname === "/profile"
-  const isCartPage = pathname === "/cart"
-  const isWishlistPage = pathname === "/wishlist"
-  const isSearchPage = pathname === "/search"
-  const isOffersPage = pathname === "/offers"
+  const isProfileSubpage = pathname?.startsWith("/profile/")
 
-  // Hide full layout for admin and self-managed pages
-  const hideFullLayout = isAdminPage || isProfilePage
-
-  if (hideFullLayout) {
+  // Admin pages manage their own layout completely
+  if (isAdminPage) {
     return <main className="min-h-screen">{children}</main>
   }
 
-  const showBottomNav = !isCartPage && !isWishlistPage && !isSearchPage && !isOffersPage
+  if (isProfilePage) {
+    return (
+      <>
+        <main className="min-h-screen pb-16">{children}</main>
+        <BottomNav />
+      </>
+    )
+  }
+
+  // Profile subpages - need bottom nav
+  if (isProfileSubpage) {
+    return (
+      <>
+        <main className="min-h-screen pb-16">{children}</main>
+        <BottomNav />
+      </>
+    )
+  }
 
   return (
     <>
@@ -37,7 +50,8 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
           </OfflineDetector>
         </main>
       </PullToRefresh>
-      {showBottomNav && <BottomNav />}
+      <FooterLinks />
+      <BottomNav />
     </>
   )
 }

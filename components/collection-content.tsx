@@ -71,14 +71,7 @@ export function CollectionContent({
                       className="flex items-center justify-center h-7 w-7 text-foreground hover:text-primary transition-colors"
                     />
                     <AddToCartButton
-                      product={{
-                        id: product.id,
-                        title: product.title,
-                        brand: product.brand,
-                        price: product.price,
-                        image_url: product.image_url,
-                        affiliate_link: product.affiliate_link,
-                      }}
+                      productId={product.id}
                       className="flex items-center justify-center h-7 w-7 text-primary hover:text-primary/80 transition-colors"
                     />
                   </div>

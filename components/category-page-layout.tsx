@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { BottomNav } from "@/components/bottom-nav"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { getProductUrl } from "@/lib/utils"
@@ -14,7 +13,7 @@ interface CategoryPageLayoutProps {
 export function CategoryPageLayout({ title, products, error }: CategoryPageLayoutProps) {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-4">
         <div className="flex flex-col">
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
@@ -83,8 +82,6 @@ export function CategoryPageLayout({ title, products, error }: CategoryPageLayou
           )}
         </div>
       </main>
-
-      <BottomNav />
     </div>
   )
 }

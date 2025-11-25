@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { notFound } from 'next/navigation'
-import { BottomNav } from "@/components/bottom-nav"
-import { FooterLinks } from "@/components/footer-links"
+import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { CollectionContent } from "@/components/collection-content"
 
@@ -9,7 +7,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: collection } = await supabase.from("collections").select("title, brand, image_url").eq("id", id).single()
+  const { data: collection } = await supabase
+    .from("collections")
+    .select("title, brand, image_url")
+    .eq("id", id)
+    .single()
 
   if (!collection) {
     return {
@@ -91,7 +93,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
     .order("created_at", { ascending: false })
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
-  
+
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -132,7 +134,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
         name: product.title,
         brand: {
           "@type": "Brand",
-          name: product.brand_name,
+          name: product.brand,
         },
         offers: {
           "@type": "Offer",
@@ -142,20 +144,15 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
           url: product.affiliate_link,
         },
         image: product.image_url,
-        description: `${product.title} from ${product.brand_name} available at DPITER.shop`,
+        description: `${product.title} from ${product.brand} available at DPITER.shop`,
       },
     })),
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
       <CollectionContent collection={collection} products={products || []} />
-      <FooterLinks />
-      <BottomNav />
     </>
   )
 }

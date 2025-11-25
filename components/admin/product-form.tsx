@@ -2,9 +2,9 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Upload } from 'lucide-react'
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, Upload, Check } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,7 @@ type Product = {
   title: string
   brand: string
   price: number
+  original_price?: number
   image_url: string
   affiliate_link: string
   is_visible: boolean
@@ -29,10 +30,12 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [cropperImage, setCropperImage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: product?.title || "",
     brand: product?.brand || "",
     price: product?.price || 0,
+    original_price: product?.original_price || 0,
     image_url: product?.image_url || "",
     affiliate_link: product?.affiliate_link || "",
     is_visible: product?.is_visible ?? true,
@@ -49,8 +52,8 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
       }
     }
     reader.readAsDataURL(file)
-    
-    e.target.value = ''
+
+    e.target.value = ""
   }
 
   const handleCropComplete = async (croppedBlob: Blob) => {
@@ -58,12 +61,12 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
     setCropperImage(null)
 
     try {
-      const formData = new FormData()
-      formData.append("file", croppedBlob, "product-image.jpg")
+      const formDataUpload = new FormData()
+      formDataUpload.append("file", croppedBlob, `product-${Date.now()}.jpg`)
 
       const response = await fetch("/api/upload", {
         method: "POST",
-        body: formData,
+        body: formDataUpload,
       })
 
       if (!response.ok) throw new Error("Upload failed")
@@ -80,6 +83,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setSuccessMessage(null)
 
     if (!formData.title || !formData.brand || !formData.image_url) {
       alert("Please fill in all required fields and upload an image")
@@ -92,6 +96,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
         title: formData.title,
         brand: formData.brand,
         price: formData.price,
+        original_price: formData.original_price || null,
         image_url: formData.image_url,
         affiliate_link: formData.affiliate_link,
         is_visible: formData.is_visible,
@@ -107,6 +112,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
           throw error
         }
         console.log("[v0] Product updated:", data)
+        setSuccessMessage("Product updated successfully!")
       } else {
         const { data, error } = await supabase
           .from("products")
@@ -121,11 +127,19 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
           throw error
         }
         console.log("[v0] Product created:", data)
-      }
+        setSuccessMessage("Product created successfully! You can add another product or go back.")
 
-      alert(product ? "Product updated successfully!" : "Product created successfully!")
-      router.push(`/admin/collections/${collectionId}/products`)
-      router.refresh()
+        // Reset form for adding another product
+        setFormData({
+          title: "",
+          brand: formData.brand, // Keep brand for convenience
+          price: 0,
+          original_price: 0,
+          image_url: "",
+          affiliate_link: "",
+          is_visible: true,
+        })
+      }
     } catch (error: any) {
       console.error("[v0] Error saving product:", error)
       alert("Error saving product: " + error.message)
@@ -161,10 +175,18 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
           <div className="size-10 shrink-0" />
         </header>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mx-4 mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+            <Check className="h-5 w-5 text-green-600" />
+            <p className="text-green-700 dark:text-green-400 font-medium">{successMessage}</p>
+          </div>
+        )}
+
         <main className="flex-1 px-4 py-6">
           <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
             <div className="space-y-2">
-              <Label htmlFor="title">Product Title</Label>
+              <Label htmlFor="title">Product Title *</Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -175,7 +197,7 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="brand">Brand</Label>
+              <Label htmlFor="brand">Brand *</Label>
               <Input
                 id="brand"
                 value={formData.brand}
@@ -185,26 +207,35 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="price">
-                Price (₹ INR)
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: Number.parseFloat(e.target.value) })}
-                placeholder="2500.00"
-                required
-              />
-              <p className="text-xs text-gray-500">
-                Enter price in INR (Indian Rupees)
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (₹ INR) *</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: Number.parseFloat(e.target.value) })}
+                  placeholder="2500.00"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="original_price">Original Price (₹ INR)</Label>
+                <Input
+                  id="original_price"
+                  type="number"
+                  step="0.01"
+                  value={formData.original_price}
+                  onChange={(e) => setFormData({ ...formData, original_price: Number.parseFloat(e.target.value) })}
+                  placeholder="3000.00 (for discount)"
+                />
+                <p className="text-xs text-gray-500">Leave empty or 0 if no discount</p>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Product Image</Label>
+              <Label htmlFor="image">Product Image *</Label>
               <div className="flex items-center gap-4">
                 <label
                   htmlFor="image"
@@ -262,12 +293,18 @@ export function ProductForm({ collectionId, product }: { collectionId: string; p
                 disabled={loading || uploading}
                 className="flex-1 bg-[#4A90E2] hover:bg-[#4A90E2]/90"
               >
-                {loading ? "Saving..." : product ? "Update Product" : "Create Product"}
+                {loading ? "Saving..." : product ? "Update Product" : "Add Product"}
               </Button>
               <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1">
-                Cancel
+                {product ? "Cancel" : "Done"}
               </Button>
             </div>
+
+            {!product && (
+              <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+                You can add multiple products with the same name - each will be saved as a unique entry.
+              </p>
+            )}
           </form>
         </main>
       </div>
