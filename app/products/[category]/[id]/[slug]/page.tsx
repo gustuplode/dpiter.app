@@ -26,10 +26,7 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
   const productUrl = `${baseUrl}/products/${category}/${id}/${product.title.toLowerCase().replace(/\s+/g, "-")}`
 
-  const discountText =
-    product.original_price && product.original_price > product.price
-      ? `Save ${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off`
-      : "Best price online"
+  const discountText = "Best price online"
 
   return {
     title: `${product.title} - ${product.brand || category} | Buy Online at Best Price | DPITER.shop`,
@@ -69,13 +66,8 @@ export default async function ProductDetailPage({
       .eq("id", id)
       .single()
 
-    if (productError) {
+    if (productError || !product) {
       console.error("[v0] Product fetch error:", productError)
-      notFound()
-    }
-
-    if (!product) {
-      console.log("[v0] Product not found")
       notFound()
     }
 
@@ -85,11 +77,6 @@ export default async function ProductDetailPage({
       .eq("category", category)
       .neq("id", id)
       .limit(6)
-
-    const hasOriginalPrice = product.original_price && product.original_price > product.price
-    const discountPercentage = hasOriginalPrice
-      ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-      : 0
 
     return (
       <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
@@ -163,16 +150,6 @@ export default async function ProductDetailPage({
                 <p className="text-3xl lg:text-4xl font-bold font-sans text-text-primary-light dark:text-white">
                   ₹{product.price}
                 </p>
-                {hasOriginalPrice && (
-                  <>
-                    <p className="text-base lg:text-lg font-normal text-text-secondary-light dark:text-text-secondary-dark line-through">
-                      ₹{product.original_price}
-                    </p>
-                    <p className="text-base lg:text-lg font-bold text-green-600 dark:text-green-400">
-                      {discountPercentage}% off
-                    </p>
-                  </>
-                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-4 lg:mt-6">
