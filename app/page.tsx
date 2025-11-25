@@ -11,6 +11,7 @@ import { CollectionGridSkeleton } from "@/components/collection-skeleton"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { DynamicBannerCarousel } from "@/components/dynamic-banner-carousel"
 import { AdDisplay } from "@/components/ad-display"
+import { CategoryHeader } from "@/components/category-header"
 
 async function ProductList() {
   const supabase = await createClient()
@@ -22,7 +23,7 @@ async function ProductList() {
     const { data, error: fetchError } = await supabase
       .from("category_products")
       .select("*")
-      .eq("is_visible", true)
+      .neq("category", "outfit")
       .order("created_at", { ascending: false })
       .limit(20)
 
@@ -123,6 +124,10 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
       <DynamicBannerCarousel />
+
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 shadow-sm py-3">
+        <CategoryHeader />
+      </div>
 
       <Suspense fallback={null}>
         <ActiveAds />
