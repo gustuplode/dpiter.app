@@ -123,13 +123,26 @@ html {
   * {
     @apply border-border outline-ring/50;
   }
-
-  /* Improved FOUC prevention for bottom navigation */
+  /* Add critical CSS to prevent FOUC on bottom navigation */
+  /* Hide page content until fully loaded to prevent flash of unstyled content */
   body {
-    @apply bg-background text-foreground;
-    font-family: "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    visibility: hidden;
   }
 
+  body.loaded {
+    visibility: visible;
+  }
+
+  /* Ensure bottom nav text doesn't show before styles load */
+  nav {
+    font-family: inherit;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Added Myntra-style font stack */
+    font-family: "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
   .font-display {
     font-family: "Libre Baskerville", serif;
   }
