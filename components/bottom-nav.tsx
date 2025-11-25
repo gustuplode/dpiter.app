@@ -7,38 +7,35 @@ import { useState, useEffect } from "react"
 
 export function BottomNav() {
   const pathname = usePathname()
-  const [cartPulse, setCartPulse] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
+  const [wishlistPulse, setWishlistPulse] = useState(false)
+  const [wishlistCount, setWishlistCount] = useState(0)
 
   useEffect(() => {
-    // Load cart count
-    const loadCartCount = () => {
-      const savedCart = localStorage.getItem("cart")
-      if (savedCart) {
-        const ids: string[] = JSON.parse(savedCart)
-        setCartCount(ids.length)
-      } else {
-        setCartCount(0)
-      }
+    const loadWishlistCount = () => {
+      const savedWishlist = localStorage.getItem("wishlist")
+      const savedCollections = localStorage.getItem("wishlist_collections")
+      const productCount = savedWishlist ? JSON.parse(savedWishlist).length : 0
+      const collectionCount = savedCollections ? JSON.parse(savedCollections).length : 0
+      setWishlistCount(productCount + collectionCount)
     }
 
-    loadCartCount()
+    loadWishlistCount()
 
-    const handleCartAdded = () => {
-      setCartPulse(true)
-      setTimeout(() => setCartPulse(false), 600)
-      loadCartCount()
+    const handleWishlistAdded = () => {
+      setWishlistPulse(true)
+      setTimeout(() => setWishlistPulse(false), 600)
+      loadWishlistCount()
     }
 
-    const handleCartUpdated = () => {
-      loadCartCount()
+    const handleWishlistUpdated = () => {
+      loadWishlistCount()
     }
 
-    window.addEventListener("cartAdded", handleCartAdded)
-    window.addEventListener("cartUpdated", handleCartUpdated)
+    window.addEventListener("wishlistAdded", handleWishlistAdded)
+    window.addEventListener("wishlistUpdated", handleWishlistUpdated)
     return () => {
-      window.removeEventListener("cartAdded", handleCartAdded)
-      window.removeEventListener("cartUpdated", handleCartUpdated)
+      window.removeEventListener("wishlistAdded", handleWishlistAdded)
+      window.removeEventListener("wishlistUpdated", handleWishlistUpdated)
     }
   }, [])
 
@@ -57,36 +54,38 @@ export function BottomNav() {
         <span className="text-[10px] font-medium">Home</span>
       </Link>
       <Link
-        href="/cart"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] relative ${pathname === "/cart" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"} ${cartPulse ? "animate-pulse" : ""}`}
+        href="/wishlist"
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] relative ${pathname === "/wishlist" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"} ${wishlistPulse ? "animate-pulse" : ""}`}
       >
         <div className="relative">
           <span
             className="material-symbols-outlined text-[22px]"
-            style={{ fontVariationSettings: pathname === "/cart" ? "'FILL' 1" : "'FILL' 0" }}
+            style={{ fontVariationSettings: pathname === "/wishlist" ? "'FILL' 1" : "'FILL' 0" }}
           >
-            shopping_cart
+            favorite
           </span>
-          {cartCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-              {cartCount > 99 ? "99+" : cartCount}
+          {wishlistCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+              {wishlistCount > 99 ? "99+" : wishlistCount}
             </span>
           )}
         </div>
-        <span className="text-[10px] font-medium">Cart</span>
-        {cartPulse && <span className="absolute top-0 right-1/4 h-2 w-2 bg-primary rounded-full animate-ping"></span>}
+        <span className="text-[10px] font-medium">Wishlist</span>
+        {wishlistPulse && (
+          <span className="absolute top-0 right-1/4 h-2 w-2 bg-red-500 rounded-full animate-ping"></span>
+        )}
       </Link>
       <Link
-        href="/wishlist"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/wishlist" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
+        href="/offers"
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/offers" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
       >
         <span
           className="material-symbols-outlined text-[22px]"
-          style={{ fontVariationSettings: pathname === "/wishlist" ? "'FILL' 1" : "'FILL' 0" }}
+          style={{ fontVariationSettings: pathname === "/offers" ? "'FILL' 1" : "'FILL' 0" }}
         >
-          favorite
+          local_offer
         </span>
-        <span className="text-[10px] font-medium">Wishlist</span>
+        <span className="text-[10px] font-medium">Offers</span>
       </Link>
       <Link
         href="/profile"

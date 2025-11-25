@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
-import { AddToCartButton } from "@/components/add-to-cart-button"
 import { RatingButton } from "@/components/rating-button"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { ProductImageGallery } from "@/components/product-image-gallery"
@@ -35,7 +34,6 @@ export default async function ProductDetailPage({
     .neq("id", id)
     .limit(12)
 
-  // Get ratings for this product
   const { data: ratings } = await supabase
     .from("ratings")
     .select("*")
@@ -63,12 +61,12 @@ export default async function ProductDetailPage({
                   images={[product.image_url, product.image_url, product.image_url]}
                   title={product.title}
                 />
-                {/* Desktop Action Buttons */}
                 <div className="grid grid-cols-2 gap-4 mt-4">
-                  <AddToCartButton
+                  <WishlistButton
                     productId={product.id}
-                    variant="desktop"
                     className="h-14 rounded-sm bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg flex items-center justify-center gap-2"
+                    showLabel
+                    variant="desktop"
                   />
                   <a
                     href={product.affiliate_link || "#"}
@@ -136,7 +134,6 @@ export default async function ProductDetailPage({
                 <p className="text-sm text-gray-500 mt-1">inclusive of all taxes</p>
               </div>
 
-              {/* Quick Actions */}
               <div className="flex items-center gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700 mb-6">
                 <WishlistButton productId={product.id} showLabel />
                 <RatingButton itemId={product.id} itemType="product" showLabel />
@@ -278,11 +275,12 @@ export default async function ProductDetailPage({
               )}
             </div>
 
-            {/* Mobile Action Buttons */}
             <div className="grid grid-cols-2 gap-3 mt-4">
-              <AddToCartButton
-                productId={product.id}
+              <RatingButton
+                itemId={product.id}
+                itemType="product"
                 className="w-full h-12 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-base flex items-center justify-center gap-2"
+                showLabel
               />
               <a
                 href={product.affiliate_link || "#"}
