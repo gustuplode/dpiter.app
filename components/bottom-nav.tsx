@@ -8,36 +8,15 @@ import { useState, useEffect } from "react"
 export function BottomNav() {
   const pathname = usePathname()
   const [cartPulse, setCartPulse] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
-    const loadCartCount = () => {
-      const savedCart = localStorage.getItem("cart")
-      if (savedCart) {
-        const ids: string[] = JSON.parse(savedCart)
-        setCartCount(ids.length)
-      }
-    }
-
-    loadCartCount()
-
     const handleCartAdded = () => {
       setCartPulse(true)
       setTimeout(() => setCartPulse(false), 600)
-      loadCartCount()
-    }
-
-    const handleCartUpdated = () => {
-      loadCartCount()
     }
 
     window.addEventListener("cartAdded", handleCartAdded)
-    window.addEventListener("cartUpdated", handleCartUpdated)
-
-    return () => {
-      window.removeEventListener("cartAdded", handleCartAdded)
-      window.removeEventListener("cartUpdated", handleCartUpdated)
-    }
+    return () => window.removeEventListener("cartAdded", handleCartAdded)
   }, [])
 
   return (
@@ -55,11 +34,6 @@ export function BottomNav() {
       >
         <span className="material-symbols-outlined text-xl">shopping_cart</span>
         <span className="text-[9px] font-medium">Cart</span>
-        {cartCount > 0 && (
-          <span className="absolute -top-0.5 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-            {cartCount > 9 ? "9+" : cartCount}
-          </span>
-        )}
         {cartPulse && <span className="absolute top-0 right-1/4 h-2 w-2 bg-primary rounded-full animate-ping"></span>}
       </Link>
       <Link
