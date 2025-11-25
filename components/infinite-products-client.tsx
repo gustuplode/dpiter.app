@@ -46,6 +46,7 @@ export function InfiniteProductsClient({ initialProducts }: { initialProducts: P
 
   const loadMore = async () => {
     setLoading(true)
+    console.log("[v0] Loading more products, page:", page)
     try {
       const supabase = createClient()
       const start = page * 10
@@ -54,9 +55,10 @@ export function InfiniteProductsClient({ initialProducts }: { initialProducts: P
       const { data, error } = await supabase
         .from("category_products")
         .select("*")
-        .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .range(start, end)
+
+      console.log("[v0] Loaded products:", data?.length || 0, "Error:", error)
 
       if (error) throw error
 

@@ -15,28 +15,27 @@ export default async function AllProductsPage() {
   const { data: products, error } = await supabase
     .from("category_products")
     .select("*")
-    .eq("is_visible", true)
     .order("created_at", { ascending: false })
     .range(0, 9)
+
+  console.log("[v0] All products loaded:", products?.length || 0)
+  console.log("[v0] Error:", error)
 
   // Get counts for header
   const { count: fashionCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "fashion")
-    .eq("is_visible", true)
 
   const { count: gadgetsCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "gadgets")
-    .eq("is_visible", true)
 
   const { count: gamingCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "gaming")
-    .eq("is_visible", true)
 
   const allCount = (fashionCount || 0) + (gadgetsCount || 0) + (gamingCount || 0)
 

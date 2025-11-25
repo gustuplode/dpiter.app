@@ -64,7 +64,6 @@ export default async function ProductDetailPage({
       .from("category_products")
       .select("*")
       .eq("id", id)
-      .eq("is_visible", true)
       .single()
 
     if (productError) {
@@ -81,9 +80,13 @@ export default async function ProductDetailPage({
       .from("category_products")
       .select("*")
       .eq("category", category)
-      .eq("is_visible", true)
       .neq("id", id)
       .limit(6)
+
+    const hasOriginalPrice = product.original_price && product.original_price > product.price
+    const discountPercentage = hasOriginalPrice
+      ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+      : 0
 
     return (
       <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
@@ -96,13 +99,17 @@ export default async function ProductDetailPage({
                   <div className="flex-shrink-0 w-full snap-center">
                     <div
                       className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg lg:rounded-xl"
-                      style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
+                      style={{
+                        backgroundImage: `url("${product.image_url || "/placeholder.svg?height=500&width=500"}")`,
+                      }}
                     ></div>
                   </div>
                   <div className="flex-shrink-0 w-full snap-center">
                     <div
                       className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg lg:rounded-xl"
-                      style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
+                      style={{
+                        backgroundImage: `url("${product.image_url || "/placeholder.svg?height=500&width=500"}")`,
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -153,13 +160,13 @@ export default async function ProductDetailPage({
                 <p className="text-3xl lg:text-4xl font-bold font-sans text-text-primary-light dark:text-white">
                   ₹{product.price}
                 </p>
-                {product.original_price && (
+                {hasOriginalPrice && (
                   <>
                     <p className="text-base lg:text-lg font-normal text-text-secondary-light dark:text-text-secondary-dark line-through">
                       ₹{product.original_price}
                     </p>
                     <p className="text-base lg:text-lg font-bold text-green-600 dark:text-green-400">
-                      {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                      {discountPercentage}% off
                     </p>
                   </>
                 )}
@@ -216,7 +223,9 @@ export default async function ProductDetailPage({
                   >
                     <div
                       className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-                      style={{ backgroundImage: `url("${related.image_url || "/placeholder.svg"}")` }}
+                      style={{
+                        backgroundImage: `url("${related.image_url || "/placeholder.svg?height=500&width=500"}")`,
+                      }}
                     ></div>
                     <div className="p-3 flex flex-col gap-1 flex-1">
                       <p className="text-sm font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">
