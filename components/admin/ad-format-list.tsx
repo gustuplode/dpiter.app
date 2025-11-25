@@ -56,20 +56,20 @@ export function AdFormatList({ formatType, ads }: AdFormatListProps) {
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark p-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link href="/admin">
               <Button variant="ghost" size="icon">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <h1 className="text-xl sm:text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
+            <h1 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
               {formatTitles[formatType]}
             </h1>
           </div>
           <Link href={`/admin/ads/${formatType}/add`}>
-            <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+            <Button className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
               Add New
             </Button>
@@ -77,10 +77,10 @@ export function AdFormatList({ formatType, ads }: AdFormatListProps) {
         </div>
 
         {ads.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 sm:p-12 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
             <p className="text-text-secondary-light dark:text-text-secondary-dark mb-4">No ads configured yet</p>
             <Link href={`/admin/ads/${formatType}/add`}>
-              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Button className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Ad
               </Button>
@@ -91,11 +91,11 @@ export function AdFormatList({ formatType, ads }: AdFormatListProps) {
             {ads.map((ad) => (
               <div
                 key={ad.id}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
               >
-                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0 w-full">
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-3">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           ad.is_active
@@ -109,27 +109,23 @@ export function AdFormatList({ formatType, ads }: AdFormatListProps) {
                         Position: {ad.position}
                       </span>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-4 overflow-x-auto">
-                      <code className="text-xs font-mono text-text-primary-light dark:text-text-primary-dark break-all whitespace-pre-wrap">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                      <code className="text-xs font-mono text-text-primary-light dark:text-text-primary-dark break-all">
                         {ad.ad_code.substring(0, 200)}
                         {ad.ad_code.length > 200 && "..."}
                       </code>
                     </div>
                   </div>
-                  <div className="flex gap-2 w-full sm:w-auto sm:flex-shrink-0">
-                    <Link href={`/admin/ads/${formatType}/edit/${ad.id}`} className="flex-1 sm:flex-none">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="text-blue-600 hover:bg-blue-50 bg-transparent w-full sm:w-auto"
-                      >
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Link href={`/admin/ads/${formatType}/edit/${ad.id}`}>
+                      <Button variant="outline" size="icon" className="text-blue-600 hover:bg-blue-50 bg-transparent">
                         <Edit className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Button
                       variant="outline"
                       size="icon"
-                      className="text-red-600 hover:bg-red-50 bg-transparent flex-1 sm:flex-none"
+                      className="text-red-600 hover:bg-red-50 bg-transparent"
                       onClick={() => handleDelete(ad.id)}
                       disabled={deleting === ad.id}
                     >

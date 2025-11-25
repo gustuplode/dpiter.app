@@ -69,8 +69,8 @@ export function UserAvatar({ size = "md", showFallback = true }: UserAvatarProps
   }, [])
 
   const sizeClasses = {
-    xs: "size-5",
-    sm: "size-6",
+    xs: "size-6",
+    sm: "size-8",
     md: "size-9",
     lg: "size-12",
   }
@@ -97,11 +97,7 @@ export function UserAvatar({ size = "md", showFallback = true }: UserAvatarProps
       <div
         className={`flex ${sizeClasses[size]} shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700`}
       >
-        <span
-          className={`material-symbols-outlined text-slate-700 dark:text-slate-300 ${size === "xs" ? "text-lg" : "text-xl"}`}
-        >
-          person
-        </span>
+        <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-xl">person</span>
       </div>
     )
   }

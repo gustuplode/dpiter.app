@@ -1,46 +1,46 @@
 import type { MetadataRoute } from "next"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/client"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 3600 // Revalidate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient()
+  const supabase = createClient()
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dpiter.shop"
-
-  const { data: categoryProducts } = await supabase
-    .from("category_products")
-    .select("id, title, brand, category, slug, updated_at")
-    .eq("is_visible", true)
-    .order("updated_at", { ascending: false })
 
   const { data: collections } = await supabase
     .from("collections")
-    .select("id, title, slug, updated_at")
+    .select("id, title, brand, updated_at")
     .eq("status", "published")
     .order("updated_at", { ascending: false })
 
-  const categoryProductUrls =
-    categoryProducts?.map((product) => {
-      const slug = product.slug || product.title.toLowerCase().replace(/\s+/g, "-")
-      return {
-        url: `${baseUrl}/products/${product.category}/${product.id}/${slug}`,
-        lastModified: new Date(product.updated_at),
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-      }
-    }) || []
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, title, brand_name, collection_id, updated_at")
+    .eq("is_visible", true)
+    .order("updated_at", { ascending: false })
 
   const collectionUrls =
-    collections?.map((collection) => {
-      const slug = collection.slug || collection.title.toLowerCase().replace(/\s+/g, "-")
-      return {
-        url: `${baseUrl}/collections/${collection.id}/${slug}`,
-        lastModified: new Date(collection.updated_at),
-        changeFrequency: "daily" as const,
-        priority: 0.9,
-      }
-    }) || []
+    collections?.map((collection) => ({
+      url: `${baseUrl}/collections/${collection.id}`,
+      lastModified: new Date(collection.updated_at),
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+      // Add title metadata for better search appearance
+      alternates: {
+        languages: {
+          'en': `${baseUrl}/collections/${collection.id}`,
+        },
+      },
+    })) || []
+
+  const productUrls =
+    products?.map((product) => ({
+      url: `${baseUrl}/collections/${product.collection_id}#product-${product.id}`,
+      lastModified: new Date(product.updated_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.8, // Increased priority for products
+    })) || []
 
   // Static pages with high priority
   const staticPages = [
@@ -51,22 +51,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/all-products`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/search`,
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/cart`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
     },
     {
       url: `${baseUrl}/wishlist`,
@@ -110,7 +98,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.4,
     },
+    {
+      url: `${baseUrl}/shipping`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.4,
+    },
   ]
 
-  return [...staticPages, ...collectionUrls, ...categoryProductUrls]
+  return [...staticPages, ...collectionUrls, ...productUrls]
 }

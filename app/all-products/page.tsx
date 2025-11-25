@@ -20,40 +20,43 @@ export default async function AllProductsPage() {
   const { data: products, error } = await supabase
     .from("category_products")
     .select("*")
-    .neq("category", "outfit")
+    .eq("is_visible", true)
     .order("created_at", { ascending: false })
 
-  // Get counts for header (excluding outfit)
+  // Get counts for header
   const { count: fashionCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "fashion")
+    .eq("is_visible", true)
 
   const { count: gadgetsCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "gadgets")
+    .eq("is_visible", true)
 
   const { count: gamingCount } = await supabase
     .from("category_products")
     .select("*", { count: "exact", head: true })
     .eq("category", "gaming")
+    .eq("is_visible", true)
 
   const allCount = (fashionCount || 0) + (gadgetsCount || 0) + (gamingCount || 0)
 
   return (
     <>
       <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#1E293B]">
-        <CategoryHeader
+        <CategoryHeader 
           fashionCount={fashionCount || 0}
           gadgetsCount={gadgetsCount || 0}
           gamingCount={gamingCount || 0}
           allProductsCount={allCount}
         />
-
+        
         <div className="container mx-auto max-w-7xl px-1.5 py-2 pb-32">
           <h1 className="text-lg font-bold text-slate-900 dark:text-white mb-3 px-1">All Products</h1>
-
+          
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-1 md:gap-x-2 gap-y-2 md:gap-y-3">
               {products.map((product) => (
@@ -96,7 +99,7 @@ export default async function AllProductsPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
               <p className="text-lg text-slate-600 dark:text-slate-400">
-                {error ? "Unable to load products" : "No products available yet"}
+                {error ? "Please run the database setup script (009_create_category_products.sql) in admin panel" : "No products available yet"}
               </p>
             </div>
           )}
