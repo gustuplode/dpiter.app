@@ -28,11 +28,11 @@ export async function generateMetadata({
 
   return {
     title: `${product.title} - ${product.brand || category} | Buy Online at Best Price | DPITER.shop`,
-    description: `Shop ${product.title} by ${product.brand || category} at ₹${product.price}. ${product.original_price ? `Save ${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Best price online"}. Buy from trusted sellers on Amazon, Flipkart, Meesho. Free delivery, easy returns. 4.1★ rated fashion discovery platform.`,
+    description: `Shop ${product.title} by ${product.brand || category} at ₹${product.price}. Best price online. Buy from trusted sellers on Amazon, Flipkart, Meesho. Free delivery, easy returns. 4.1★ rated fashion discovery platform.`,
     keywords: `${product.title}, ${product.brand || ""}, ${category} online, buy ${category}, ${product.title} price, ${product.title} online shopping, fashion shopping, dpiter shop, amazon ${category}, flipkart ${category}, meesho ${category}`,
     openGraph: {
       title: `${product.title} - ₹${product.price}`,
-      description: `Shop ${product.title} at best price. ${product.original_price ? `${Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off` : "Great deal"}!`,
+      description: `Shop ${product.title} at best price. Great deal!`,
       images: [product.image_url || "/placeholder.svg"],
       url: productUrl,
       type: "product",
@@ -57,12 +57,7 @@ export default async function ProductDetailPage({
   const { category, id, slug } = await params
   const supabase = await createClient()
 
-  const { data: product } = await supabase
-    .from("category_products")
-    .select("*")
-    .eq("id", id)
-    .eq("is_visible", true)
-    .single()
+  const { data: product } = await supabase.from("category_products").select("*").eq("id", id).single()
 
   if (!product) {
     notFound()
@@ -72,7 +67,6 @@ export default async function ProductDetailPage({
     .from("category_products")
     .select("*")
     .eq("category", category)
-    .eq("is_visible", true)
     .neq("id", id)
     .limit(6)
 
@@ -144,16 +138,6 @@ export default async function ProductDetailPage({
               <p className="text-3xl lg:text-4xl font-bold font-sans text-text-primary-light dark:text-white">
                 ₹{product.price}
               </p>
-              {product.original_price && (
-                <>
-                  <p className="text-base lg:text-lg font-normal text-text-secondary-light dark:text-text-secondary-dark line-through">
-                    ₹{product.original_price}
-                  </p>
-                  <p className="text-base lg:text-lg font-bold text-green-600 dark:text-green-400">
-                    {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
-                  </p>
-                </>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 mt-4 lg:mt-6">
