@@ -19,6 +19,8 @@ import { FooterLinks } from "@/components/footer-links"
 import { createClient } from "@/lib/supabase/client"
 import { ImageCropper } from "@/components/admin/image-cropper"
 import { googleProvider } from "@/lib/firebase"
+import { Camera, Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -281,39 +283,39 @@ export default function ProfilePage() {
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 pb-32">
         {user ? (
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 space-y-6 border border-gray-100 dark:border-gray-700">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setShowEditProfile(true)} className="relative group">
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-primary">
-                      {profileImage ? (
-                        <img
-                          src={profileImage || "/placeholder.svg"}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-3xl font-bold">
-                          {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="material-symbols-outlined text-white text-2xl">edit</span>
-                    </div>
-                  </button>
-                  <div>
-                    <h2 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
-                      {user.displayName || "User"}
-                    </h2>
-                    {user.emailVerified && (
-                      <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                        <span className="material-symbols-outlined text-sm">verified</span>
-                        Verified
-                      </span>
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 space-y-6">
+              <div className="flex items-center gap-6">
+                <button onClick={() => setShowEditProfile(true)} className="relative group">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary">
+                    {profileImage ? (
+                      <img
+                        src={profileImage || "/placeholder.svg"}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-3xl font-bold">
+                        {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
+                      </div>
                     )}
                   </div>
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="material-symbols-outlined text-white text-2xl">edit</span>
+                  </div>
+                </button>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
+                    {user.displayName || "User"}
+                  </h2>
+                  <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">{user.email}</p>
+                  {user.emailVerified && (
+                    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                      <span className="material-symbols-outlined text-sm">verified</span>
+                      Verified
+                    </span>
+                  )}
                 </div>
 
                 <div className="relative">
@@ -374,47 +376,62 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <Link
                   href="/wishlist"
-                  className="p-4 bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 rounded-xl hover:scale-105 transition-transform"
+                  className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-red-500 text-3xl">favorite</span>
-                  <p className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mt-2">
+                  <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {wishlistCount}
                   </p>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Saved Products</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Wishlist</p>
                 </Link>
 
                 <Link
                   href="/profile/liked"
-                  className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl hover:scale-105 transition-transform"
+                  className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-blue-500 text-3xl">thumb_up</span>
-                  <p className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mt-2">
-                    {likedCount}
-                  </p>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Liked Products</p>
+                  <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">{likedCount}</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Liked</p>
                 </Link>
 
-                <div className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl">
-                  <span className="material-symbols-outlined text-yellow-600 text-3xl">star</span>
-                  <p className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mt-2">
+                <div className="text-center p-3">
+                  <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {userRatings.length}
                   </p>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Reviews Given</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Reviews</p>
                 </div>
 
                 <Link
                   href="/profile/requests"
-                  className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl hover:scale-105 transition-transform"
+                  className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-purple-500 text-3xl">inventory_2</span>
-                  <p className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mt-2">
+                  <p className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                     {requestsCount}
                   </p>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Product Requests</p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Requests</p>
                 </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-4">
+                <Link href="/request-product">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Camera className="h-4 w-4 mr-2" />
+                    Request Product
+                  </Button>
+                </Link>
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => {
+                    // PWA install prompt
+                    if ("serviceWorker" in navigator) {
+                      alert('To install the app, tap the share button and select "Add to Home Screen"')
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Install App
+                </Button>
               </div>
             </div>
 
@@ -602,83 +619,63 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {showEditProfile && user && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md p-6 space-y-4 animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 duration-300">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">Edit Profile</h2>
-              <button
-                onClick={() => setShowEditProfile(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
+      {showCropper && tempImageUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-2xl w-full">
+            <h3 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+              Crop Profile Picture
+            </h3>
+            <ImageCropper
+              imageUrl={tempImageUrl}
+              onCropComplete={handleCropComplete}
+              onCancel={handleCropCancel}
+              aspectRatio={1}
+            />
+          </div>
+        </div>
+      )}
 
+      {showEditProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">Edit Profile</h3>
             <div className="space-y-4">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary">
-                  {profileImage ? (
-                    <img
-                      src={profileImage || "/placeholder.svg"}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-3xl font-bold">
-                      {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
-                    </div>
-                  )}
-                </div>
-                <label className="cursor-pointer bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  {uploading ? "Uploading..." : "Change Photo"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileImageUpload}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
               <div>
-                <label className="block text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                <label className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
                   Display Name
                 </label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary-light dark:text-text-primary-dark focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your name"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-text-primary-light dark:text-text-primary-dark"
                 />
               </div>
-
-              <button
-                onClick={handleUpdateProfile}
-                className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-medium transition-all"
-              >
-                Save Changes
-              </button>
+              <div>
+                <label className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
+                  Profile Picture
+                </label>
+                <input type="file" accept="image/*" onChange={handleProfileImageUpload} className="w-full mt-1" />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleUpdateProfile}
+                  disabled={uploading}
+                  className="flex-1 bg-primary hover:bg-primary/90"
+                >
+                  {uploading ? "Uploading..." : "Save Changes"}
+                </Button>
+                <Button onClick={() => setShowEditProfile(false)} variant="outline" className="flex-1">
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {showCropper && tempImageUrl && (
-        <ImageCropper
-          imageUrl={tempImageUrl}
-          aspectRatio={1}
-          cropWidth={400}
-          cropHeight={400}
-          onCropComplete={handleCropComplete}
-          onCancel={handleCropCancel}
-        />
-      )}
-
-      <FooterLinks />
       <BottomNav />
+      <FooterLinks />
     </div>
   )
 }
