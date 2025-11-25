@@ -1,105 +1,24 @@
 import { createClient } from "@/lib/supabase/server"
-import Link from "next/link"
-import { WishlistButton } from "@/components/wishlist-button"
-import { RatingButton } from "@/components/rating-button"
-import { AddToCartButton } from "@/components/add-to-cart-button"
-import { getProductUrl } from "@/lib/utils"
-import { Suspense } from "react"
-import { CollectionGridSkeleton } from "@/components/collection-skeleton"
-import { CurrencyDisplay } from "@/components/currency-display"
 import { DynamicBannerCarousel } from "@/components/dynamic-banner-carousel"
 import { AdDisplay } from "@/components/ad-display"
+import { InfiniteProductList } from "@/components/infinite-product-list"
 
-async function ProductList() {
+async function getInitialProducts() {
   const supabase = await createClient()
 
-  let products: any[] = []
-  let error = null
-
-  try {
-    const { data, error: fetchError } = await supabase
-      .from("category_products")
-      .select("*")
-      .eq("is_visible", true)
-      .order("created_at", { ascending: false })
-      .limit(20)
-
-    if (fetchError) {
-      error = fetchError
-    } else {
-      products = data || []
-    }
-  } catch (e) {
-    error = e
-  }
+  const { data: products, error } = await supabase
+    .from("category_products")
+    .select("*")
+    .eq("is_visible", true)
+    .order("created_at", { ascending: false })
+    .range(0, 5) // Load only 6 products initially
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <p className="text-lg text-slate-600 dark:text-slate-400">Unable to load products</p>
-      </div>
-    )
+    console.error("Error fetching products:", error)
+    return []
   }
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-      {products.map((product) => (
-        <div
-          key={product.id}
-          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-[#8A3224] dark:border-[#8A3224] md:rounded-lg md:border hover:shadow-lg transition-shadow"
-        >
-          <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
-            <div
-              className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-              style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
-            >
-              <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
-                <span className="text-[10px] font-semibold text-gray-800">4.1</span>
-              </div>
-            </div>
-          </Link>
-
-          <div className="p-2 flex flex-col gap-1 bg-[#F7F7F7] dark:bg-gray-800">
-            <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
-              {product.brand || "Brand"}
-            </p>
-            <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
-              {product.title}
-            </p>
-
-            <div className="flex items-center justify-between mt-1">
-              <div className="flex items-center gap-1.5">
-                <p className="text-gray-900 dark:text-white text-sm font-bold">
-                  <CurrencyDisplay price={product.price} />
-                </p>
-                {product.original_price && (
-                  <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
-                    <CurrencyDisplay price={product.original_price} />
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-0.5">
-                <WishlistButton
-                  productId={product.id}
-                  className="flex items-center justify-center h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
-                />
-                <RatingButton
-                  itemId={product.id}
-                  itemType="product"
-                  className="flex items-center justify-center h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
-                />
-                <AddToCartButton
-                  productId={product.id}
-                  className="flex items-center justify-center h-6 w-6 text-primary dark:text-primary-light hover:text-primary/80 transition-colors"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+  return products || []
 }
 
 async function ActiveAds() {
@@ -122,20 +41,18 @@ async function ActiveAds() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const initialProducts = await getInitialProducts()
+
   return (
     <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
       <DynamicBannerCarousel />
 
-      <Suspense fallback={null}>
-        <ActiveAds />
-      </Suspense>
+      <ActiveAds />
 
       <div className="flex flex-col">
         <main className="pb-4">
-          <Suspense fallback={<CollectionGridSkeleton />}>
-            <ProductList />
-          </Suspense>
+          <InfiniteProductList initialProducts={initialProducts} />
         </main>
       </div>
     </div>

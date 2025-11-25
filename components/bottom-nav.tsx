@@ -46,7 +46,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
       <Link
         href="/"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] ${pathname === "/" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
       >
         <span
           className="material-symbols-outlined text-[22px]"
@@ -57,20 +57,8 @@ export function BottomNav() {
         <span className="text-[10px] font-medium">Home</span>
       </Link>
       <Link
-        href="/categories"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] ${pathname === "/categories" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
-      >
-        <span
-          className="material-symbols-outlined text-[22px]"
-          style={{ fontVariationSettings: pathname === "/categories" ? "'FILL' 1" : "'FILL' 0" }}
-        >
-          category
-        </span>
-        <span className="text-[10px] font-medium">Categories</span>
-      </Link>
-      <Link
         href="/cart"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] relative ${pathname === "/cart" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"} ${cartPulse ? "animate-pulse" : ""}`}
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] relative ${pathname === "/cart" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"} ${cartPulse ? "animate-pulse" : ""}`}
       >
         <div className="relative">
           <span
@@ -90,7 +78,7 @@ export function BottomNav() {
       </Link>
       <Link
         href="/wishlist"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] ${pathname === "/wishlist" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/wishlist" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
       >
         <span
           className="material-symbols-outlined text-[22px]"
@@ -102,7 +90,7 @@ export function BottomNav() {
       </Link>
       <Link
         href="/profile"
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] ${pathname === "/profile" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
+        className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/profile" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}
       >
         <div className="w-6 h-6 flex items-center justify-center">
           <UserAvatar size="sm" showFallback={true} />
