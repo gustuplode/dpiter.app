@@ -8,9 +8,8 @@ import { Volume2, VolumeX, Play, Pause } from "lucide-react"
 interface Banner {
   id: string
   title: string
-  type: "image" | "video" | "ad_code"
+  type: "image" | "video"
   media_url: string
-  ad_code?: string
   position: number
 }
 
@@ -34,7 +33,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   }, [currentBanner, banners])
 
   useEffect(() => {
-    if (banners[currentBanner].type === "image" || banners[currentBanner].type === "ad_code") {
+    if (banners[currentBanner].type === "image") {
       timerRef.current = setTimeout(() => {
         setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
       }, 4000)
@@ -109,7 +108,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
             alt={banners[currentBanner].title}
             className="w-full h-full object-cover transition-all duration-500"
           />
-        ) : banners[currentBanner].type === "video" ? (
+        ) : (
           <video
             key={banners[currentBanner].id}
             ref={videoRef}
@@ -122,11 +121,6 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
           >
             <source src={banners[currentBanner].media_url} type="video/mp4" />
           </video>
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
-            dangerouslySetInnerHTML={{ __html: banners[currentBanner].ad_code || "" }}
-          />
         )}
       </div>
 

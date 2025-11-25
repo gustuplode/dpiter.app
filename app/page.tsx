@@ -22,7 +22,6 @@ async function ProductList() {
       .from("category_products")
       .select("*")
       .eq("is_visible", true)
-      .in("category", ["fashion", "gaming", "gadgets"])
       .order("created_at", { ascending: false })
       .limit(20)
 
@@ -74,6 +73,11 @@ async function ProductList() {
                 <p className="text-gray-900 dark:text-white text-sm font-bold">
                   <CurrencyDisplay price={product.price} />
                 </p>
+                {product.original_price && (
+                  <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                    <CurrencyDisplay price={product.original_price} />
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-0.5">

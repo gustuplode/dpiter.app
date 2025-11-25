@@ -36,11 +36,6 @@ export default function RootLayout({
               window.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.add('loaded');
               });
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw-ad.js').catch(() => {});
-                });
-              }
             `,
           }}
         />
