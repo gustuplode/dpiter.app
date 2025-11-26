@@ -48,60 +48,68 @@ function QuickContactIcons() {
       name: "Collab",
       icon: Handshake,
       href: "mailto:deepitermark@gmail.com?subject=Collaboration%20Inquiry",
-      bgColor: "bg-gradient-to-br from-violet-500 to-purple-600",
+      bgColor: "from-purple-600 to-violet-700",
+      shadowColor: "shadow-purple-500/30",
       show: true,
     },
     {
       name: "WhatsApp",
       icon: MessageCircle,
       href: "https://wa.me/919939091568",
-      bgColor: "bg-gradient-to-br from-green-500 to-emerald-600",
+      bgColor: "from-green-500 to-green-600",
+      shadowColor: "shadow-green-500/30",
       show: true,
     },
     {
       name: "Email",
       icon: Mail,
       href: "mailto:deepitermark@gmail.com",
-      bgColor: "bg-gradient-to-br from-rose-500 to-red-600",
+      bgColor: "from-red-500 to-rose-600",
+      shadowColor: "shadow-red-500/30",
       show: true,
     },
     {
       name: "Install",
       icon: Download,
       onClick: handleInstallPWA,
-      bgColor: "bg-gradient-to-br from-blue-500 to-indigo-600",
+      bgColor: "from-blue-500 to-blue-600",
+      shadowColor: "shadow-blue-500/30",
       show: deferredPrompt !== null && !isInstalled,
     },
     {
       name: "Website",
       icon: Globe,
       href: "https://dpiter.shop",
-      bgColor: "bg-gradient-to-br from-amber-500 to-orange-600",
+      bgColor: "from-orange-500 to-amber-600",
+      shadowColor: "shadow-orange-500/30",
       show: true,
     },
   ]
 
   return (
-    <div className="flex justify-center items-center gap-5 mb-6">
+    <div className="flex justify-center items-center gap-6 mb-6">
       {icons
         .filter((item) => item.show)
         .map((item) => {
           const IconComponent = item.icon
           const content = (
-            <div className="flex flex-col items-center gap-1 group cursor-pointer">
+            <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
               <div
                 className={`
-                  w-11 h-11 rounded-full ${item.bgColor}
+                  w-12 h-12 rounded-full bg-gradient-to-br ${item.bgColor}
                   flex items-center justify-center
-                  shadow-md
-                  transition-all duration-200
-                  group-hover:scale-110 group-hover:shadow-lg
+                  shadow-lg ${item.shadowColor}
+                  transition-all duration-300 ease-out
+                  group-hover:scale-110 group-hover:shadow-xl
                   group-active:scale-95
+                  ring-2 ring-white/20
                 `}
               >
-                <IconComponent className="w-5 h-5 text-white" strokeWidth={2} />
+                <IconComponent className="w-5 h-5 text-white drop-shadow-sm" strokeWidth={2.5} />
               </div>
-              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{item.name}</span>
+              <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-300 tracking-wide">
+                {item.name}
+              </span>
             </div>
           )
 
@@ -168,23 +176,35 @@ export function FooterLinks() {
   }
 
   return (
-    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6 px-4">
+    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 px-4">
       <div className="container mx-auto max-w-7xl">
+        <div className="text-center mb-4">
+          <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+            Quick Contact
+          </h3>
+        </div>
+
         <QuickContactIcons />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5 text-center md:text-left">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center md:text-left">
           <div>
             <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
               Company
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               <li>
-                <Link href="/about" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
+                <Link
+                  href="/about"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
+                <Link
+                  href="/contact"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >
                   Contact
                 </Link>
               </li>
@@ -192,16 +212,19 @@ export function FooterLinks() {
           </div>
           <div>
             <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Legal</h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               <li>
-                <Link href="/privacy-policy" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
+                <Link
+                  href="/privacy-policy"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
                   href="/terms-of-service"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
                 >
                   Terms
                 </Link>
@@ -212,9 +235,12 @@ export function FooterLinks() {
             <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
               Support
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               <li>
-                <Link href="/faq" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
+                <Link
+                  href="/faq"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                >
                   FAQ
                 </Link>
               </li>
@@ -223,7 +249,7 @@ export function FooterLinks() {
                   href="https://amzn.to/49SNT2h"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
                 >
                   Amazon Store
                 </a>
@@ -232,13 +258,13 @@ export function FooterLinks() {
           </div>
           <div>
             <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Follow</h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               <li>
                 <a
                   href="https://www.facebook.com/share/1PwVj2Bg4Z/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
                 >
                   Facebook
                 </a>
@@ -248,7 +274,7 @@ export function FooterLinks() {
                   href="https://www.instagram.com/deepiter_mark?igsh=MXh5djE1NzlkMTlo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
                 >
                   Instagram
                 </a>
@@ -258,10 +284,10 @@ export function FooterLinks() {
         </div>
 
         {deferredPrompt && !isInstalled && (
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-5">
             <button
               onClick={handleInstallPWA}
-              className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 transition-all"
+              className="flex items-center gap-2.5 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-200"
             >
               <Download className="w-4 h-4" />
               Install Dpiter App

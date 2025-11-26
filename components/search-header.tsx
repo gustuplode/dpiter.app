@@ -199,8 +199,18 @@ export function SearchHeader() {
       }
     }
 
+    const handleTouchMove = () => {
+      if (isSearchFocused || showResults) {
+        closeSearch()
+      }
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("touchmove", handleTouchMove, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("touchmove", handleTouchMove)
+    }
   }, [isSearchFocused, showResults])
 
   useEffect(() => {
@@ -230,27 +240,27 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-3 py-2 space-y-1.5">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-orange-500 to-red-500">
+        <div className="max-w-7xl mx-auto px-2 py-2">
           <div className="flex items-center gap-2" ref={searchContainerRef}>
             {showBackButton && (
               <button
                 onClick={() => router.back()}
-                className="flex items-center justify-center h-9 w-9 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
+                className="flex items-center justify-center h-10 w-10 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xl text-gray-700 dark:text-gray-300">arrow_back</span>
+                <span className="material-symbols-outlined text-xl text-white">arrow_back</span>
               </button>
             )}
 
             <div className="flex-1 relative">
-              <div className="flex w-full items-center h-10 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:border-orange-400 dark:focus-within:border-orange-500 focus-within:shadow-sm transition-all">
-                <div className="flex items-center justify-center pl-3">
-                  <Search className="w-4 h-4 text-gray-400" />
+              <div className="flex w-full items-center h-11 rounded-lg overflow-hidden bg-white shadow-sm">
+                <div className="flex items-center justify-center pl-3 pr-1">
+                  <Search className="w-5 h-5 text-gray-500" />
                 </div>
                 <input
                   ref={inputRef}
-                  className="flex-1 h-full bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm focus:outline-none"
-                  placeholder="Search products..."
+                  className="flex-1 h-full bg-transparent text-gray-900 placeholder:text-gray-400 px-2 text-base focus:outline-none"
+                  placeholder="Search products, brands..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
@@ -266,37 +276,36 @@ export function SearchHeader() {
                 {searchQuery && (
                   <button
                     onClick={closeSearch}
-                    className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
+                    className="flex items-center justify-center px-3 text-gray-400 hover:text-gray-600"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
                 )}
+                <div className="h-6 w-px bg-gray-200"></div>
                 <button
                   onClick={startVoiceSearch}
-                  className={`flex items-center justify-center h-10 w-10 rounded-r-md transition-colors ${
-                    isListening
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  className={`flex items-center justify-center h-full w-12 transition-colors ${
+                    isListening ? "bg-red-500 text-white" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                   }`}
                 >
-                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
+                  <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : ""}`} />
                 </button>
               </div>
             </div>
           </div>
-
-          {showCategoryHeader && (
-            <div className="bg-white dark:bg-slate-800">
-              <CategoryHeader />
-            </div>
-          )}
         </div>
+
+        {showCategoryHeader && (
+          <div className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+            <CategoryHeader />
+          </div>
+        )}
       </div>
 
       {showResults && (
         <div
           ref={resultsRef}
-          className="fixed top-[52px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-lg"
+          className="fixed top-[60px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-lg"
         >
           <div className="max-w-4xl mx-auto">
             {searchQuery && suggestions.length > 0 && (
@@ -305,7 +314,7 @@ export function SearchHeader() {
                   <button
                     key={suggestion}
                     onClick={() => handleSuggestionClick(suggestion)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
                       selectedIndex === idx ? "bg-gray-100 dark:bg-gray-800" : ""
                     }`}
                   >
@@ -320,30 +329,30 @@ export function SearchHeader() {
             )}
 
             {!searchQuery && recentSearches.length > 0 && (
-              <div className="p-3 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 uppercase">
-                    <Clock className="w-3.5 h-3.5" />
-                    Recent
+              <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wide">
+                    <Clock className="w-4 h-4" />
+                    Recent Searches
                   </h3>
-                  <button onClick={clearRecentSearches} className="text-xs text-blue-600 hover:underline">
-                    Clear
+                  <button onClick={clearRecentSearches} className="text-xs text-orange-500 hover:underline font-medium">
+                    Clear All
                   </button>
                 </div>
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {recentSearches.map((search) => (
                     <div
                       key={search}
                       onClick={() => handleRecentSearchClick(search)}
-                      className="flex items-center gap-2.5 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer group"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer group"
                     >
-                      <Clock className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">{search}</span>
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <span className="flex-1 text-gray-700 dark:text-gray-300">{search}</span>
                       <button
                         onClick={(e) => removeRecentSearch(search, e)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-opacity"
                       >
-                        <X className="w-3 h-3 text-gray-400" />
+                        <X className="w-4 h-4 text-gray-400" />
                       </button>
                     </div>
                   ))}
@@ -352,17 +361,17 @@ export function SearchHeader() {
             )}
 
             {!searchQuery && (
-              <div className="p-3">
-                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mb-2 uppercase">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  Trending
+              <div className="p-4">
+                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-3 uppercase tracking-wide">
+                  <TrendingUp className="w-4 h-4" />
+                  Trending Now
                 </h3>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {trendingSearches.map((search) => (
                     <button
                       key={search}
                       onClick={() => handleRecentSearchClick(search)}
-                      className="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
                     >
                       {search}
                     </button>
@@ -374,25 +383,23 @@ export function SearchHeader() {
             {searchQuery && (
               <>
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent" />
-                      <span className="text-sm">Searching...</span>
+                  <div className="flex items-center justify-center py-12">
+                    <div className="flex items-center gap-3 text-gray-500">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-orange-500 border-t-transparent" />
+                      <span>Searching...</span>
                     </div>
                   </div>
                 ) : products.length === 0 ? (
-                  <div className="py-8 text-center px-4">
-                    <Search className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                    <p className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-                      No results for "{searchQuery}"
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 mb-3">Try different keywords</p>
-                    <div className="flex flex-wrap justify-center gap-1.5">
+                  <div className="py-12 text-center px-4">
+                    <Search className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-600 dark:text-gray-400 font-medium">No results for "{searchQuery}"</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">Try different keywords</p>
+                    <div className="flex flex-wrap justify-center gap-2">
                       {trendingSearches.slice(0, 4).map((search) => (
                         <button
                           key={search}
                           onClick={() => handleRecentSearchClick(search)}
-                          className="px-2.5 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full text-xs hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
+                          className="px-4 py-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full text-sm hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors font-medium"
                         >
                           {search}
                         </button>
@@ -401,8 +408,8 @@ export function SearchHeader() {
                   </div>
                 ) : (
                   <div>
-                    <div className="px-3 py-1.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{products.length} results</p>
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{products.length} results found</p>
                     </div>
 
                     <div className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -410,11 +417,11 @@ export function SearchHeader() {
                         <div
                           key={product.id}
                           onClick={() => handleProductClick(product)}
-                          className={`flex gap-3 p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors ${
+                          className={`flex gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors ${
                             selectedIndex === suggestions.length + idx ? "bg-gray-100 dark:bg-gray-800" : ""
                           }`}
                         >
-                          <div className="w-16 h-16 flex-shrink-0 rounded overflow-hidden bg-gray-100 dark:bg-gray-800">
+                          <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
                             <img
                               src={product.image_url || "/placeholder.svg"}
                               alt={product.title}
@@ -423,21 +430,26 @@ export function SearchHeader() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 leading-snug">
+                            <h4 className="font-medium text-gray-900 dark:text-white line-clamp-2 leading-snug">
                               {product.title}
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.brand}</p>
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{product.brand}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-lg font-bold text-gray-900 dark:text-white">
                                 <CurrencyDisplay price={product.price} />
                               </span>
                               {product.original_price && product.original_price > product.price && (
-                                <span className="text-xs font-medium text-green-600">
-                                  {Math.round(
-                                    ((product.original_price - product.price) / product.original_price) * 100,
-                                  )}
-                                  % off
-                                </span>
+                                <>
+                                  <span className="text-sm text-gray-400 line-through">
+                                    <CurrencyDisplay price={product.original_price} />
+                                  </span>
+                                  <span className="text-sm font-semibold text-green-600">
+                                    {Math.round(
+                                      ((product.original_price - product.price) / product.original_price) * 100,
+                                    )}
+                                    % off
+                                  </span>
+                                </>
                               )}
                             </div>
                           </div>

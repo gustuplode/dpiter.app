@@ -12,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updateProfile,
   type User,
 } from "firebase/auth"
 import { put } from "@vercel/blob"
@@ -114,6 +115,8 @@ export default function ProfilePage() {
     try {
       const { url } = await put(`avatars/${user.uid}/${file.name}`, file, { access: "public" })
       setAvatarUrl(url)
+      // Update Firebase profile
+      await updateProfile(user, { photoURL: url })
     } catch (err) {
       console.error("Upload error:", err)
     } finally {
@@ -123,7 +126,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
@@ -131,24 +134,24 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
-        <div className="max-w-md mx-auto px-4 py-8">
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+      <div className="min-h-screen bg-background pb-24">
+        <div className="w-full px-4 py-8">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4">
               <span className="material-symbols-outlined text-white text-4xl">person</span>
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-foreground">
               {authMode === "signin" ? "Welcome Back" : "Create Account"}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
+            <p className="text-muted-foreground mt-1">
               {authMode === "signin" ? "Sign in to access your account" : "Sign up to get started"}
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5">
+          <div className="w-full max-w-md mx-auto">
             <button
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors mb-4"
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-card border border-border rounded-lg hover:bg-muted transition-colors mb-4"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -168,51 +171,47 @@ export default function ProfilePage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Continue with Google</span>
+              <span className="font-medium text-foreground">Continue with Google</span>
             </button>
 
-            <div className="flex items-center gap-3 my-4">
-              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-              <span className="text-xs text-gray-400">or</span>
-              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="text-sm text-muted-foreground">or</span>
+              <div className="flex-1 h-px bg-border"></div>
             </div>
 
             {error && (
-              <div className="mb-4 p-2.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleEmailAuth} className="space-y-3">
-              <div>
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-orange-500"
-                  required
-                />
-              </div>
-              <div>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-orange-500"
-                  required
-                />
-              </div>
+            <form onSubmit={handleEmailAuth} className="space-y-4">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-orange-500"
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-orange-500"
+                required
+              />
               <button
                 type="submit"
-                className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
               >
                 {authMode === "signin" ? "Sign In" : "Create Account"}
               </button>
             </form>
 
-            <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
+            <p className="text-center text-muted-foreground mt-5">
               {authMode === "signin" ? "Don't have an account? " : "Already have an account? "}
               <button
                 onClick={() => setAuthMode(authMode === "signin" ? "signup" : "signin")}
@@ -221,12 +220,12 @@ export default function ProfilePage() {
                 {authMode === "signin" ? "Sign Up" : "Sign In"}
               </button>
             </p>
-          </div>
 
-          <div className="mt-4 text-center">
-            <Link href="/admin/login" className="text-xs text-gray-400 hover:text-gray-600">
-              Admin Login
-            </Link>
+            <div className="mt-6 text-center">
+              <Link href="/admin/login" className="text-sm text-muted-foreground hover:text-foreground">
+                Admin Login
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -234,71 +233,68 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-orange-500 to-red-500 pt-6 pb-16 px-4">
+      <div className="bg-gradient-to-br from-orange-500 to-red-500 pt-8 pb-20 px-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-4">
             <div className="relative">
               <div
-                className="w-16 h-16 rounded-full border-2 border-white/50 overflow-hidden cursor-pointer shadow-lg"
+                className="w-20 h-20 rounded-full border-3 border-white/30 overflow-hidden cursor-pointer shadow-lg bg-white/10"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {avatarUrl ? (
                   <img src={avatarUrl || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-white/20 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-2xl">person</span>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-3xl">person</span>
                   </div>
                 )}
                 {uploading && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 )}
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md"
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"
               >
-                <Camera className="w-3 h-3 text-gray-700" />
+                <Camera className="w-4 h-4 text-gray-700" />
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-white">{user.displayName || "User"}</h1>
-              <p className="text-white/80 text-xs">{user.email}</p>
+              <h1 className="text-xl font-bold text-white">{user.displayName || "User"}</h1>
+              <p className="text-white/80 text-sm">{user.email}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Card */}
-      <div className="max-w-lg mx-auto px-4 -mt-10">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+      <div className="max-w-lg mx-auto px-4 -mt-12">
+        <div className="bg-card rounded-xl shadow-lg p-5 border border-border">
           <div className="grid grid-cols-2 gap-4">
-            <Link
-              href="/wishlist"
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <Heart className="w-5 h-5 text-red-500" />
+            <Link href="/wishlist" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <Heart className="w-6 h-6 text-red-500" />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{wishlistCount}</p>
-                <p className="text-xs text-gray-500">Wishlist</p>
+                <p className="text-2xl font-bold text-foreground">{wishlistCount}</p>
+                <p className="text-sm text-muted-foreground">Wishlist</p>
               </div>
             </Link>
             <Link
               href="/profile/reviews"
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
             >
-              <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                <Star className="w-5 h-5 text-yellow-500" />
+              <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                <Star className="w-6 h-6 text-yellow-500" />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{reviewCount}</p>
-                <p className="text-xs text-gray-500">My Reviews</p>
+                <p className="text-2xl font-bold text-foreground">{reviewCount}</p>
+                <p className="text-sm text-muted-foreground">Reviews</p>
               </div>
             </Link>
           </div>
@@ -307,93 +303,96 @@ export default function ProfilePage() {
 
       {/* Menu */}
       <div className="max-w-lg mx-auto px-4 mt-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
           <Link
             href="/profile/liked"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Heart className="w-4 h-4 text-blue-500" />
+              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Heart className="w-5 h-5 text-blue-500" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">Liked Products</span>
+              <span className="text-foreground">Liked Products</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
           <Link
             href="/profile/orders"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <ShoppingBag className="w-4 h-4 text-green-500" />
+              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-green-500" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">My Orders</span>
+              <span className="text-foreground">My Orders</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
           <Link
             href="/profile/addresses"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-purple-500" />
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-purple-500" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">Saved Addresses</span>
+              <span className="text-foreground">Saved Addresses</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
           <Link
             href="/contact"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                <MessageSquare className="w-4 h-4 text-orange-500" />
+              <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-orange-500" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">Help & Support</span>
+              <span className="text-foreground">Help & Support</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
           <Link
             href="/privacy-policy"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 text-gray-500" />
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-muted-foreground" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">Privacy Policy</span>
+              <span className="text-foreground">Privacy Policy</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
           <Link
             href="/profile/settings"
-            className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700"
+            className="flex items-center justify-between p-4 border-b border-border hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <Settings className="w-4 h-4 text-gray-500" />
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                <Settings className="w-5 h-5 text-muted-foreground" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-200">Settings</span>
+              <span className="text-foreground">Settings</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </Link>
 
-          <button onClick={handleSignOut} className="w-full flex items-center justify-between p-3">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <LogOut className="w-4 h-4 text-red-500" />
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <LogOut className="w-5 h-5 text-red-500" />
               </div>
-              <span className="text-sm text-red-500">Sign Out</span>
+              <span className="text-red-500">Sign Out</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
       </div>
