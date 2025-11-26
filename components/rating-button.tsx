@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { Star } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -10,17 +12,30 @@ interface RatingButtonProps {
   itemType: "collection" | "product"
   className?: string
   showLabel?: boolean
+  variant?: "default" | "like"
 }
 
-export function RatingButton({ itemId, itemType, className = "", showLabel = false }: RatingButtonProps) {
+export function RatingButton({
+  itemId,
+  itemType,
+  className = "",
+  showLabel = false,
+  variant = "default",
+}: RatingButtonProps) {
   const [userRating, setUserRating] = useState(0)
   const [showRatingModal, setShowRatingModal] = useState(false)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [comment, setComment] = useState("")
+  const [isLiked, setIsLiked] = useState(false)
 
   useEffect(() => {
     loadUserRating()
+    const likedProducts = localStorage.getItem("liked_products")
+    if (likedProducts) {
+      const ids: string[] = JSON.parse(likedProducts)
+      setIsLiked(ids.includes(itemId))
+    }
   }, [itemId])
 
   const loadUserRating = async () => {
@@ -44,6 +59,24 @@ export function RatingButton({ itemId, itemType, className = "", showLabel = fal
     } catch (error) {
       // Silently fail if table doesn't exist yet
     }
+  }
+
+  const toggleLike = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const likedProducts = localStorage.getItem("liked_products")
+    let ids: string[] = likedProducts ? JSON.parse(likedProducts) : []
+
+    if (isLiked) {
+      ids = ids.filter((id) => id !== itemId)
+    } else {
+      ids.push(itemId)
+    }
+
+    localStorage.setItem("liked_products", JSON.stringify(ids))
+    setIsLiked(!isLiked)
+    window.dispatchEvent(new CustomEvent("likedUpdated"))
   }
 
   const submitRating = async (rating: number) => {
@@ -71,6 +104,27 @@ export function RatingButton({ itemId, itemType, className = "", showLabel = fal
       console.error("Error saving rating:", error)
     }
     setIsLoading(false)
+  }
+
+  if (variant === "like") {
+    return (
+      <button
+        onClick={toggleLike}
+        className={cn(
+          "transition-all duration-200 flex items-center justify-center gap-2",
+          isLiked ? "bg-blue-500 hover:bg-blue-600" : "",
+          className,
+        )}
+      >
+        <span
+          className="material-symbols-outlined"
+          style={{ fontVariationSettings: isLiked ? "'FILL' 1" : "'FILL' 0" }}
+        >
+          thumb_up
+        </span>
+        {showLabel && (isLiked ? "LIKED" : "LIKE")}
+      </button>
+    )
   }
 
   if (showLabel) {

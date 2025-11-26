@@ -6,30 +6,37 @@ import { cn } from "@/lib/utils"
 
 export function WishlistButton({
   productId,
+  collectionId,
   type = "product",
   className = "",
   showText = false,
   showLabel = false,
+  variant = "default",
 }: {
-  productId: string
+  productId?: string
+  collectionId?: string
   type?: "product" | "collection"
   className?: string
   showText?: boolean
   showLabel?: boolean
+  variant?: "default" | "desktop"
 }) {
   const [isInWishlist, setIsInWishlist] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+  const itemId = productId || collectionId
+  const storageKey = collectionId ? "wishlist_collections" : type === "collection" ? "wishlist_collections" : "wishlist"
+
   useEffect(() => {
-    checkWishlist()
-  }, [productId])
+    if (itemId) checkWishlist()
+  }, [itemId])
 
   const checkWishlist = () => {
-    const key = type === "collection" ? "wishlist_collections" : "wishlist"
-    const savedWishlist = localStorage.getItem(key)
+    if (!itemId) return
+    const savedWishlist = localStorage.getItem(storageKey)
     if (savedWishlist) {
       const ids: string[] = JSON.parse(savedWishlist)
-      setIsInWishlist(ids.includes(productId))
+      setIsInWishlist(ids.includes(itemId))
     }
   }
 
@@ -37,26 +44,53 @@ export function WishlistButton({
     e.preventDefault()
     e.stopPropagation()
 
-    if (isLoading) return
+    if (!itemId || isLoading) return
     setIsLoading(true)
 
-    const key = type === "collection" ? "wishlist_collections" : "wishlist"
-    const savedWishlist = localStorage.getItem(key)
+    const savedWishlist = localStorage.getItem(storageKey)
     let ids: string[] = savedWishlist ? JSON.parse(savedWishlist) : []
 
     if (isInWishlist) {
-      ids = ids.filter((id) => id !== productId)
+      ids = ids.filter((id) => id !== itemId)
     } else {
-      ids.push(productId)
+      ids.push(itemId)
       window.dispatchEvent(new CustomEvent("wishlistAdded"))
     }
 
-    localStorage.setItem(key, JSON.stringify(ids))
+    localStorage.setItem(storageKey, JSON.stringify(ids))
     setIsInWishlist(!isInWishlist)
 
     window.dispatchEvent(new CustomEvent("wishlistUpdated"))
 
     setTimeout(() => setIsLoading(false), 300)
+  }
+
+  if (variant === "desktop") {
+    return (
+      <button
+        onClick={toggleWishlist}
+        disabled={isLoading}
+        className={cn(
+          "transition-all duration-200 flex items-center justify-center gap-2",
+          isInWishlist && "bg-red-500 hover:bg-red-600",
+          className,
+        )}
+      >
+        {isLoading ? (
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+        ) : (
+          <>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontVariationSettings: isInWishlist ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              favorite
+            </span>
+            {isInWishlist ? "WISHLISTED" : "ADD TO WISHLIST"}
+          </>
+        )}
+      </button>
+    )
   }
 
   if (showLabel) {

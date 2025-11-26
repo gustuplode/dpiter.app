@@ -13,8 +13,10 @@ export function OfflineGame() {
   const [isPaused, setIsPaused] = useState(false)
   const [combo, setCombo] = useState(0)
   const [showCombo, setShowCombo] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
   const gameLoopRef = useRef<number | null>(null)
   const gameStateRef = useRef<any>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem("dinoHighScore")
@@ -28,6 +30,76 @@ export function OfflineGame() {
     document.addEventListener("fullscreenchange", handleFullscreenChange)
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
   }, [])
+
+  const initAudio = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+    }
+    return audioContextRef.current
+  }, [])
+
+  const playSound = useCallback(
+    (type: "jump" | "score" | "gameOver" | "milestone") => {
+      if (!soundEnabled) return
+
+      try {
+        const ctx = initAudio()
+        if (ctx.state === "suspended") {
+          ctx.resume()
+        }
+
+        const oscillator = ctx.createOscillator()
+        const gainNode = ctx.createGain()
+
+        oscillator.connect(gainNode)
+        gainNode.connect(ctx.destination)
+
+        switch (type) {
+          case "jump":
+            oscillator.frequency.setValueAtTime(400, ctx.currentTime)
+            oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1)
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15)
+            oscillator.start(ctx.currentTime)
+            oscillator.stop(ctx.currentTime + 0.15)
+            break
+
+          case "score":
+            oscillator.frequency.setValueAtTime(800, ctx.currentTime)
+            oscillator.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05)
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime)
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
+            oscillator.start(ctx.currentTime)
+            oscillator.stop(ctx.currentTime + 0.1)
+            break
+
+          case "milestone":
+            oscillator.type = "square"
+            oscillator.frequency.setValueAtTime(523, ctx.currentTime) // C5
+            oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1) // E5
+            oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2) // G5
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime)
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35)
+            oscillator.start(ctx.currentTime)
+            oscillator.stop(ctx.currentTime + 0.35)
+            break
+
+          case "gameOver":
+            oscillator.type = "sawtooth"
+            oscillator.frequency.setValueAtTime(300, ctx.currentTime)
+            oscillator.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3)
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4)
+            oscillator.start(ctx.currentTime)
+            oscillator.stop(ctx.currentTime + 0.4)
+            break
+        }
+      } catch (e) {
+        // Silently fail if audio not supported
+      }
+    },
+    [soundEnabled, initAudio],
+  )
 
   const toggleFullscreen = async () => {
     if (!containerRef.current) return
@@ -49,7 +121,8 @@ export function OfflineGame() {
     setIsPaused(false)
     setGameStarted(true)
     setCombo(0)
-  }, [])
+    initAudio() // Initialize audio on game start
+  }, [initAudio])
 
   useEffect(() => {
     if (!canvasRef.current || !gameStarted || gameOver || isPaused) {
@@ -208,11 +281,9 @@ export function OfflineGame() {
 
       // Sun or Moon
       if (gameState.isNight) {
-        // Moon with glow
         const moonX = canvas.width - 100 * scale
         const moonY = 80 * scale
 
-        // Moon glow
         const moonGlow = ctx.createRadialGradient(moonX, moonY, 20 * scale, moonX, moonY, 60 * scale)
         moonGlow.addColorStop(0, "rgba(255, 255, 200, 0.4)")
         moonGlow.addColorStop(1, "rgba(255, 255, 200, 0)")
@@ -221,13 +292,11 @@ export function OfflineGame() {
         ctx.arc(moonX, moonY, 60 * scale, 0, Math.PI * 2)
         ctx.fill()
 
-        // Moon
         ctx.fillStyle = "#f0f0e0"
         ctx.beginPath()
         ctx.arc(moonX, moonY, 30 * scale, 0, Math.PI * 2)
         ctx.fill()
 
-        // Moon craters
         ctx.fillStyle = "#d0d0c0"
         ctx.beginPath()
         ctx.arc(moonX - 8 * scale, moonY - 5 * scale, 6 * scale, 0, Math.PI * 2)
@@ -236,7 +305,6 @@ export function OfflineGame() {
         ctx.arc(moonX + 10 * scale, moonY + 8 * scale, 4 * scale, 0, Math.PI * 2)
         ctx.fill()
       } else {
-        // Sun with glow
         const sunGlow = ctx.createRadialGradient(80 * scale, 60 * scale, 20 * scale, 80 * scale, 60 * scale, 60 * scale)
         sunGlow.addColorStop(0, "rgba(255, 200, 100, 0.6)")
         sunGlow.addColorStop(1, "rgba(255, 200, 100, 0)")
@@ -408,8 +476,10 @@ export function OfflineGame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       // Day/night cycle
-      if (gameState.score > 0 && gameState.score % 500 === 0) {
+      if (gameState.score > 0 && gameState.score % 500 === 0 && gameState.score !== gameState.lastNightSwitch) {
         gameState.isNight = !gameState.isNight
+        gameState.lastNightSwitch = gameState.score
+        playSound("milestone")
       }
 
       drawBackground()
@@ -460,6 +530,7 @@ export function OfflineGame() {
 
         if (!gameState.dino.invincible && checkCollision(gameState.dino, obstacle)) {
           addParticles(gameState.dino.x + 25 * scale, gameState.dino.y + 25 * scale, "#ff4444", 20, 5)
+          playSound("gameOver")
           setGameOver(true)
           setGameStarted(false)
 
@@ -494,23 +565,29 @@ export function OfflineGame() {
       gameState.frameCount++
       setScore(gameState.score)
 
-      // Speed increase
-      if (gameState.score % 200 === 0) {
+      // Speed increase and score milestone sounds
+      if (gameState.score % 100 === 0 && gameState.score !== gameState.lastScoreSound) {
+        playSound("score")
+        gameState.lastScoreSound = gameState.score
+      }
+
+      if (gameState.score % 200 === 0 && gameState.score !== gameState.lastCombo) {
         gameState.speed = Math.min(gameState.speed + 0.3, 18)
         setCombo((c) => c + 1)
         setShowCombo(true)
         setTimeout(() => setShowCombo(false), 1500)
+        gameState.lastCombo = gameState.score
       }
 
       gameLoopRef.current = requestAnimationFrame(gameLoop)
     }
 
-    // Input handlers
     const jump = () => {
       if (!gameState.dino.isJumping && !gameState.dino.isDucking) {
         gameState.dino.isJumping = true
         gameState.dino.velocityY = jumpForce
         addParticles(gameState.dino.x + 25 * scale, groundY, gameState.isNight ? "#4a4a6a" : "#8B7355", 8, 3)
+        playSound("jump")
       }
     }
 
@@ -529,6 +606,9 @@ export function OfflineGame() {
       }
       if (e.code === "KeyP") {
         setIsPaused((p) => !p)
+      }
+      if (e.code === "KeyM") {
+        setSoundEnabled((s) => !s)
       }
     }
 
@@ -566,7 +646,7 @@ export function OfflineGame() {
         cancelAnimationFrame(gameLoopRef.current)
       }
     }
-  }, [gameStarted, gameOver, isPaused, isFullscreen, highScore, startGame])
+  }, [gameStarted, gameOver, isPaused, isFullscreen, highScore, startGame, playSound])
 
   return (
     <div
@@ -615,6 +695,16 @@ export function OfflineGame() {
             )}
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSoundEnabled((s) => !s)}
+                className={`p-2 rounded-lg transition-all ${
+                  isFullscreen
+                    ? "bg-white/10 text-white hover:bg-white/20"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span className="material-symbols-outlined text-lg">{soundEnabled ? "volume_up" : "volume_off"}</span>
+              </button>
               {!gameOver && (
                 <button
                   onClick={() => setIsPaused((p) => !p)}
@@ -685,6 +775,7 @@ export function OfflineGame() {
                 <span>Space/Tap = Jump</span>
                 <span>↓ = Duck</span>
                 <span>P = Pause</span>
+                <span>M = Sound</span>
               </div>
             </div>
           )}

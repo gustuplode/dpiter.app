@@ -136,6 +136,13 @@ export default async function ProductDetailPage({
 
               <div className="flex items-center gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700 mb-6">
                 <WishlistButton productId={product.id} showLabel />
+                <RatingButton
+                  itemId={product.id}
+                  itemType="product"
+                  variant="like"
+                  showLabel
+                  className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-500"
+                />
                 <RatingButton itemId={product.id} itemType="product" showLabel />
                 <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary">
                   <span className="material-symbols-outlined">share</span>
@@ -279,8 +286,9 @@ export default async function ProductDetailPage({
               <RatingButton
                 itemId={product.id}
                 itemType="product"
-                className="w-full h-12 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-base flex items-center justify-center gap-2"
+                variant="like"
                 showLabel
+                className="w-full h-12 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold text-base flex items-center justify-center gap-2"
               />
               <a
                 href={product.affiliate_link || "#"}
@@ -291,6 +299,21 @@ export default async function ProductDetailPage({
                 <span className="material-symbols-outlined text-lg">bolt</span>
                 Buy Now
               </a>
+            </div>
+
+            {/* Additional action row */}
+            <div className="flex items-center justify-around py-3 border-t border-gray-200 dark:border-gray-700">
+              <WishlistButton productId={product.id} showLabel className="flex items-center gap-1 text-sm" />
+              <RatingButton
+                itemId={product.id}
+                itemType="product"
+                showLabel
+                className="flex items-center gap-1 text-sm"
+              />
+              <button className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                <span className="material-symbols-outlined text-lg">share</span>
+                Share
+              </button>
             </div>
           </div>
 
