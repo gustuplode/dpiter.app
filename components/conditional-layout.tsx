@@ -16,25 +16,15 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const isProfilePage = pathname === "/profile"
   const isProfileSubpage = pathname?.startsWith("/profile/")
 
-  // Admin pages manage their own layout completely
   if (isAdminPage) {
     return <main className="min-h-screen">{children}</main>
   }
 
-  if (isProfilePage) {
+  if (isProfilePage || isProfileSubpage) {
     return (
       <>
-        <main className="min-h-screen pb-16">{children}</main>
-        <BottomNav />
-      </>
-    )
-  }
-
-  // Profile subpages - need bottom nav
-  if (isProfileSubpage) {
-    return (
-      <>
-        <main className="min-h-screen pb-16">{children}</main>
+        <SearchHeader />
+        <main className="min-h-screen pb-20">{children}</main>
         <BottomNav />
       </>
     )
@@ -44,7 +34,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     <>
       <SearchHeader />
       <PullToRefresh>
-        <main className="pb-16 min-h-screen">
+        <main className="pb-20 min-h-screen">
           <OfflineDetector>
             <SwipeablePageWrapper>{children}</SwipeablePageWrapper>
           </OfflineDetector>

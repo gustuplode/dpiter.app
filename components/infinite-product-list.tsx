@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
-import { AddToCartButton } from "@/components/add-to-cart-button"
 import { getProductUrl } from "@/lib/utils"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { createClient } from "@/lib/supabase/client"
@@ -37,7 +36,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     try {
       const supabase = createClient()
       const from = page * 6
-      const to = from + 5 // Load 6 products at a time
+      const to = from + 5
 
       const { data, error } = await supabase
         .from("category_products")
@@ -101,7 +100,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         {products.map((product) => (
           <div
             key={product.id}
-            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-[#8A3224] dark:border-[#8A3224] md:rounded-lg md:border hover:shadow-lg transition-shadow"
+            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
               <div
@@ -114,7 +113,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
               </div>
             </Link>
 
-            <div className="p-2 flex flex-col gap-1 bg-[#F7F7F7] dark:bg-gray-800">
+            <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
               <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
                 {product.brand || "Brand"}
               </p>
@@ -137,16 +136,18 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
                 <div className="flex items-center gap-0.5">
                   <WishlistButton
                     productId={product.id}
-                    className="flex items-center justify-center h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
-                    className="flex items-center justify-center h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-yellow-500 transition-colors"
                   />
-                  <AddToCartButton
-                    productId={product.id}
-                    className="flex items-center justify-center h-6 w-6 text-primary dark:text-primary-light hover:text-primary/80 transition-colors"
+                  <RatingButton
+                    itemId={product.id}
+                    itemType="product"
+                    variant="like"
+                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
                   />
                 </div>
               </div>
@@ -155,16 +156,15 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         ))}
       </div>
 
-      {/* Loader / End indicator */}
-      <div ref={loaderRef} className="py-8 flex justify-center">
+      <div ref={loaderRef} className="py-6 flex justify-center">
         {loading && (
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-gray-500 dark:text-gray-400 text-sm">Loading more products...</span>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-gray-500 dark:text-gray-400 text-xs">Loading...</span>
           </div>
         )}
         {!hasMore && products.length > 0 && (
-          <p className="text-gray-400 dark:text-gray-500 text-sm">You&apos;ve seen all products</p>
+          <p className="text-gray-400 dark:text-gray-500 text-xs">You've seen all products</p>
         )}
       </div>
     </>

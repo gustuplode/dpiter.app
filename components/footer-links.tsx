@@ -48,72 +48,66 @@ function QuickContactIcons() {
       name: "Collab",
       icon: Handshake,
       href: "mailto:deepitermark@gmail.com?subject=Collaboration%20Inquiry",
-      gradient: "from-purple-500 to-indigo-600",
-      shadowColor: "shadow-purple-500/30",
+      bgColor: "bg-gradient-to-br from-violet-500 to-purple-600",
       show: true,
     },
     {
       name: "WhatsApp",
       icon: MessageCircle,
       href: "https://wa.me/919939091568",
-      gradient: "from-green-500 to-emerald-600",
-      shadowColor: "shadow-green-500/30",
+      bgColor: "bg-gradient-to-br from-green-500 to-emerald-600",
       show: true,
     },
     {
       name: "Email",
       icon: Mail,
       href: "mailto:deepitermark@gmail.com",
-      gradient: "from-rose-500 to-pink-600",
-      shadowColor: "shadow-rose-500/30",
+      bgColor: "bg-gradient-to-br from-rose-500 to-red-600",
       show: true,
     },
     {
       name: "Install",
       icon: Download,
       onClick: handleInstallPWA,
-      gradient: "from-blue-500 to-cyan-600",
-      shadowColor: "shadow-blue-500/30",
+      bgColor: "bg-gradient-to-br from-blue-500 to-indigo-600",
       show: deferredPrompt !== null && !isInstalled,
     },
     {
       name: "Website",
       icon: Globe,
       href: "https://dpiter.shop",
-      gradient: "from-amber-500 to-orange-600",
-      shadowColor: "shadow-amber-500/30",
+      bgColor: "bg-gradient-to-br from-amber-500 to-orange-600",
       show: true,
     },
   ]
 
   return (
-    <div className="flex justify-center gap-4 mb-6">
+    <div className="flex justify-center items-center gap-5 mb-6">
       {icons
         .filter((item) => item.show)
         .map((item) => {
           const IconComponent = item.icon
           const content = (
-            <div className="flex flex-col items-center gap-1.5 group">
+            <div className="flex flex-col items-center gap-1 group cursor-pointer">
               <div
                 className={`
-                w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient}
-                flex items-center justify-center
-                shadow-lg ${item.shadowColor}
-                transition-all duration-300
-                group-hover:scale-110 group-hover:shadow-xl
-              `}
+                  w-11 h-11 rounded-full ${item.bgColor}
+                  flex items-center justify-center
+                  shadow-md
+                  transition-all duration-200
+                  group-hover:scale-110 group-hover:shadow-lg
+                  group-active:scale-95
+                `}
               >
-                <IconComponent className="w-5 h-5 text-white" />
+                <IconComponent className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
-              <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                {item.name}
-              </span>
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{item.name}</span>
             </div>
           )
 
           if (item.onClick) {
             return (
-              <button key={item.name} onClick={item.onClick} className="cursor-pointer">
+              <button key={item.name} onClick={item.onClick}>
                 {content}
               </button>
             )
@@ -125,7 +119,6 @@ function QuickContactIcons() {
               href={item.href}
               target={item.href?.startsWith("http") ? "_blank" : undefined}
               rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="cursor-pointer"
             >
               {content}
             </a>
@@ -175,58 +168,54 @@ export function FooterLinks() {
   }
 
   return (
-    <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 py-8 px-4">
+    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6 px-4">
       <div className="container mx-auto max-w-7xl">
         <QuickContactIcons />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5 text-center md:text-left">
           <div>
-            <h3 className="font-semibold text-sm text-slate-900 dark:text-white mb-3">Company</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+              Company
+            </h3>
+            <ul className="space-y-1">
               <li>
-                <Link href="/about" className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]">
+                <Link href="/about" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]">
+                <Link href="/contact" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
                   Contact
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-slate-900 dark:text-white mb-3">Legal</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Legal</h3>
+            <ul className="space-y-1">
               <li>
-                <Link
-                  href="/privacy-policy"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]"
-                >
+                <Link href="/privacy-policy" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
                   href="/terms-of-service"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
                 >
-                  Terms of Service
+                  Terms
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-slate-900 dark:text-white mb-3">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+              Support
+            </h3>
+            <ul className="space-y-1">
               <li>
-                <Link href="/faq" className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]">
+                <Link href="/faq" className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500">
                   FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]">
-                  Shipping Info
                 </Link>
               </li>
               <li>
@@ -234,7 +223,7 @@ export function FooterLinks() {
                   href="https://amzn.to/49SNT2h"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
                 >
                   Amazon Store
                 </a>
@@ -242,14 +231,14 @@ export function FooterLinks() {
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-slate-900 dark:text-white mb-3">Follow Us</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Follow</h3>
+            <ul className="space-y-1">
               <li>
                 <a
                   href="https://www.facebook.com/share/1PwVj2Bg4Z/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
                 >
                   Facebook
                 </a>
@@ -259,7 +248,7 @@ export function FooterLinks() {
                   href="https://www.instagram.com/deepiter_mark?igsh=MXh5djE1NzlkMTlo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3B82F6]"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500"
                 >
                   Instagram
                 </a>
@@ -269,18 +258,18 @@ export function FooterLinks() {
         </div>
 
         {deferredPrompt && !isInstalled && (
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <button
               onClick={handleInstallPWA}
-              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 transition-all"
             >
-              <Download className="w-5 h-5" />
-              <span>Install Dpiter App</span>
+              <Download className="w-4 h-4" />
+              Install Dpiter App
             </button>
           </div>
         )}
 
-        <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div className="text-center text-[10px] text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-800">
           <p>© {new Date().getFullYear()} Dpiter. All rights reserved.</p>
         </div>
       </div>
