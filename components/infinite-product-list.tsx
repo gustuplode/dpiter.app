@@ -133,21 +133,21 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
                   )}
                 </div>
 
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                   <WishlistButton
                     productId={product.id}
-                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
-                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-yellow-500 transition-colors"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
                     variant="like"
-                    className="flex items-center justify-center h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
                   />
                 </div>
               </div>

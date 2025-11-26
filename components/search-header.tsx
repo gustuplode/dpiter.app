@@ -22,6 +22,7 @@ export function SearchHeader() {
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
+  const lastScrollY = useRef(0)
 
   const pathname = usePathname()
   const router = useRouter()
@@ -194,27 +195,39 @@ export function SearchHeader() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (isSearchFocused || showResults) {
+      const currentScrollY = window.scrollY
+      const scrollDiff = Math.abs(currentScrollY - lastScrollY.current)
+
+      // Only close if scrolled more than 10px and not inside results
+      if (scrollDiff > 10 && (isSearchFocused || showResults)) {
         closeSearch()
       }
+      lastScrollY.current = currentScrollY
     }
 
-    const handleTouchMove = () => {
+    const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as Node
+      // Don't close if touching inside search container or results
+      if (searchContainerRef.current?.contains(target) || resultsRef.current?.contains(target)) {
+        return
+      }
+
       if (isSearchFocused || showResults) {
         closeSearch()
       }
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
-    window.addEventListener("touchmove", handleTouchMove, { passive: true })
+    document.addEventListener("touchstart", handleTouchStart, { passive: true })
+
     return () => {
       window.removeEventListener("scroll", handleScroll)
-      window.removeEventListener("touchmove", handleTouchMove)
+      document.removeEventListener("touchstart", handleTouchStart)
     }
   }, [isSearchFocused, showResults])
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
 
       if (
@@ -228,11 +241,9 @@ export function SearchHeader() {
     }
 
     document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("touchstart", handleClickOutside)
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("touchstart", handleClickOutside)
     }
   }, [])
 
@@ -240,7 +251,7 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-orange-500 to-red-500">
+      <div className="sticky top-0 z-50" style={{ backgroundColor: "#883223" }}>
         <div className="max-w-7xl mx-auto px-2 py-2">
           <div className="flex items-center gap-2" ref={searchContainerRef}>
             {showBackButton && (
@@ -253,13 +264,13 @@ export function SearchHeader() {
             )}
 
             <div className="flex-1 relative">
-              <div className="flex w-full items-center h-11 rounded-lg overflow-hidden bg-white shadow-sm">
-                <div className="flex items-center justify-center pl-3 pr-1">
-                  <Search className="w-5 h-5 text-gray-500" />
+              <div className="flex w-full items-center h-10 rounded overflow-hidden bg-white">
+                <div className="flex items-center justify-center pl-3 pr-2">
+                  <Search className="w-4 h-4 text-gray-500" />
                 </div>
                 <input
                   ref={inputRef}
-                  className="flex-1 h-full bg-transparent text-gray-900 placeholder:text-gray-400 px-2 text-base focus:outline-none"
+                  className="flex-1 h-full bg-transparent text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none"
                   placeholder="Search products, brands..."
                   value={searchQuery}
                   onChange={(e) => {
@@ -276,19 +287,19 @@ export function SearchHeader() {
                 {searchQuery && (
                   <button
                     onClick={closeSearch}
-                    className="flex items-center justify-center px-3 text-gray-400 hover:text-gray-600"
+                    className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </button>
                 )}
-                <div className="h-6 w-px bg-gray-200"></div>
+                <div className="h-5 w-px bg-gray-200"></div>
                 <button
                   onClick={startVoiceSearch}
-                  className={`flex items-center justify-center h-full w-12 transition-colors ${
-                    isListening ? "bg-red-500 text-white" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  className={`flex items-center justify-center h-full w-10 transition-colors ${
+                    isListening ? "bg-red-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : ""}`} />
+                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
                 </button>
               </div>
             </div>
@@ -305,7 +316,7 @@ export function SearchHeader() {
       {showResults && (
         <div
           ref={resultsRef}
-          className="fixed top-[60px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-lg"
+          className="fixed top-[56px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-lg"
         >
           <div className="max-w-4xl mx-auto">
             {searchQuery && suggestions.length > 0 && (
