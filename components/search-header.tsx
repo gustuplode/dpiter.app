@@ -24,6 +24,14 @@ export function SearchHeader() {
   const pathname = usePathname()
   const router = useRouter()
 
+  const isAdminPage = pathname.startsWith("/admin")
+  const isProductPage = pathname.startsWith("/products/")
+  const isProfilePage = pathname === "/profile"
+  const isCollectionPage = pathname.startsWith("/collections/")
+  const showBackButton = isProductPage || isProfilePage || isCollectionPage
+  const showCategoryHeader =
+    !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage && !isSearchFocused && !searchQuery
+
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches")
     if (saved) {
@@ -145,13 +153,41 @@ export function SearchHeader() {
     localStorage.setItem("recentSearches", JSON.stringify(updated))
   }
 
-  const isAdminPage = pathname.startsWith("/admin")
-  const isProductPage = pathname.startsWith("/products/")
-  const isProfilePage = pathname === "/profile"
-  const isCollectionPage = pathname.startsWith("/collections/")
-  const showBackButton = isProductPage || isProfilePage || isCollectionPage
-  const showCategoryHeader =
-    !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage && !isSearchFocused && !searchQuery
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      const searchContainer = inputRef.current?.parentElement?.parentElement
+      const resultsContainer = resultsRef.current
+
+      if (
+        searchContainer &&
+        !searchContainer.contains(target) &&
+        resultsContainer &&
+        !resultsContainer.contains(target)
+      ) {
+        setShowResults(false)
+        setIsSearchFocused(false)
+        if (!searchQuery) {
+          setSelectedIndex(-1)
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("touchstart", handleClickOutside as any)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("touchstart", handleClickOutside as any)
+    }
+  }, [searchQuery])
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setShowResults(false)
+      setIsSearchFocused(false)
+    }, 200)
+  }
 
   if (isAdminPage) return null
 
@@ -184,14 +220,7 @@ export function SearchHeader() {
                     setShowResults(true)
                     setIsSearchFocused(true)
                   }}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      setShowResults(false)
-                      if (!searchQuery) {
-                        setIsSearchFocused(false)
-                      }
-                    }, 200)
-                  }}
+                  onBlur={handleBlur}
                   onKeyDown={handleKeyDown}
                 />
                 {searchQuery && (
@@ -199,7 +228,8 @@ export function SearchHeader() {
                     onClick={() => {
                       setSearchQuery("")
                       setIsSearchFocused(false)
-                      inputRef.current?.focus()
+                      setShowResults(false)
+                      inputRef.current?.blur()
                     }}
                     className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
                   >

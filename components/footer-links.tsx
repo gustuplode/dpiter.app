@@ -9,22 +9,18 @@ function QuickContactIcons() {
   const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
-    // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true)
     }
 
-    // Listen for beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
     }
 
-    // Listen for app installed
     const handleAppInstalled = () => {
       setIsInstalled(true)
       setDeferredPrompt(null)
-      console.log("PWA Installed Successfully")
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstall)
@@ -41,7 +37,7 @@ function QuickContactIcons() {
       deferredPrompt.prompt()
       const result = await deferredPrompt.userChoice
       if (result.outcome === "accepted") {
-        console.log("User accepted PWA install")
+        console.log("PWA Installed")
       }
       setDeferredPrompt(null)
     }
@@ -140,6 +136,44 @@ function QuickContactIcons() {
 }
 
 export function FooterLinks() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [isInstalled, setIsInstalled] = useState(false)
+
+  useEffect(() => {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true)
+    }
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+    }
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true)
+      setDeferredPrompt(null)
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall)
+    window.addEventListener("appinstalled", handleAppInstalled)
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall)
+      window.removeEventListener("appinstalled", handleAppInstalled)
+    }
+  }, [])
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const result = await deferredPrompt.userChoice
+      if (result.outcome === "accepted") {
+        console.log("PWA Installed")
+      }
+      setDeferredPrompt(null)
+    }
+  }
+
   return (
     <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 py-8 px-4">
       <div className="container mx-auto max-w-7xl">
@@ -233,6 +267,19 @@ export function FooterLinks() {
             </ul>
           </div>
         </div>
+
+        {deferredPrompt && !isInstalled && (
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={handleInstallPWA}
+              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+            >
+              <Download className="w-5 h-5" />
+              <span>Install Dpiter App</span>
+            </button>
+          </div>
+        )}
+
         <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-6 border-t border-slate-200 dark:border-slate-700">
           <p>© {new Date().getFullYear()} Dpiter. All rights reserved.</p>
         </div>
