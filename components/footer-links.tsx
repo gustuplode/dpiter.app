@@ -1,17 +1,49 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { MessageCircle, Mail, Download, Globe, Handshake } from "lucide-react"
 
 function QuickContactIcons() {
-  const handleInstallPWA = () => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      const deferredPrompt = (window as any).deferredPrompt
-      if (deferredPrompt) {
-        deferredPrompt.prompt()
-      } else {
-        alert("Add to Home Screen: Use your browser menu to install this app")
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [isInstalled, setIsInstalled] = useState(false)
+
+  useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true)
+    }
+
+    // Listen for beforeinstallprompt
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+    }
+
+    // Listen for app installed
+    const handleAppInstalled = () => {
+      setIsInstalled(true)
+      setDeferredPrompt(null)
+      console.log("PWA Installed Successfully")
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall)
+    window.addEventListener("appinstalled", handleAppInstalled)
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall)
+      window.removeEventListener("appinstalled", handleAppInstalled)
+    }
+  }, [])
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const result = await deferredPrompt.userChoice
+      if (result.outcome === "accepted") {
+        console.log("User accepted PWA install")
       }
+      setDeferredPrompt(null)
     }
   }
 
@@ -22,6 +54,7 @@ function QuickContactIcons() {
       href: "mailto:deepitermark@gmail.com?subject=Collaboration%20Inquiry",
       gradient: "from-purple-500 to-indigo-600",
       shadowColor: "shadow-purple-500/30",
+      show: true,
     },
     {
       name: "WhatsApp",
@@ -29,6 +62,7 @@ function QuickContactIcons() {
       href: "https://wa.me/919939091568",
       gradient: "from-green-500 to-emerald-600",
       shadowColor: "shadow-green-500/30",
+      show: true,
     },
     {
       name: "Email",
@@ -36,6 +70,7 @@ function QuickContactIcons() {
       href: "mailto:deepitermark@gmail.com",
       gradient: "from-rose-500 to-pink-600",
       shadowColor: "shadow-rose-500/30",
+      show: true,
     },
     {
       name: "Install",
@@ -43,6 +78,7 @@ function QuickContactIcons() {
       onClick: handleInstallPWA,
       gradient: "from-blue-500 to-cyan-600",
       shadowColor: "shadow-blue-500/30",
+      show: deferredPrompt !== null && !isInstalled,
     },
     {
       name: "Website",
@@ -50,52 +86,55 @@ function QuickContactIcons() {
       href: "https://dpiter.shop",
       gradient: "from-amber-500 to-orange-600",
       shadowColor: "shadow-amber-500/30",
+      show: true,
     },
   ]
 
   return (
     <div className="flex justify-center gap-4 mb-6">
-      {icons.map((item) => {
-        const IconComponent = item.icon
-        const content = (
-          <div className="flex flex-col items-center gap-1.5 group">
-            <div
-              className={`
-              w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient}
-              flex items-center justify-center
-              shadow-lg ${item.shadowColor}
-              transition-all duration-300
-              group-hover:scale-110 group-hover:shadow-xl
-            `}
-            >
-              <IconComponent className="w-5 h-5 text-white" />
+      {icons
+        .filter((item) => item.show)
+        .map((item) => {
+          const IconComponent = item.icon
+          const content = (
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div
+                className={`
+                w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient}
+                flex items-center justify-center
+                shadow-lg ${item.shadowColor}
+                transition-all duration-300
+                group-hover:scale-110 group-hover:shadow-xl
+              `}
+              >
+                <IconComponent className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                {item.name}
+              </span>
             </div>
-            <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              {item.name}
-            </span>
-          </div>
-        )
-
-        if (item.onClick) {
-          return (
-            <button key={item.name} onClick={item.onClick} className="cursor-pointer">
-              {content}
-            </button>
           )
-        }
 
-        return (
-          <a
-            key={item.name}
-            href={item.href}
-            target={item.href?.startsWith("http") ? "_blank" : undefined}
-            rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
-            className="cursor-pointer"
-          >
-            {content}
-          </a>
-        )
-      })}
+          if (item.onClick) {
+            return (
+              <button key={item.name} onClick={item.onClick} className="cursor-pointer">
+                {content}
+              </button>
+            )
+          }
+
+          return (
+            <a
+              key={item.name}
+              href={item.href}
+              target={item.href?.startsWith("http") ? "_blank" : undefined}
+              rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+              className="cursor-pointer"
+            >
+              {content}
+            </a>
+          )
+        })}
     </div>
   )
 }
@@ -104,14 +143,6 @@ export function FooterLinks() {
   return (
     <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 py-8 px-4">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex justify-center mb-6">
-          <img
-            src="/images/design-mode/1000007078-01_imgupscaler_imgupscaler.ai_V1%28Fast%29_2K%20%282%29%20%281%29.jpg"
-            alt="Dpiter Logo"
-            className="h-16 w-16 object-contain"
-          />
-        </div>
-
         <QuickContactIcons />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">

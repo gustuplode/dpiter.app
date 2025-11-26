@@ -17,6 +17,7 @@ export function SearchHeader() {
   const [isLoading, setIsLoading] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
 
@@ -149,7 +150,8 @@ export function SearchHeader() {
   const isProfilePage = pathname === "/profile"
   const isCollectionPage = pathname.startsWith("/collections/")
   const showBackButton = isProductPage || isProfilePage || isCollectionPage
-  const showCategoryHeader = !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage
+  const showCategoryHeader =
+    !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage && !isSearchFocused && !searchQuery
 
   if (isAdminPage) return null
 
@@ -178,14 +180,25 @@ export function SearchHeader() {
                   placeholder="Search products, brands, categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowResults(true)}
-                  onBlur={() => setTimeout(() => setShowResults(false), 200)}
+                  onFocus={() => {
+                    setShowResults(true)
+                    setIsSearchFocused(true)
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setShowResults(false)
+                      if (!searchQuery) {
+                        setIsSearchFocused(false)
+                      }
+                    }, 200)
+                  }}
                   onKeyDown={handleKeyDown}
                 />
                 {searchQuery && (
                   <button
                     onClick={() => {
                       setSearchQuery("")
+                      setIsSearchFocused(false)
                       inputRef.current?.focus()
                     }}
                     className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
@@ -219,7 +232,6 @@ export function SearchHeader() {
           className="fixed top-[60px] md:top-[52px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-2xl"
         >
           <div className="max-w-4xl mx-auto">
-            {/* Auto-suggestions while typing */}
             {searchQuery && suggestions.length > 0 && (
               <div className="border-b border-gray-100 dark:border-gray-800">
                 {suggestions.map((suggestion, idx) => (
@@ -240,7 +252,6 @@ export function SearchHeader() {
               </div>
             )}
 
-            {/* Recent Searches - when no query */}
             {!searchQuery && recentSearches.length > 0 && (
               <div className="p-4 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-3">
@@ -273,7 +284,6 @@ export function SearchHeader() {
               </div>
             )}
 
-            {/* Trending Searches - when no query */}
             {!searchQuery && (
               <div className="p-4 border-b border-gray-100 dark:border-gray-800">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-3">
@@ -294,7 +304,6 @@ export function SearchHeader() {
               </div>
             )}
 
-            {/* Search Results */}
             {searchQuery && (
               <>
                 {isLoading ? (
@@ -311,7 +320,6 @@ export function SearchHeader() {
                     <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">
                       Try different keywords or browse categories
                     </p>
-                    {/* Suggest similar searches */}
                     <div className="flex flex-wrap justify-center gap-2">
                       {trendingSearches.slice(0, 4).map((search) => (
                         <button
@@ -326,14 +334,12 @@ export function SearchHeader() {
                   </div>
                 ) : (
                   <div>
-                    {/* Results Header */}
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {products.length} results for "<span className="font-medium">{searchQuery}</span>"
                       </p>
                     </div>
 
-                    {/* YouTube-style list view */}
                     <div className="divide-y divide-gray-100 dark:divide-gray-800">
                       {products.map((product, idx) => (
                         <div
@@ -343,7 +349,6 @@ export function SearchHeader() {
                             selectedIndex === suggestions.length + idx ? "bg-gray-100 dark:bg-gray-800" : ""
                           }`}
                         >
-                          {/* Thumbnail */}
                           <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
                             <img
                               src={product.image_url || "/placeholder.svg"}
@@ -352,7 +357,6 @@ export function SearchHeader() {
                             />
                           </div>
 
-                          {/* Product Info */}
                           <div className="flex-1 min-w-0 py-0.5">
                             <h4 className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 leading-snug">
                               {product.title}
@@ -378,7 +382,6 @@ export function SearchHeader() {
                                 </>
                               )}
                             </div>
-                            {/* Rating */}
                             <div className="flex items-center gap-2 mt-1.5">
                               <span className="inline-flex items-center gap-0.5 bg-green-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                                 4.1 <Star className="w-2.5 h-2.5 fill-current" />
