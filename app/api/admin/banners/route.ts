@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, type, media_url, ad_code, position, is_active } = body
+  const { title, type, media_url, ad_code, link_url, position, is_active } = body
 
   const { data, error } = await supabase
     .from("banners")
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       type,
       media_url,
       ad_code: ad_code || null,
+      link_url: link_url || null,
       position,
       is_active,
       created_at: new Date().toISOString(),

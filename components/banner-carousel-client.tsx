@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Volume2, VolumeX, Play, Pause } from "lucide-react"
 
 interface Banner {
@@ -11,6 +12,7 @@ interface Banner {
   type: "image" | "video" | "ad_code"
   media_url: string
   ad_code?: string
+  link_url?: string
   position: number
 }
 
@@ -22,6 +24,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const hideControlsTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (banners[currentBanner].type === "video" && videoRef.current) {
@@ -71,7 +74,19 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
     setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
   }
 
-  const handleBannerInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleBannerClick = () => {
+    const currentBannerData = banners[currentBanner]
+    if (currentBannerData.link_url) {
+      // Check if it's an external URL or internal path
+      if (currentBannerData.link_url.startsWith("http")) {
+        window.open(currentBannerData.link_url, "_blank", "noopener,noreferrer")
+      } else {
+        router.push(currentBannerData.link_url)
+      }
+    }
+  }
+
+  const handleControlClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation()
   }
 
@@ -92,49 +107,48 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
     }
   }
 
+  const currentBannerData = banners[currentBanner]
+  const hasLink = !!currentBannerData.link_url
+
   return (
-    <div
-      className="mb-4 relative"
-      onClick={handleBannerInteraction}
-      onTouchStart={handleBannerInteraction}
-      onTouchMove={handleBannerInteraction}
-      onTouchEnd={handleBannerInteraction}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg">
-        {banners[currentBanner].type === "image" ? (
+    <div className="mb-4 relative" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+      <div
+        className={`w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg ${hasLink ? "cursor-pointer" : ""}`}
+        onClick={handleBannerClick}
+      >
+        {currentBannerData.type === "image" ? (
           <img
-            src={banners[currentBanner].media_url || "/placeholder.svg"}
-            alt={banners[currentBanner].title}
+            src={currentBannerData.media_url || "/placeholder.svg"}
+            alt={currentBannerData.title}
             className="w-full h-full object-cover transition-all duration-500"
           />
-        ) : banners[currentBanner].type === "video" ? (
+        ) : currentBannerData.type === "video" ? (
           <video
-            key={banners[currentBanner].id}
+            key={currentBannerData.id}
             ref={videoRef}
-            src={banners[currentBanner].media_url}
+            src={currentBannerData.media_url}
             autoPlay
             muted={isMuted}
             playsInline
             onEnded={handleVideoEnd}
             className="w-full h-full object-cover"
           >
-            <source src={banners[currentBanner].media_url} type="video/mp4" />
+            <source src={currentBannerData.media_url} type="video/mp4" />
           </video>
         ) : (
           <div
             className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
-            dangerouslySetInnerHTML={{ __html: banners[currentBanner].ad_code || "" }}
+            dangerouslySetInnerHTML={{ __html: currentBannerData.ad_code || "" }}
           />
         )}
       </div>
 
-      {banners[currentBanner].type === "video" && (
+      {currentBannerData.type === "video" && (
         <div
           className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-300 ${
             showControls ? "opacity-100" : "opacity-0"
           }`}
+          onClick={handleControlClick}
         >
           <button
             onClick={togglePlayPause}
@@ -153,7 +167,10 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
         </div>
       )}
 
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4">
+      <div
+        className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4"
+        onClick={handleControlClick}
+      >
         <button
           onClick={(e) => {
             e.stopPropagation()

@@ -7,13 +7,14 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { AdminMediaCropper } from "./admin-media-cropper"
 import Link from "next/link"
-import { Check } from "lucide-react"
+import { Check, Link2 } from "lucide-react"
 
 export function AdminBannerForm({ banner }: { banner?: any }) {
   const router = useRouter()
   const [mediaType, setMediaType] = useState<"image" | "video" | "ad_code">(banner?.type || "image")
   const [mediaUrl, setMediaUrl] = useState(banner?.media_url || "")
   const [adCode, setAdCode] = useState(banner?.ad_code || "")
+  const [linkUrl, setLinkUrl] = useState(banner?.link_url || "")
   const [position, setPosition] = useState(banner?.position || 0)
   const [isActive, setIsActive] = useState(banner?.is_active ?? true)
   const [showCropper, setShowCropper] = useState(false)
@@ -53,6 +54,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           type: mediaType,
           media_url: mediaType === "ad_code" ? "" : mediaUrl,
           ad_code: mediaType === "ad_code" ? adCode : null,
+          link_url: linkUrl || null,
           position,
           is_active: isActive,
         }),
@@ -60,14 +62,14 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
 
       if (response.ok) {
         if (banner) {
-          // If editing, go back
           router.push("/admin/banners")
           router.refresh()
         } else {
           setSuccessMessage("Banner added successfully! You can add another banner or go back.")
           setMediaUrl("")
           setAdCode("")
-          setPosition(position + 1) // Auto-increment position
+          setLinkUrl("")
+          setPosition(position + 1)
         }
       } else {
         const error = await response.json()
@@ -133,7 +135,6 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
         </div>
       </header>
 
-      {/* Success Message */}
       {successMessage && (
         <div className="mx-4 mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
           <Check className="h-5 w-5 text-green-600" />
@@ -225,6 +226,25 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             )}
           </div>
         )}
+
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              <span>Redirect Link (Optional)</span>
+            </div>
+          </label>
+          <input
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://example.com/page or /products/category"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            When user clicks on this banner, they will be redirected to this URL. Leave empty for no redirect.
+          </p>
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
