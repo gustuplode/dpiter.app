@@ -509,15 +509,29 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <style>{`
-          body { opacity: 0; transition: opacity 0.2s ease-in; }
+          html { font-size: 16px; }
+          body { 
+            opacity: 0; 
+            transition: opacity 0.15s ease-in;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
           body.loaded { opacity: 1; }
+          * { box-sizing: border-box; }
         `}</style>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.addEventListener('DOMContentLoaded', () => {
+              // Prevent FOUC - show content immediately when fonts are ready
+              if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => {
+                  document.body.classList.add('loaded');
+                });
+              } else {
                 document.body.classList.add('loaded');
-              });
+              }
+              // Fallback - show content after short delay
+              setTimeout(() => document.body.classList.add('loaded'), 100);
+              // Service worker registration
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                   navigator.serviceWorker.register('/sw-ad.js').catch(() => {});
