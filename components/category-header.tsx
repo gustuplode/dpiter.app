@@ -10,44 +10,86 @@ export function CategoryHeader() {
   const pathname = usePathname()
 
   const categories = [
-    { name: "All", path: "/", icon: "apps", color: "from-orange-500 to-red-500" },
-    { name: "Fashion", path: "/fashion", icon: "checkroom", color: "from-pink-500 to-rose-500" },
-    { name: "Gadgets", path: "/gadgets", icon: "devices", color: "from-blue-500 to-indigo-500" },
-    { name: "Gaming", path: "/gaming", icon: "sports_esports", color: "from-purple-500 to-violet-500" },
-    { name: "Outfit", path: "/outfit", icon: "shopping_bag", color: "from-teal-500 to-emerald-500" },
+    {
+      name: "All",
+      path: "/",
+      image: "/all-products-colorful-grid.jpg",
+    },
+    {
+      name: "Fashion",
+      path: "/fashion",
+      image: "/fashion-dress-clothing.jpg",
+    },
+    {
+      name: "Gadgets",
+      path: "/gadgets",
+      image: "/smartphone-gadgets-electronics.jpg",
+    },
+    {
+      name: "Gaming",
+      path: "/gaming",
+      image: "/gaming-controller-console.jpg",
+    },
+    {
+      name: "Outfit",
+      path: "/outfit",
+      image: "/outfit-clothes-style.jpg",
+    },
+    {
+      name: "Beauty",
+      path: "/collections/beauty",
+      image: "/beauty-cosmetics-makeup.jpg",
+    },
+    {
+      name: "Home",
+      path: "/collections/home",
+      image: "/cozy-living-room.png",
+    },
   ]
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-900 py-4 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center justify-center gap-6 md:gap-10 overflow-x-auto scrollbar-hide px-4">
+      <div className="bg-white dark:bg-gray-900 py-3 border-t border-gray-100 dark:border-gray-800">
+        <div
+          className="flex items-center gap-4 px-4 overflow-x-auto"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+
           {categories.map((category) => {
             const isActive = pathname === category.path
             return (
               <Link
                 key={category.name}
                 href={category.path}
-                className="flex flex-col items-center gap-2 min-w-[56px] group"
+                className="flex flex-col items-center gap-1.5 min-w-[60px] group"
               >
                 <div
-                  className={`relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
+                  className={`relative w-12 h-12 rounded-full overflow-hidden transition-all duration-200 ${
                     isActive
-                      ? `bg-gradient-to-br ${category.color} text-white shadow-lg scale-105`
-                      : "bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 group-hover:scale-105"
+                      ? "ring-2 ring-orange-500 ring-offset-2"
+                      : "group-hover:ring-2 group-hover:ring-gray-200 group-hover:ring-offset-1"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[24px]">{category.icon}</span>
-                  {isActive && (
-                    <div
-                      className={`absolute -inset-1 bg-gradient-to-br ${category.color} rounded-2xl opacity-20 blur-md -z-10`}
-                    />
-                  )}
+                  <img
+                    src={category.image || "/placeholder.svg"}
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span
-                  className={`text-xs font-semibold transition-colors ${
+                  className={`text-[11px] font-medium text-center transition-colors whitespace-nowrap ${
                     isActive
-                      ? "text-gray-900 dark:text-white"
-                      : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                      ? "text-orange-600 dark:text-orange-500"
+                      : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                   }`}
                 >
                   {category.name}

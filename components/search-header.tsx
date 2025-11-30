@@ -268,27 +268,27 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
-        <div className="max-w-7xl mx-auto px-2 py-2">
-          <div className="flex items-center gap-2" ref={searchContainerRef}>
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-3 py-2">
+          <div className="flex items-center gap-3" ref={searchContainerRef}>
             {showBackButton && (
               <button
                 onClick={() => router.back()}
-                className="flex items-center justify-center h-10 w-10 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
+                className="flex items-center justify-center h-9 w-9 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">arrow_back</span>
+                <span className="material-symbols-outlined text-xl text-gray-700 dark:text-white">arrow_back</span>
               </button>
             )}
 
             <div className="flex-1 relative" onClick={openSearch}>
-              <div className="flex w-full items-center h-10 rounded overflow-hidden bg-white">
+              <div className="flex w-full items-center h-11 rounded-lg overflow-hidden bg-white border border-gray-300 dark:border-gray-600 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 dark:focus-within:ring-orange-900/30 transition-all shadow-sm">
                 <div className="flex items-center justify-center pl-3 pr-2">
-                  <Search className="w-4 h-4 text-gray-500" />
+                  <Search className="w-5 h-5 text-gray-400" />
                 </div>
                 <input
                   ref={inputRef}
-                  className="flex-1 h-full bg-transparent text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none"
-                  placeholder="Search products, brands..."
+                  className="flex-1 h-full bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 text-sm focus:outline-none"
+                  placeholder="Search products, brands and more..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
@@ -305,41 +305,39 @@ export function SearchHeader() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      closeSearch()
+                      setSearchQuery("")
                     }}
                     className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
-                <div className="h-5 w-px bg-gray-200"></div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     startVoiceSearch()
                   }}
-                  className={`flex items-center justify-center h-full w-10 transition-colors ${
-                    isListening ? "bg-red-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  className={`flex items-center justify-center h-full px-3 border-l border-gray-200 dark:border-gray-600 transition-colors ${
+                    isListening
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
-                  <Mic className={`w-4 h-4 ${isListening ? "animate-pulse" : ""}`} />
+                  <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : ""}`} />
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {showCategoryHeader && (
-          <div className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
-            <CategoryHeader />
-          </div>
-        )}
+        {showCategoryHeader && <CategoryHeader />}
       </div>
 
+      {/* Search Results Dropdown */}
       {showResults && (
         <div
           ref={resultsRef}
-          className="fixed top-[56px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto shadow-lg"
+          className="fixed top-[60px] left-0 right-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 max-h-[80vh] overflow-y-auto shadow-lg"
           onTouchStart={() => {
             isInteractingRef.current = true
           }}
@@ -463,7 +461,7 @@ export function SearchHeader() {
                             selectedIndex === suggestions.length + idx ? "bg-gray-100 dark:bg-gray-800" : ""
                           }`}
                         >
-                          <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                          <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
                             <img
                               src={product.image_url || "/placeholder.svg"}
                               alt={product.title}
@@ -472,26 +470,21 @@ export function SearchHeader() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-gray-900 dark:text-white line-clamp-2 leading-snug">
+                            <h4 className="font-medium text-gray-900 dark:text-white line-clamp-2 text-sm leading-snug">
                               {product.title}
                             </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{product.brand}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-lg font-bold text-gray-900 dark:text-white">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.brand}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-base font-bold text-gray-900 dark:text-white">
                                 <CurrencyDisplay price={product.price} />
                               </span>
                               {product.original_price && product.original_price > product.price && (
-                                <>
-                                  <span className="text-sm text-gray-400 line-through">
-                                    <CurrencyDisplay price={product.original_price} />
-                                  </span>
-                                  <span className="text-sm font-semibold text-green-600">
-                                    {Math.round(
-                                      ((product.original_price - product.price) / product.original_price) * 100,
-                                    )}
-                                    % off
-                                  </span>
-                                </>
+                                <span className="text-xs font-semibold text-green-600">
+                                  {Math.round(
+                                    ((product.original_price - product.price) / product.original_price) * 100,
+                                  )}
+                                  % off
+                                </span>
                               )}
                             </div>
                           </div>
