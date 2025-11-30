@@ -101,6 +101,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           <div
             key={product.id}
             className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
+            data-product-title={product.title}
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
               <div
