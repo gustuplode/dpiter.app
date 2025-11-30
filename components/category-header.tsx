@@ -19,28 +19,22 @@ export function CategoryHeader() {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-6 md:gap-8 py-2 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center justify-center gap-5 md:gap-8 py-3 overflow-x-auto scrollbar-hide">
         {categories.map((category) => {
           const isActive = pathname === category.path
           return (
-            <Link
-              key={category.name}
-              href={category.path}
-              className="flex flex-col items-center gap-1 min-w-[50px] group"
-            >
+            <Link key={category.name} href={category.path} className="flex flex-col items-center gap-1.5 min-w-[48px]">
               <div
-                className={`flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${
+                className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                   isActive
-                    ? "bg-[#883223] text-white shadow-md"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 group-hover:bg-[#883223]/10"
+                    ? "bg-[#883223] text-white shadow-lg shadow-[#883223]/30"
+                    : "bg-gray-50 text-gray-600 hover:bg-[#883223]/10 hover:text-[#883223]"
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">{category.icon}</span>
+                <span className="material-symbols-outlined text-[22px]">{category.icon}</span>
               </div>
               <span
-                className={`text-[10px] font-medium transition-colors ${
-                  isActive ? "text-[#883223] dark:text-[#d4a574]" : "text-gray-500 dark:text-gray-400"
-                }`}
+                className={`text-[11px] font-medium transition-colors ${isActive ? "text-[#883223]" : "text-gray-500"}`}
               >
                 {category.name}
               </span>

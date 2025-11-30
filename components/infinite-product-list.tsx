@@ -25,12 +25,12 @@ interface InfiniteProductListProps {
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
-  const [totalProducts, setTotalProducts] = useState(0)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const loadMoreProducts = useCallback(async () => {
-    if (loading) return
+    if (loading || !hasMore) return
 
     setLoading(true)
     try {
@@ -38,9 +38,9 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       const from = page * 6
       const to = from + 5
 
-      const { data, error, count } = await supabase
+      const { data, error } = await supabase
         .from("category_products")
-        .select("*", { count: "exact" })
+        .select("*")
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .range(from, to)
@@ -50,27 +50,31 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         return
       }
 
-      if (count) setTotalProducts(count)
-
       if (data && data.length > 0) {
         setProducts((prev) => [...prev, ...data])
         setPage((prev) => prev + 1)
+        // Only stop if we get less than expected
+        if (data.length < 6) {
+          setHasMore(false)
+        }
+      } else {
+        setHasMore(false)
       }
     } catch (error) {
       console.error("Error:", error)
     } finally {
       setLoading(false)
     }
-  }, [loading, page])
+  }, [loading, page, hasMore])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading) {
+        if (entries[0].isIntersecting && !loading && hasMore) {
           loadMoreProducts()
         }
       },
-      { threshold: 0.1, rootMargin: "300px" },
+      { threshold: 0.1, rootMargin: "500px" },
     )
 
     if (loaderRef.current) {
@@ -78,7 +82,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     }
 
     return () => observer.disconnect()
-  }, [loadMoreProducts, loading])
+  }, [loadMoreProducts, loading, hasMore])
 
   useEffect(() => {
     const keywords: string[] = []
@@ -89,16 +93,23 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         keywords.push(`buy ${title}`)
         keywords.push(`${title} price`)
         keywords.push(`${title} online`)
-        keywords.push(`best ${title}`)
         keywords.push(`${title} india`)
+        keywords.push(`best ${title}`)
         keywords.push(`${title} 2025`)
+        keywords.push(`${title} deals`)
+        keywords.push(`${title} offer`)
+        keywords.push(`cheap ${title}`)
         if (product.brand) {
           keywords.push(`${product.brand.toLowerCase()} ${title}`)
+          keywords.push(product.brand.toLowerCase())
+        }
+        if (product.category) {
+          keywords.push(`${product.category.toLowerCase()} ${title}`)
         }
       }
     })
 
-    // Dispatch custom event for SEO block to pick up
+    // Dispatch to SEO block
     window.dispatchEvent(
       new CustomEvent("productKeywordsUpdated", {
         detail: [...new Set(keywords)],
@@ -157,21 +168,21 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
                   )}
                 </div>
 
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                   <WishlistButton
                     productId={product.id}
-                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
-                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-all"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
                     variant="like"
-                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
                   />
                 </div>
               </div>
@@ -180,25 +191,16 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         ))}
       </div>
 
-      <div ref={loaderRef} className="py-8 flex flex-col items-center justify-center gap-2">
+      {/* Infinite scroll trigger */}
+      <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 border-2 border-[#883223] border-t-transparent rounded-full animate-spin" />
-            <span className="text-gray-500 dark:text-gray-400 text-sm">Loading more products...</span>
+            <span className="text-gray-500 text-sm">Loading...</span>
           </div>
         )}
-        {!loading && products.length < totalProducts && (
-          <button
-            onClick={loadMoreProducts}
-            className="px-6 py-2 bg-[#883223] text-white rounded-full text-sm font-medium hover:bg-[#6d2719] transition-colors"
-          >
-            Load More Products
-          </button>
-        )}
-        {totalProducts > 0 && (
-          <p className="text-xs text-gray-400">
-            Showing {products.length} of {totalProducts} products
-          </p>
+        {!hasMore && products.length > 0 && (
+          <p className="text-xs text-gray-400">All products loaded ({products.length})</p>
         )}
       </div>
     </>
