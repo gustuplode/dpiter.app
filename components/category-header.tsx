@@ -2,25 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { LogoModal } from "./logo-modal"
 
-interface CategoryHeaderProps {
-  fashionCount?: number
-  gadgetsCount?: number
-  gamingCount?: number
-  allProductsCount?: number
-}
-
-export function CategoryHeader({
-  fashionCount = 0,
-  gadgetsCount = 0,
-  gamingCount = 0,
-  allProductsCount = 0,
-}: CategoryHeaderProps) {
+export function CategoryHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const pathname = usePathname()
-  const router = useRouter()
 
   const categories = [
     { name: "All", path: "/", icon: "apps" },
@@ -32,29 +19,27 @@ export function CategoryHeader({
 
   return (
     <>
-      <div className="flex items-center justify-center gap-3 md:gap-6 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex items-center justify-center gap-6 md:gap-8 py-2 overflow-x-auto scrollbar-hide">
         {categories.map((category) => {
           const isActive = pathname === category.path
           return (
             <Link
               key={category.name}
               href={category.path}
-              className="flex flex-col items-center justify-center gap-0.5 min-w-[60px] md:min-w-[80px] group"
+              className="flex flex-col items-center gap-1 min-w-[50px] group"
             >
               <div
-                className={`flex items-center justify-center size-9 md:size-11 rounded-full transition-all ${
+                className={`flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 ${
                   isActive
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 dark:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark group-hover:bg-primary/10"
+                    ? "bg-[#883223] text-white shadow-md"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 group-hover:bg-[#883223]/10"
                 }`}
               >
-                <span className="material-symbols-outlined text-base md:text-lg">{category.icon}</span>
+                <span className="material-symbols-outlined text-xl">{category.icon}</span>
               </div>
               <span
-                className={`text-[8px] md:text-[10px] font-medium transition-colors ${
-                  isActive
-                    ? "text-primary dark:text-primary-light"
-                    : "text-text-secondary-light dark:text-text-secondary-dark"
+                className={`text-[10px] font-medium transition-colors ${
+                  isActive ? "text-[#883223] dark:text-[#d4a574]" : "text-gray-500 dark:text-gray-400"
                 }`}
               >
                 {category.name}

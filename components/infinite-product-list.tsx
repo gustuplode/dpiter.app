@@ -25,12 +25,12 @@ interface InfiniteProductListProps {
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
+  const [totalProducts, setTotalProducts] = useState(0)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const loadMoreProducts = useCallback(async () => {
-    if (loading || !hasMore) return
+    if (loading) return
 
     setLoading(true)
     try {
@@ -38,44 +38,39 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       const from = page * 6
       const to = from + 5
 
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from("category_products")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .range(from, to)
 
       if (error) {
         console.error("Error loading more products:", error)
-        setHasMore(false)
         return
       }
+
+      if (count) setTotalProducts(count)
 
       if (data && data.length > 0) {
         setProducts((prev) => [...prev, ...data])
         setPage((prev) => prev + 1)
-        if (data.length < 6) {
-          setHasMore(false)
-        }
-      } else {
-        setHasMore(false)
       }
     } catch (error) {
       console.error("Error:", error)
-      setHasMore(false)
     } finally {
       setLoading(false)
     }
-  }, [loading, hasMore, page])
+  }, [loading, page])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
+        if (entries[0].isIntersecting && !loading) {
           loadMoreProducts()
         }
       },
-      { threshold: 0.1, rootMargin: "100px" },
+      { threshold: 0.1, rootMargin: "300px" },
     )
 
     if (loaderRef.current) {
@@ -83,7 +78,33 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     }
 
     return () => observer.disconnect()
-  }, [loadMoreProducts, hasMore, loading])
+  }, [loadMoreProducts, loading])
+
+  useEffect(() => {
+    const keywords: string[] = []
+    products.forEach((product) => {
+      if (product.title) {
+        const title = product.title.toLowerCase()
+        keywords.push(title)
+        keywords.push(`buy ${title}`)
+        keywords.push(`${title} price`)
+        keywords.push(`${title} online`)
+        keywords.push(`best ${title}`)
+        keywords.push(`${title} india`)
+        keywords.push(`${title} 2025`)
+        if (product.brand) {
+          keywords.push(`${product.brand.toLowerCase()} ${title}`)
+        }
+      }
+    })
+
+    // Dispatch custom event for SEO block to pick up
+    window.dispatchEvent(
+      new CustomEvent("productKeywordsUpdated", {
+        detail: [...new Set(keywords)],
+      }),
+    )
+  }, [products])
 
   if (products.length === 0 && !loading) {
     return (
@@ -102,6 +123,8 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
             key={product.id}
             className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
             data-product-title={product.title}
+            data-product-brand={product.brand}
+            data-product-category={product.category}
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
               <div
@@ -134,21 +157,21 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
                   )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   <WishlistButton
                     productId={product.id}
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
+                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-all"
+                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-all"
                   />
                   <RatingButton
                     itemId={product.id}
                     itemType="product"
                     variant="like"
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
+                    className="flex items-center justify-center h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
                   />
                 </div>
               </div>
@@ -157,15 +180,25 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         ))}
       </div>
 
-      <div ref={loaderRef} className="py-6 flex justify-center">
+      <div ref={loaderRef} className="py-8 flex flex-col items-center justify-center gap-2">
         {loading && (
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-gray-500 dark:text-gray-400 text-xs">Loading...</span>
+            <div className="w-5 h-5 border-2 border-[#883223] border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-500 dark:text-gray-400 text-sm">Loading more products...</span>
           </div>
         )}
-        {!hasMore && products.length > 0 && (
-          <p className="text-gray-400 dark:text-gray-500 text-xs">You've seen all products</p>
+        {!loading && products.length < totalProducts && (
+          <button
+            onClick={loadMoreProducts}
+            className="px-6 py-2 bg-[#883223] text-white rounded-full text-sm font-medium hover:bg-[#6d2719] transition-colors"
+          >
+            Load More Products
+          </button>
+        )}
+        {totalProducts > 0 && (
+          <p className="text-xs text-gray-400">
+            Showing {products.length} of {totalProducts} products
+          </p>
         )}
       </div>
     </>
