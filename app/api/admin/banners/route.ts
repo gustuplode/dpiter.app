@@ -13,7 +13,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, type, media_url, ad_code, link_url, position, is_active } = body
+  const { title, type, media_url, ad_code, link_url, position, is_active, aspect_ratio, custom_width, custom_height } =
+    body
 
   const { data, error } = await supabase
     .from("banners")
@@ -25,6 +26,9 @@ export async function POST(request: Request) {
       link_url: link_url || null,
       position,
       is_active,
+      aspect_ratio: aspect_ratio || "16/7",
+      custom_width: custom_width || null,
+      custom_height: custom_height || null,
       created_at: new Date().toISOString(),
     })
     .select()
