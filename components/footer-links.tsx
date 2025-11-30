@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { MessageCircle, Mail, Download, Globe, Handshake } from "lucide-react"
+import { SEOFooterBlock } from "./seo-footer-block"
 
 function QuickContactIcons() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
@@ -176,129 +177,137 @@ export function FooterLinks() {
   }
 
   return (
-    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-4">
-          <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-            Quick Contact
-          </h3>
-        </div>
+    <>
+      <SEOFooterBlock />
 
-        <QuickContactIcons />
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center md:text-left">
-          <div>
-            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
-              Company
+      <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-4">
+            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+              Quick Contact
             </h3>
-            <ul className="space-y-1.5">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
           </div>
-          <div>
-            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Legal</h3>
-            <ul className="space-y-1.5">
-              <li>
-                <Link
-                  href="/privacy-policy"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms-of-service"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Terms
-                </Link>
-              </li>
-            </ul>
+
+          <QuickContactIcons />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center md:text-left">
+            <div>
+              <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                Company
+              </h3>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                Legal
+              </h3>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link
+                    href="/privacy-policy"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Terms
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                Support
+              </h3>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link
+                    href="/faq"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://amzn.to/49SNT2h"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Amazon Store
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                Follow
+              </h3>
+              <ul className="space-y-1.5">
+                <li>
+                  <a
+                    href="https://www.facebook.com/share/1PwVj2Bg4Z/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Facebook
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.instagram.com/deepiter_mark?igsh=MXh5djE1NzlkMTlo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    Instagram
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
-              Support
-            </h3>
-            <ul className="space-y-1.5">
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="https://amzn.to/49SNT2h"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Amazon Store
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Follow</h3>
-            <ul className="space-y-1.5">
-              <li>
-                <a
-                  href="https://www.facebook.com/share/1PwVj2Bg4Z/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.instagram.com/deepiter_mark?igsh=MXh5djE1NzlkMTlo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Instagram
-                </a>
-              </li>
-            </ul>
+
+          {deferredPrompt && !isInstalled && (
+            <div className="flex justify-center mb-5">
+              <button
+                onClick={handleInstallPWA}
+                className="flex items-center gap-2.5 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-200"
+              >
+                <Download className="w-4 h-4" />
+                Install Dpiter App
+              </button>
+            </div>
+          )}
+
+          <div className="text-center text-[10px] text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-800">
+            <p>© {new Date().getFullYear()} Dpiter. All rights reserved.</p>
           </div>
         </div>
-
-        {deferredPrompt && !isInstalled && (
-          <div className="flex justify-center mb-5">
-            <button
-              onClick={handleInstallPWA}
-              className="flex items-center gap-2.5 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all duration-200"
-            >
-              <Download className="w-4 h-4" />
-              Install Dpiter App
-            </button>
-          </div>
-        )}
-
-        <div className="text-center text-[10px] text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-800">
-          <p>© {new Date().getFullYear()} Dpiter. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </>
   )
 }
