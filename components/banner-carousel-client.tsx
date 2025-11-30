@@ -14,6 +14,9 @@ interface Banner {
   ad_code?: string
   link_url?: string
   position: number
+  aspect_ratio?: string
+  custom_width?: number
+  custom_height?: number
 }
 
 export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
@@ -26,8 +29,15 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   const hideControlsTimerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
 
+  const getAspectRatio = (banner: Banner) => {
+    if (banner.aspect_ratio === "custom" && banner.custom_width && banner.custom_height) {
+      return `${banner.custom_width}/${banner.custom_height}`
+    }
+    return banner.aspect_ratio || "16/7"
+  }
+
   useEffect(() => {
-    if (banners[currentBanner].type === "video" && videoRef.current) {
+    if (banners[currentBanner]?.type === "video" && videoRef.current) {
       videoRef.current.load()
       videoRef.current.play().catch((err) => {
         console.log("[v0] Video autoplay failed:", err)
@@ -37,7 +47,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   }, [currentBanner, banners])
 
   useEffect(() => {
-    if (banners[currentBanner].type === "image" || banners[currentBanner].type === "ad_code") {
+    if (banners[currentBanner]?.type === "image" || banners[currentBanner]?.type === "ad_code") {
       timerRef.current = setTimeout(() => {
         setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
       }, 4000)
@@ -55,7 +65,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   }, [isMuted])
 
   const handleMouseMove = () => {
-    if (banners[currentBanner].type === "video") {
+    if (banners[currentBanner]?.type === "video") {
       setShowControls(true)
       if (hideControlsTimerRef.current) clearTimeout(hideControlsTimerRef.current)
       hideControlsTimerRef.current = setTimeout(() => {
@@ -65,7 +75,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   }
 
   const handleMouseLeave = () => {
-    if (banners[currentBanner].type === "video") {
+    if (banners[currentBanner]?.type === "video") {
       setShowControls(false)
     }
   }
@@ -76,8 +86,7 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
 
   const handleBannerClick = () => {
     const currentBannerData = banners[currentBanner]
-    if (currentBannerData.link_url) {
-      // Check if it's an external URL or internal path
+    if (currentBannerData?.link_url) {
       if (currentBannerData.link_url.startsWith("http")) {
         window.open(currentBannerData.link_url, "_blank", "noopener,noreferrer")
       } else {
@@ -107,22 +116,26 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
     }
   }
 
+  if (!banners.length) return null
+
   const currentBannerData = banners[currentBanner]
-  const hasLink = !!currentBannerData.link_url
+  const hasLink = !!currentBannerData?.link_url
+  const currentAspectRatio = getAspectRatio(currentBannerData)
 
   return (
     <div className="mb-4 relative" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       <div
-        className={`w-full aspect-[16/7] md:aspect-[24/7] bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg ${hasLink ? "cursor-pointer" : ""}`}
+        className={`w-full bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg transition-all duration-300 ${hasLink ? "cursor-pointer" : ""}`}
+        style={{ aspectRatio: currentAspectRatio }}
         onClick={handleBannerClick}
       >
-        {currentBannerData.type === "image" ? (
+        {currentBannerData?.type === "image" ? (
           <img
             src={currentBannerData.media_url || "/placeholder.svg"}
             alt={currentBannerData.title}
             className="w-full h-full object-cover transition-all duration-500"
           />
-        ) : currentBannerData.type === "video" ? (
+        ) : currentBannerData?.type === "video" ? (
           <video
             key={currentBannerData.id}
             ref={videoRef}
@@ -138,12 +151,12 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
         ) : (
           <div
             className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
-            dangerouslySetInnerHTML={{ __html: currentBannerData.ad_code || "" }}
+            dangerouslySetInnerHTML={{ __html: currentBannerData?.ad_code || "" }}
           />
         )}
       </div>
 
-      {currentBannerData.type === "video" && (
+      {currentBannerData?.type === "video" && (
         <div
           className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-300 ${
             showControls ? "opacity-100" : "opacity-0"
@@ -167,47 +180,49 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
         </div>
       )}
 
-      <div
-        className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4"
-        onClick={handleControlClick}
-      >
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
-          }}
-          className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
+      {banners.length > 1 && (
+        <div
+          className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4"
+          onClick={handleControlClick}
         >
-          <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
-            chevron_left
-          </span>
-        </button>
-        <div className="flex gap-2">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => {
-                e.stopPropagation()
-                setCurrentBanner(index)
-              }}
-              className={`h-2.5 rounded-full transition-all shadow-sm ${
-                index === currentBanner ? "w-8 bg-white" : "w-2.5 bg-white/60"
-              }`}
-            />
-          ))}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+            }}
+            className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
+          >
+            <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
+              chevron_left
+            </span>
+          </button>
+          <div className="flex gap-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCurrentBanner(index)
+                }}
+                className={`h-2.5 rounded-full transition-all shadow-sm ${
+                  index === currentBanner ? "w-8 bg-white" : "w-2.5 bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
+            }}
+            className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
+          >
+            <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
+              chevron_right
+            </span>
+          </button>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
-          }}
-          className="flex items-center justify-center h-9 w-9 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md hover:bg-white dark:hover:bg-gray-800 transition-all shadow-lg"
-        >
-          <span className="material-symbols-outlined text-text-primary-light dark:text-text-primary-dark">
-            chevron_right
-          </span>
-        </button>
-      </div>
+      )}
     </div>
   )
 }

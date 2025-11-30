@@ -268,7 +268,7 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50" style={{ backgroundColor: "#883223" }}>
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
         <div className="max-w-7xl mx-auto px-2 py-2">
           <div className="flex items-center gap-2" ref={searchContainerRef}>
             {showBackButton && (
@@ -276,7 +276,7 @@ export function SearchHeader() {
                 onClick={() => router.back()}
                 className="flex items-center justify-center h-10 w-10 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xl text-white">arrow_back</span>
+                <span className="material-symbols-outlined text-xl text-gray-900 dark:text-white">arrow_back</span>
               </button>
             )}
 

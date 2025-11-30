@@ -7,7 +7,18 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { AdminMediaCropper } from "./admin-media-cropper"
 import Link from "next/link"
-import { Check, Link2 } from "lucide-react"
+import { Check, Link2, RatioIcon } from "lucide-react"
+
+const ASPECT_RATIOS = [
+  { label: "16:7 (Default)", value: "16/7", width: 1920, height: 840 },
+  { label: "16:9 (Widescreen)", value: "16/9", width: 1920, height: 1080 },
+  { label: "21:9 (Ultra Wide)", value: "21/9", width: 2520, height: 1080 },
+  { label: "4:3 (Standard)", value: "4/3", width: 1600, height: 1200 },
+  { label: "1:1 (Square)", value: "1/1", width: 1080, height: 1080 },
+  { label: "3:1 (Banner)", value: "3/1", width: 1800, height: 600 },
+  { label: "2:1 (Wide Banner)", value: "2/1", width: 1600, height: 800 },
+  { label: "Custom", value: "custom", width: 0, height: 0 },
+]
 
 export function AdminBannerForm({ banner }: { banner?: any }) {
   const router = useRouter()
@@ -22,6 +33,10 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  const [aspectRatio, setAspectRatio] = useState(banner?.aspect_ratio || "16/7")
+  const [customWidth, setCustomWidth] = useState(banner?.custom_width || 1920)
+  const [customHeight, setCustomHeight] = useState(banner?.custom_height || 840)
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -35,6 +50,14 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
   const handleMediaProcessed = (url: string) => {
     setMediaUrl(url)
     setShowCropper(false)
+  }
+
+  const getSelectedRatio = () => {
+    const selected = ASPECT_RATIOS.find((r) => r.value === aspectRatio)
+    if (aspectRatio === "custom") {
+      return { width: customWidth, height: customHeight }
+    }
+    return selected || ASPECT_RATIOS[0]
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,6 +80,9 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           link_url: linkUrl || null,
           position,
           is_active: isActive,
+          aspect_ratio: aspectRatio,
+          custom_width: aspectRatio === "custom" ? customWidth : null,
+          custom_height: aspectRatio === "custom" ? customHeight : null,
         }),
       })
 
@@ -107,6 +133,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
   }
 
   if (showCropper && selectedFile) {
+    const ratio = getSelectedRatio()
     return (
       <AdminMediaCropper
         file={selectedFile}
@@ -116,6 +143,9 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           setShowCropper(false)
           setSelectedFile(null)
         }}
+        aspectRatio={aspectRatio === "custom" ? customWidth / customHeight : undefined}
+        targetWidth={ratio.width}
+        targetHeight={ratio.height}
       />
     )
   }
@@ -178,6 +208,74 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           </div>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            <div className="flex items-center gap-2">
+              <RatioIcon className="w-4 h-4" />
+              <span>Aspect Ratio</span>
+            </div>
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+            {ASPECT_RATIOS.map((ratio) => (
+              <button
+                key={ratio.value}
+                type="button"
+                onClick={() => setAspectRatio(ratio.value)}
+                className={`px-3 py-2 text-sm rounded-lg border transition-all ${
+                  aspectRatio === ratio.value
+                    ? "bg-[#883223] text-white border-[#883223]"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-[#883223] hover:text-[#883223]"
+                }`}
+              >
+                {ratio.label}
+              </button>
+            ))}
+          </div>
+
+          {aspectRatio === "custom" && (
+            <div className="flex gap-3 items-center mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex-1">
+                <label className="block text-xs text-gray-500 mb-1">Width (px)</label>
+                <input
+                  type="number"
+                  value={customWidth}
+                  onChange={(e) => setCustomWidth(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm"
+                  min="100"
+                  max="4000"
+                />
+              </div>
+              <span className="text-gray-400 mt-5">x</span>
+              <div className="flex-1">
+                <label className="block text-xs text-gray-500 mb-1">Height (px)</label>
+                <input
+                  type="number"
+                  value={customHeight}
+                  onChange={(e) => setCustomHeight(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm"
+                  min="100"
+                  max="4000"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Preview box */}
+          <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <p className="text-xs text-gray-500 mb-2">Preview Ratio:</p>
+            <div
+              className="bg-gradient-to-br from-[#883223] to-[#5a211a] rounded-lg flex items-center justify-center text-white text-xs"
+              style={{
+                aspectRatio: aspectRatio === "custom" ? `${customWidth}/${customHeight}` : aspectRatio,
+                maxHeight: "120px",
+                width: "100%",
+              }}
+            >
+              {aspectRatio === "custom" ? `${customWidth} x ${customHeight}` : aspectRatio.replace("/", ":")}
+            </div>
+          </div>
+        </div>
+
         {mediaType === "ad_code" ? (
           <div>
             <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
@@ -193,7 +291,10 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             {adCode && (
               <div className="mt-4 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
-                <div className="w-full aspect-[16/7] rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                <div
+                  className="rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center"
+                  style={{ aspectRatio: aspectRatio === "custom" ? `${customWidth}/${customHeight}` : aspectRatio }}
+                >
                   <div dangerouslySetInnerHTML={{ __html: adCode }} />
                 </div>
               </div>
@@ -212,11 +313,14 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
             />
             <p className="text-xs text-gray-500 mt-2">
               {mediaType === "image"
-                ? "Images will be cropped to 16:7 ratio (1920x840px)"
+                ? `Images will be cropped to selected aspect ratio`
                 : "Videos up to 500MB supported (MP4, WebM, MOV)"}
             </p>
             {mediaUrl && (
-              <div className="mt-4 relative w-full aspect-[16/7] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+              <div
+                className="mt-4 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700"
+                style={{ aspectRatio: aspectRatio === "custom" ? `${customWidth}/${customHeight}` : aspectRatio }}
+              >
                 {mediaType === "image" ? (
                   <img src={mediaUrl || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
@@ -293,7 +397,7 @@ export function AdminBannerForm({ banner }: { banner?: any }) {
           <Button
             type="submit"
             disabled={loading || (mediaType !== "ad_code" && !mediaUrl) || (mediaType === "ad_code" && !adCode)}
-            className="flex-1 bg-primary hover:bg-primary/90"
+            className="flex-1 bg-[#883223] hover:bg-[#6a2619]"
           >
             {loading ? "Saving..." : banner ? "Update Banner" : "Add Banner"}
           </Button>
