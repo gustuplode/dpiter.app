@@ -12,9 +12,20 @@ interface AdminMediaCropperProps {
   mediaType: "image" | "video"
   onComplete: (url: string) => void
   onCancel: () => void
+  aspectRatio?: number
+  targetWidth?: number
+  targetHeight?: number
 }
 
-export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: AdminMediaCropperProps) {
+export function AdminMediaCropper({
+  file,
+  mediaType,
+  onComplete,
+  onCancel,
+  aspectRatio,
+  targetWidth = 1920,
+  targetHeight = 840,
+}: AdminMediaCropperProps) {
   const [mediaSrc, setMediaSrc] = useState<string>("")
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
@@ -24,6 +35,8 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
   const [uploadProgress, setUploadProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const calculatedAspectRatio = aspectRatio || targetWidth / targetHeight
 
   useEffect(() => {
     const reader = new FileReader()
@@ -42,9 +55,6 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
 
     try {
       if (mediaType === "video") {
-        console.log("[v0] Uploading video to Blob:", file.name, "Size:", (file.size / 1024 / 1024).toFixed(2), "MB")
-
-        // Simulate progress for video upload
         const progressInterval = setInterval(() => {
           setUploadProgress((prev) => Math.min(prev + 10, 90))
         }, 500)
@@ -56,21 +66,15 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
 
         clearInterval(progressInterval)
         setUploadProgress(100)
-
-        console.log("[v0] Video upload successful:", blob.url)
         onComplete(blob.url)
       } else {
-        // Image processing
         setUploadProgress(20)
-        const croppedImage = await getCroppedImg(mediaSrc, croppedAreaPixels, rotation)
-        console.log("[v0] Image cropped, size:", (croppedImage.size / 1024).toFixed(2), "KB")
+        const croppedImage = await getCroppedImg(mediaSrc, croppedAreaPixels, rotation, targetWidth, targetHeight)
 
         setUploadProgress(50)
         const croppedFile = new File([croppedImage], `banner-${Date.now()}.jpg`, {
           type: "image/jpeg",
         })
-
-        console.log("[v0] Uploading cropped image to Blob")
 
         const blob = await upload(croppedFile.name, croppedFile, {
           access: "public",
@@ -78,11 +82,10 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
         })
 
         setUploadProgress(100)
-        console.log("[v0] Image upload successful:", blob.url)
         onComplete(blob.url)
       }
     } catch (error) {
-      console.error("[v0] Upload error:", error)
+      console.error("Upload error:", error)
       setError(error instanceof Error ? error.message : "Upload failed. Please try again.")
       setUploadProgress(0)
     } finally {
@@ -90,12 +93,26 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
     }
   }
 
+  const formatAspectRatio = () => {
+    const ratio = calculatedAspectRatio
+    if (Math.abs(ratio - 16 / 7) < 0.01) return "16:7"
+    if (Math.abs(ratio - 16 / 9) < 0.01) return "16:9"
+    if (Math.abs(ratio - 21 / 9) < 0.01) return "21:9"
+    if (Math.abs(ratio - 4 / 3) < 0.01) return "4:3"
+    if (Math.abs(ratio - 1) < 0.01) return "1:1"
+    if (Math.abs(ratio - 3) < 0.01) return "3:1"
+    if (Math.abs(ratio - 2) < 0.01) return "2:1"
+    return `${targetWidth}x${targetHeight}`
+  }
+
   return (
     <div className="fixed inset-0 bg-white dark:bg-gray-950 z-50 flex flex-col">
       {/* Header */}
       <div className="bg-white dark:bg-gray-900 px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
         <h2 className="text-text-primary-light dark:text-text-primary-dark font-semibold">
-          {mediaType === "image" ? "Adjust Image - 16:7 Banner Crop" : "Upload Video"}
+          {mediaType === "image"
+            ? `Crop Image - ${formatAspectRatio()} (${targetWidth}x${targetHeight}px)`
+            : "Upload Video"}
         </h2>
         <Button onClick={onCancel} variant="ghost" size="icon" disabled={uploading}>
           <X className="h-5 w-5" />
@@ -128,7 +145,7 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={16 / 7}
+            aspect={calculatedAspectRatio}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onRotationChange={setRotation}
@@ -198,7 +215,7 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
             </Button>
           </div>
           <p className="text-xs text-center text-text-secondary-light dark:text-text-secondary-dark">
-            Output: 1920x840 (16:7) | Drag to reposition | Zoom to adjust | High quality export
+            Output: {targetWidth}x{targetHeight} ({formatAspectRatio()}) | Drag to reposition | Zoom to adjust
           </p>
         </div>
       )}
@@ -233,19 +250,21 @@ export function AdminMediaCropper({ file, mediaType, onComplete, onCancel }: Adm
   )
 }
 
-async function getCroppedImg(imageSrc: string, pixelCrop: any, rotation = 0): Promise<Blob> {
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: any,
+  rotation = 0,
+  outputWidth = 1920,
+  outputHeight = 840,
+): Promise<Blob> {
   const image = await createImage(imageSrc)
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")
-
-  const outputWidth = 1920
-  const outputHeight = 840
 
   canvas.width = outputWidth
   canvas.height = outputHeight
 
   if (ctx && pixelCrop) {
-    // Apply rotation if needed
     ctx.save()
     if (rotation !== 0) {
       ctx.translate(outputWidth / 2, outputHeight / 2)
@@ -263,7 +282,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: any, rotation = 0): Pr
         resolve(blob!)
       },
       "image/jpeg",
-      0.95, // High quality
+      0.95,
     )
   })
 }

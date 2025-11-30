@@ -1,13 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import type React from "react"
+
+import { useState, useTransition } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { LogoModal } from "./logo-modal"
 
 export function CategoryHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   const categories = [
     {
@@ -47,6 +50,13 @@ export function CategoryHeader() {
     },
   ]
 
+  const handleCategoryClick = (e: React.MouseEvent, path: string) => {
+    e.preventDefault()
+    startTransition(() => {
+      router.push(path)
+    })
+  }
+
   return (
     <>
       <div className="bg-white dark:bg-gray-900 py-3 border-t border-gray-100 dark:border-gray-800">
@@ -67,10 +77,13 @@ export function CategoryHeader() {
           {categories.map((category) => {
             const isActive = pathname === category.path
             return (
-              <Link
+              <a
                 key={category.name}
                 href={category.path}
-                className="flex flex-col items-center gap-1.5 min-w-[60px] group"
+                onClick={(e) => handleCategoryClick(e, category.path)}
+                className={`flex flex-col items-center gap-1.5 min-w-[60px] group ${
+                  isPending ? "opacity-70 pointer-events-none" : ""
+                }`}
               >
                 <div
                   className={`relative w-12 h-12 rounded-full overflow-hidden transition-all duration-200 ${
@@ -84,6 +97,11 @@ export function CategoryHeader() {
                     alt={category.name}
                     className="w-full h-full object-cover"
                   />
+                  {isPending && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`text-[11px] font-medium text-center transition-colors whitespace-nowrap ${
@@ -94,7 +112,7 @@ export function CategoryHeader() {
                 >
                   {category.name}
                 </span>
-              </Link>
+              </a>
             )
           })}
         </div>
