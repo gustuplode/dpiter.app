@@ -302,14 +302,7 @@ export function SearchHeader({
 
             {!showBackButtonComputed && (
               <div className="flex items-center gap-2 flex-shrink-0">
-                <img
-                  src="/dpiter-logo.png"
-                  alt="DPITER"
-                  className="h-7 w-auto object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none"
-                  }}
-                />
+                <span className="text-xl font-bold text-[#883223]">Dpiter</span>
               </div>
             )}
 

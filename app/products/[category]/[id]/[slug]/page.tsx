@@ -34,6 +34,14 @@ export default async function ProductDetailPage({
     .neq("id", id)
     .limit(12)
 
+  const { data: allCategoryProducts } = await supabase
+    .from("category_products")
+    .select("*")
+    .eq("is_visible", true)
+    .neq("id", id)
+    .order("created_at", { ascending: false })
+    .limit(24)
+
   const { data: ratings } = await supabase
     .from("ratings")
     .select("*")
@@ -319,7 +327,7 @@ export default async function ProductDetailPage({
 
           <div className="h-2 bg-gray-100 dark:bg-gray-800/50"></div>
 
-          {/* Related Products */}
+          {/* Similar Products */}
           <div className="py-6">
             <div className="px-4 mb-4">
               <h2 className="font-display text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
@@ -356,6 +364,68 @@ export default async function ProductDetailPage({
               </div>
             </div>
           </div>
+
+          <div className="h-2 bg-gray-100 dark:bg-gray-800/50"></div>
+
+          <div className="py-6 bg-gray-50 dark:bg-gray-900">
+            <div className="px-4 mb-4">
+              <h2 className="font-display text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
+                More Products You May Like
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">Explore products from all categories</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 px-2">
+              {allCategoryProducts?.map((item) => {
+                const itemDiscount = item.original_price
+                  ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
+                  : 0
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/products/${item.category}/${item.id}/${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm"
+                  >
+                    <div className="relative">
+                      <div
+                        className="w-full bg-center bg-no-repeat aspect-square bg-cover"
+                        style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
+                      ></div>
+                      {itemDiscount > 0 && (
+                        <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                          {itemDiscount}% OFF
+                        </span>
+                      )}
+                      <span className="absolute top-2 right-2 bg-gray-900/70 text-white text-[10px] px-1.5 py-0.5 rounded capitalize">
+                        {item.category}
+                      </span>
+                    </div>
+                    <div className="p-2.5 flex flex-col gap-1">
+                      <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wide">
+                        {item.brand || "BRAND"}
+                      </p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium leading-snug line-clamp-2">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-gray-900 dark:text-white text-sm font-bold">
+                          <CurrencyDisplay price={item.price} />
+                        </p>
+                        {item.original_price && (
+                          <p className="text-gray-400 text-xs line-through">
+                            <CurrencyDisplay price={item.original_price} />
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-yellow-500 text-xs">★</span>
+                        <span className="text-xs text-gray-500">4.2 | Free Delivery</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Desktop Related Products */}
@@ -381,6 +451,54 @@ export default async function ProductDetailPage({
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+
+        <div className="hidden lg:block max-w-7xl mx-auto px-4 py-8 border-t border-gray-200 dark:border-gray-700">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">More Products You May Like</h2>
+          <p className="text-gray-500 mb-6">Explore products from all categories</p>
+          <div className="grid grid-cols-6 gap-4">
+            {allCategoryProducts?.slice(0, 12).map((item) => {
+              const itemDiscount = item.original_price
+                ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
+                : 0
+              return (
+                <Link
+                  key={item.id}
+                  href={`/products/${item.category}/${item.id}/${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
+                >
+                  <div className="relative">
+                    <div
+                      className="w-full bg-center bg-no-repeat aspect-square bg-cover group-hover:scale-105 transition-transform"
+                      style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
+                    ></div>
+                    {itemDiscount > 0 && (
+                      <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+                        {itemDiscount}% OFF
+                      </span>
+                    )}
+                    <span className="absolute top-2 right-2 bg-gray-900/80 text-white text-xs px-2 py-0.5 rounded capitalize">
+                      {item.category}
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs font-bold uppercase text-gray-500 tracking-wide">{item.brand}</p>
+                    <p className="text-sm text-gray-800 dark:text-white font-medium truncate">{item.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-base font-bold text-gray-900 dark:text-white">
+                        <CurrencyDisplay price={item.price} />
+                      </p>
+                      {item.original_price && (
+                        <p className="text-sm text-gray-400 line-through">
+                          <CurrencyDisplay price={item.original_price} />
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </main>
