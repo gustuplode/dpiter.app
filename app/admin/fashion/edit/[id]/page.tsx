@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { redirect, notFound } from 'next/navigation'
+import { redirect, notFound } from "next/navigation"
 import { AdminProductForm } from "@/components/admin/admin-product-form"
 
 export default async function EditFashionPage({ params }: { params: { id: string } }) {
@@ -15,15 +15,11 @@ export default async function EditFashionPage({ params }: { params: { id: string
 
   const { id } = await params
 
-  const { data: product, error } = await supabase
-    .from("category_products")
-    .select("*")
-    .eq("id", id)
-    .single()
+  const { data: product, error } = await supabase.from("category_products").select("*").eq("id", id).single()
 
   if (error || !product) {
     notFound()
   }
 
-  return <AdminProductForm category="fashion" initialData={product} />
+  return <AdminProductForm category={product.category} initialData={product} />
 }

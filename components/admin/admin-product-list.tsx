@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   ArrowLeft,
   Plus,
@@ -15,6 +15,7 @@ import {
   Gamepad2,
   Pin,
   Check,
+  RefreshCw,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -41,11 +42,31 @@ const categoryOptions = [
 
 export function AdminProductList({ category, initialProducts }: { category: string; initialProducts: Product[] }) {
   const router = useRouter()
-  const [products, setProducts] = useState(initialProducts)
-  const [selectedCategory, setSelectedCategory] = useState(category === "fashion" ? "all" : category)
+  const [products, setProducts] = useState<Product[]>(initialProducts)
+  const [selectedCategory, setSelectedCategory] = useState("all")
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [draggedItem, setDraggedItem] = useState<Product | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const refreshProducts = async () => {
+    setIsRefreshing(true)
+    try {
+      const res = await fetch("/api/admin/products")
+      if (res.ok) {
+        const data = await res.json()
+        setProducts(data)
+      }
+    } catch (error) {
+      console.error("Failed to refresh products:", error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    refreshProducts()
+  }, [])
 
   const filteredProducts =
     selectedCategory === "all" ? products : products.filter((p) => p.category === selectedCategory)
@@ -58,9 +79,17 @@ export function AdminProductList({ category, initialProducts }: { category: stri
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return
 
-    const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" })
-    if (res.ok) {
-      setProducts(products.filter((p) => p.id !== id))
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setProducts(products.filter((p) => p.id !== id))
+      } else {
+        const error = await res.json()
+        alert(error.error || "Failed to delete product")
+      }
+    } catch (error) {
+      console.error("Delete error:", error)
+      alert("Failed to delete product")
     }
   }
 
@@ -86,13 +115,11 @@ export function AdminProductList({ category, initialProducts }: { category: stri
       newProducts.splice(dragIndex, 1)
       newProducts.splice(dropIndex, 0, draggedItem)
 
-      // Update pin positions
       const updatedProducts = newProducts.map((p, idx) => ({
         ...p,
         pin_position: idx + 1,
       }))
 
-      // Update all products with new positions
       const allUpdated = products.map((p) => {
         const updated = updatedProducts.find((up) => up.id === p.id)
         return updated || p
@@ -100,7 +127,6 @@ export function AdminProductList({ category, initialProducts }: { category: stri
 
       setProducts(allUpdated)
 
-      // Save pin positions to database
       try {
         await fetch("/api/admin/products/reorder", {
           method: "POST",
@@ -125,13 +151,15 @@ export function AdminProductList({ category, initialProducts }: { category: stri
     const newPinPosition = product.pin_position ? null : 1
 
     try {
-      await fetch(`/api/admin/products/${product.id}`, {
+      const res = await fetch(`/api/admin/products/${product.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin_position: newPinPosition }),
       })
 
-      setProducts(products.map((p) => (p.id === product.id ? { ...p, pin_position: newPinPosition } : p)))
+      if (res.ok) {
+        setProducts(products.map((p) => (p.id === product.id ? { ...p, pin_position: newPinPosition } : p)))
+      }
     } catch (error) {
       console.error("Failed to pin product:", error)
     }
@@ -140,14 +168,25 @@ export function AdminProductList({ category, initialProducts }: { category: stri
   const selectedOption = categoryOptions.find((c) => c.value === selectedCategory)
 
   return (
-    <div className="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark">
-      <header className="flex items-center bg-white dark:bg-gray-900 px-4 py-3 gap-3 border-b border-gray-200 dark:border-gray-700">
-        <Link href="/admin">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <h1 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">Products</h1>
+    <div className="relative flex h-screen w-full flex-col bg-gray-50 dark:bg-gray-950">
+      <header className="flex items-center justify-between bg-white dark:bg-gray-900 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <Link href="/admin">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Products</h1>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={refreshProducts}
+          disabled={isRefreshing}
+          className={isRefreshing ? "animate-spin" : ""}
+        >
+          <RefreshCw className="h-5 w-5" />
+        </Button>
       </header>
 
       <div className="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -155,12 +194,14 @@ export function AdminProductList({ category, initialProducts }: { category: stri
           <button
             type="button"
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark flex items-center justify-between"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
               {selectedOption?.icon && <selectedOption.icon className={`h-5 w-5 ${selectedOption.color}`} />}
               <span className="font-medium">{selectedOption?.label}</span>
-              <span className="text-sm text-gray-500">({getCategoryCount(selectedCategory)})</span>
+              <span className="text-sm text-gray-500 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                {getCategoryCount(selectedCategory)}
+              </span>
             </div>
             <ChevronDown className={`h-5 w-5 transition-transform ${showCategoryDropdown ? "rotate-180" : ""}`} />
           </button>
@@ -176,16 +217,16 @@ export function AdminProductList({ category, initialProducts }: { category: stri
                     setShowCategoryDropdown(false)
                   }}
                   className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                    selectedCategory === option.value ? "bg-primary/10" : ""
+                    selectedCategory === option.value ? "bg-orange-50 dark:bg-orange-900/20" : ""
                   }`}
                 >
                   {option.icon && <option.icon className={`h-5 w-5 ${option.color}`} />}
                   {!option.icon && <div className="w-5 h-5" />}
-                  <span className="font-medium text-text-primary-light dark:text-text-primary-dark">
-                    {option.label}
+                  <span className="font-medium text-gray-900 dark:text-white">{option.label}</span>
+                  <span className="text-sm text-gray-500 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                    {getCategoryCount(option.value)}
                   </span>
-                  <span className="text-sm text-gray-500">({getCategoryCount(option.value)})</span>
-                  {selectedCategory === option.value && <Check className="ml-auto h-4 w-4 text-primary" />}
+                  {selectedCategory === option.value && <Check className="ml-auto h-4 w-4 text-orange-500" />}
                 </button>
               ))}
             </div>
@@ -197,12 +238,17 @@ export function AdminProductList({ category, initialProducts }: { category: stri
         </p>
       </div>
 
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="flex-1 overflow-y-auto p-4 pb-24">
         {filteredProducts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-text-secondary-light dark:text-text-secondary-dark mb-4">No products yet</p>
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <Plus className="h-8 w-8 text-gray-400" />
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              No {selectedCategory === "all" ? "" : selectedCategory} products yet
+            </p>
             <Link href="/admin/fashion/add">
-              <Button>Add First Product</Button>
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white">Add First Product</Button>
             </Link>
           </div>
         ) : (
@@ -218,16 +264,16 @@ export function AdminProductList({ category, initialProducts }: { category: stri
                   setDraggedItem(null)
                   setDragOverIndex(null)
                 }}
-                className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border transition-all cursor-move ${
+                className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl border transition-all cursor-move ${
                   dragOverIndex === index
-                    ? "border-primary border-2 bg-primary/5"
+                    ? "border-orange-500 border-2 bg-orange-50 dark:bg-orange-900/20"
                     : "border-gray-200 dark:border-gray-700"
                 } ${draggedItem?.id === product.id ? "opacity-50" : ""}`}
               >
                 <div className="flex flex-col items-center gap-1">
                   <GripVertical className="h-5 w-5 text-gray-400" />
                   {product.pin_position && (
-                    <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-bold text-orange-600 bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 rounded">
                       #{product.pin_position}
                     </span>
                   )}
@@ -236,28 +282,26 @@ export function AdminProductList({ category, initialProducts }: { category: stri
                 <img
                   src={product.image_url || "/placeholder.svg"}
                   alt={product.title}
-                  className="w-16 h-16 object-cover rounded"
+                  className="w-16 h-16 object-cover rounded-lg"
                 />
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-text-primary-light dark:text-text-primary-dark truncate">
-                      {product.title}
-                    </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-gray-900 dark:text-white truncate text-sm">{product.title}</p>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full capitalize ${
+                      className={`text-[10px] px-2 py-0.5 rounded-full capitalize font-medium ${
                         product.category === "fashion"
-                          ? "bg-pink-100 text-pink-700"
+                          ? "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400"
                           : product.category === "gadgets"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                       }`}
                     >
                       {product.category}
                     </span>
                   </div>
-                  <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">{product.brand}</p>
-                  <p className="text-sm font-bold text-primary">₹{product.price.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{product.brand}</p>
+                  <p className="text-sm font-bold text-orange-600">₹{product.price.toLocaleString()}</p>
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -265,16 +309,16 @@ export function AdminProductList({ category, initialProducts }: { category: stri
                     variant="ghost"
                     size="icon"
                     onClick={() => handlePinToggle(product)}
-                    className={product.pin_position ? "text-primary" : "text-gray-400"}
+                    className={`h-8 w-8 ${product.pin_position ? "text-orange-500" : "text-gray-400"}`}
                   >
                     <Pin className="h-4 w-4" fill={product.pin_position ? "currentColor" : "none"} />
                   </Button>
                   <Link href={`/admin/fashion/edit/${product.id}`}>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(product.id)}>
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
@@ -285,7 +329,7 @@ export function AdminProductList({ category, initialProducts }: { category: stri
       </main>
 
       <Link href="/admin/fashion/add" className="fixed bottom-6 right-6 z-20">
-        <Button className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-2xl p-0">
+        <Button className="h-14 w-14 rounded-full bg-orange-500 hover:bg-orange-600 text-white shadow-xl p-0">
           <Plus className="h-7 w-7" />
         </Button>
       </Link>

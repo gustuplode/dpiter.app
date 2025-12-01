@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const supabase = await createClient()
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -14,22 +14,22 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const body = await request.json()
   const { id } = await params
-  
-  const { error, data } = await supabase
-    .from("category_products")
-    .update({
-      brand: body.brand,
-      title: body.title,
-      price: body.price,
-      image_url: body.image_url,
-      affiliate_link: body.affiliate_link,
-      is_visible: body.is_visible,
-    })
-    .eq("id", id)
-    .select()
-    .single()
+
+  const updateData: Record<string, any> = {}
+
+  if (body.brand !== undefined) updateData.brand = body.brand
+  if (body.title !== undefined) updateData.title = body.title
+  if (body.price !== undefined) updateData.price = body.price
+  if (body.image_url !== undefined) updateData.image_url = body.image_url
+  if (body.affiliate_link !== undefined) updateData.affiliate_link = body.affiliate_link
+  if (body.is_visible !== undefined) updateData.is_visible = body.is_visible
+  if (body.category !== undefined) updateData.category = body.category
+  if (body.pin_position !== undefined) updateData.pin_position = body.pin_position
+
+  const { error, data } = await supabase.from("category_products").update(updateData).eq("id", id).select().single()
 
   if (error) {
+    console.error("[v0] Product update error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
@@ -38,7 +38,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   const supabase = await createClient()
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -48,15 +48,27 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 
   const { id } = await params
-  
-  const { error } = await supabase
-    .from("category_products")
-    .delete()
-    .eq("id", id)
+
+  const { error } = await supabase.from("category_products").delete().eq("id", id)
+
+  if (error) {
+    console.error("[v0] Product delete error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
+}
+
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const supabase = await createClient()
+
+  const { id } = await params
+
+  const { data, error } = await supabase.from("category_products").select("*").eq("id", id).single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json(data)
 }

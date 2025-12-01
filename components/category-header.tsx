@@ -59,9 +59,9 @@ export function CategoryHeader() {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-900 py-3 border-t border-gray-100 dark:border-gray-800">
+      <div className="bg-white dark:bg-gray-900 py-3 lg:py-4 border-b border-gray-100 dark:border-gray-800">
         <div
-          className="flex items-center gap-4 px-4 overflow-x-auto"
+          className="w-full max-w-7xl mx-auto flex items-center justify-start lg:justify-center gap-4 lg:gap-8 px-4 lg:px-6 overflow-x-auto"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -81,15 +81,15 @@ export function CategoryHeader() {
                 key={category.name}
                 href={category.path}
                 onClick={(e) => handleCategoryClick(e, category.path)}
-                className={`flex flex-col items-center gap-1.5 min-w-[60px] group ${
+                className={`flex flex-col items-center gap-1.5 lg:gap-2 min-w-[56px] lg:min-w-[70px] group ${
                   isPending ? "opacity-70 pointer-events-none" : ""
                 }`}
               >
                 <div
-                  className={`relative w-12 h-12 rounded-full overflow-hidden transition-all duration-200 ${
+                  className={`relative w-12 h-12 lg:w-14 lg:h-14 rounded-full overflow-hidden transition-all duration-200 ${
                     isActive
                       ? "ring-2 ring-orange-500 ring-offset-2"
-                      : "group-hover:ring-2 group-hover:ring-gray-200 group-hover:ring-offset-1"
+                      : "group-hover:ring-2 group-hover:ring-orange-200 group-hover:ring-offset-1"
                   }`}
                 >
                   <img
@@ -104,7 +104,7 @@ export function CategoryHeader() {
                   )}
                 </div>
                 <span
-                  className={`text-[11px] font-medium text-center transition-colors whitespace-nowrap ${
+                  className={`text-[11px] lg:text-xs font-medium text-center transition-colors whitespace-nowrap ${
                     isActive
                       ? "text-orange-600 dark:text-orange-500"
                       : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"

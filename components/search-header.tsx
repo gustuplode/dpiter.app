@@ -1,14 +1,19 @@
 "use client"
+
 import { useState, useEffect, useRef, useCallback } from "react"
 import type React from "react"
 
 import { useRouter, usePathname } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { createBrowserClient } from "@/lib/supabase/client"
 import { CategoryHeader } from "./category-header"
 import { CurrencyDisplay } from "./currency-display"
-import { Search, Mic, X, Clock, TrendingUp, ArrowUpRight } from "lucide-react"
+import { Search, Mic, X, Clock, TrendingUp, ArrowUpRight, MicOff } from "lucide-react"
 
-export function SearchHeader() {
+export function SearchHeader({
+  showBackButton = false,
+}: {
+  showBackButton?: boolean
+}) {
   const [searchQuery, setSearchQuery] = useState("")
   const [products, setProducts] = useState<any[]>([])
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -32,7 +37,7 @@ export function SearchHeader() {
   const isProductPage = pathname.startsWith("/products/")
   const isProfilePage = pathname === "/profile"
   const isCollectionPage = pathname.startsWith("/collections/")
-  const showBackButton = isProductPage || isProfilePage || isCollectionPage
+  const showBackButtonComputed = showBackButton || isProductPage || isProfilePage || isCollectionPage
   const showCategoryHeader =
     !isAdminPage && !isProductPage && !isProfilePage && !isCollectionPage && !isSearchFocused && !searchQuery
 
@@ -51,7 +56,7 @@ export function SearchHeader() {
     }
 
     setIsLoading(true)
-    const supabase = createClient()
+    const supabase = createBrowserClient()
     const searchTerm = query.toLowerCase().trim()
 
     const { data } = await supabase
@@ -126,6 +131,16 @@ export function SearchHeader() {
     recognition.start()
   }
 
+  const toggleVoiceSearch = () => {
+    if (isListening) {
+      ;(window as any).webkitSpeechRecognition
+        ? (window as any).webkitSpeechRecognition.stop()
+        : (window as any).SpeechRecognition.stop()
+    } else {
+      startVoiceSearch()
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const totalItems = suggestions.length + products.length
 
@@ -148,6 +163,17 @@ export function SearchHeader() {
     } else if (e.key === "Escape") {
       closeSearch()
     }
+  }
+
+  const handleSearchClick = () => {
+    setShowResults(true)
+    setIsSearchFocused(true)
+    inputRef.current?.focus()
+  }
+
+  const handleFocus = () => {
+    setShowResults(true)
+    setIsSearchFocused(true)
   }
 
   const saveRecentSearch = (query: string) => {
@@ -192,12 +218,6 @@ export function SearchHeader() {
     setSearchQuery("")
     setSelectedIndex(-1)
     inputRef.current?.blur()
-  }
-
-  const openSearch = () => {
-    setShowResults(true)
-    setIsSearchFocused(true)
-    inputRef.current?.focus()
   }
 
   useEffect(() => {
@@ -268,10 +288,10 @@ export function SearchHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-3 py-2">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="w-full max-w-7xl mx-auto px-3 lg:px-6 py-2">
           <div className="flex items-center gap-3" ref={searchContainerRef}>
-            {showBackButton && (
+            {showBackButtonComputed && (
               <button
                 onClick={() => router.back()}
                 className="flex items-center justify-center h-9 w-9 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
@@ -280,58 +300,67 @@ export function SearchHeader() {
               </button>
             )}
 
-            <div className="flex-1 relative" onClick={openSearch}>
-              <div className="flex w-full items-center h-11 rounded-lg overflow-hidden bg-white border border-gray-300 dark:border-gray-600 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 dark:focus-within:ring-orange-900/30 transition-all shadow-sm">
-                <div className="flex items-center justify-center pl-3 pr-2">
-                  <Search className="w-5 h-5 text-gray-400" />
-                </div>
-                <input
-                  ref={inputRef}
-                  className="flex-1 h-full bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 text-sm focus:outline-none"
-                  placeholder="Search products, brands and more..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setShowResults(true)
-                    setIsSearchFocused(true)
+            {!showBackButtonComputed && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <img
+                  src="/dpiter-logo.png"
+                  alt="DPITER"
+                  className="h-7 w-auto object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none"
                   }}
-                  onFocus={() => {
-                    setShowResults(true)
-                    setIsSearchFocused(true)
-                  }}
-                  onKeyDown={handleKeyDown}
                 />
-                {searchQuery && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSearchQuery("")
-                    }}
-                    className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    startVoiceSearch()
-                  }}
-                  className={`flex items-center justify-center h-full px-3 border-l border-gray-200 dark:border-gray-600 transition-colors ${
-                    isListening
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : ""}`} />
-                </button>
               </div>
+            )}
+
+            <div
+              className="flex-1 flex items-center h-10 lg:h-11 bg-white dark:bg-gray-800 rounded-lg overflow-hidden cursor-text shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:shadow-[0_2px_5px_rgba(0,0,0,0.15)] focus-within:shadow-[0_0_0_2px_rgba(251,146,60,0.5)] transition-all"
+              onClick={handleSearchClick}
+              onTouchStart={handleSearchClick}
+            >
+              <div className="flex items-center justify-center w-10 lg:w-12 h-full">
+                <Search className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+              </div>
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+                placeholder="Search products..."
+                className="flex-1 h-full bg-transparent text-sm lg:text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("")
+                    inputRef.current?.focus()
+                  }}
+                  className="flex items-center justify-center w-8 h-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <X className="h-4 w-4 text-gray-400" />
+                </button>
+              )}
+              <div className="w-px h-5 bg-gray-200 dark:bg-gray-600" />
+              <button
+                onClick={toggleVoiceSearch}
+                className={`flex items-center justify-center w-10 lg:w-12 h-full transition-colors ${
+                  isListening ? "bg-red-50 dark:bg-red-900/20" : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                {isListening ? (
+                  <MicOff className="h-4 w-4 lg:h-5 lg:w-5 text-red-500 animate-pulse" />
+                ) : (
+                  <Mic className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500" />
+                )}
+              </button>
             </div>
           </div>
         </div>
-
-        {showCategoryHeader && <CategoryHeader />}
       </div>
+
+      {showCategoryHeader && <CategoryHeader />}
 
       {/* Search Results Dropdown */}
       {showResults && (
