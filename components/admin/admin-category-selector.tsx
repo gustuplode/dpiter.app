@@ -1,19 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Plus,
-  Shirt,
-  Gamepad2,
-  Smartphone,
-  ImageIcon,
-  MousePointer2,
-  Bell,
-  FileText,
-  Layers,
-  Zap,
-  Layout,
-} from "lucide-react"
+import { Plus, Shirt, ImageIcon, MousePointer2, Bell, FileText, Layers, Zap, Layout } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -21,9 +9,13 @@ export function AdminCategorySelector() {
   const [showCategories, setShowCategories] = useState(false)
 
   const categories = [
-    { name: "Fashion", href: "/admin/fashion", icon: Shirt, color: "bg-pink-500" },
-    { name: "Gadgets", href: "/admin/gadgets", icon: Smartphone, color: "bg-green-500" },
-    { name: "Gaming", href: "/admin/gaming", icon: Gamepad2, color: "bg-red-500" },
+    {
+      name: "Fashion Products",
+      href: "/admin/fashion/add",
+      icon: Shirt,
+      color: "bg-pink-500",
+      description: "Add fashion products",
+    },
     { name: "Banner", href: "/admin/banners", icon: ImageIcon, color: "bg-purple-500" },
     {
       name: "Display Banner",
@@ -87,9 +79,7 @@ export function AdminCategorySelector() {
             className="bg-white dark:bg-gray-800 rounded-t-3xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
-              Add to Category
-            </h3>
+            <h3 className="text-lg font-bold text-text-primary-light dark:text-text-primary-dark mb-4">Add New</h3>
             <div className="space-y-2">
               {categories.map((category) => (
                 <Link

@@ -3,14 +3,14 @@
 import type React from "react"
 
 import { useState } from "react"
-import { ArrowLeft, Upload, X } from "lucide-react"
+import { ArrowLeft, Upload, X, ChevronDown, Shirt, Smartphone, Gamepad2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { ImageCropper } from "./image-cropper"
 
 interface ProductFormProps {
-  category: string
+  category?: string
   initialData?: {
     id: string
     brand: string
@@ -18,10 +18,17 @@ interface ProductFormProps {
     price: number
     image_url: string
     affiliate_link: string
+    category?: string
   }
 }
 
-export function AdminProductForm({ category, initialData }: ProductFormProps) {
+const categoryOptions = [
+  { value: "fashion", label: "Fashion", icon: Shirt, color: "text-pink-500" },
+  { value: "gadgets", label: "Gadgets", icon: Smartphone, color: "text-green-500" },
+  { value: "gaming", label: "Gaming", icon: Gamepad2, color: "text-red-500" },
+]
+
+export function AdminProductForm({ category: initialCategory, initialData }: ProductFormProps) {
   const router = useRouter()
   const [brand, setBrand] = useState(initialData?.brand || "")
   const [title, setTitle] = useState(initialData?.title || "")
@@ -32,6 +39,9 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
   const [showCropper, setShowCropper] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const [selectedCategory, setSelectedCategory] = useState(initialData?.category || initialCategory || "fashion")
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -87,11 +97,9 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
         price: Number.parseFloat(price),
         image_url: imageUrl,
         affiliate_link: affiliateLink,
-        category,
+        category: selectedCategory, // Use selected category
         is_visible: true,
       }
-
-      console.log("[v0] Submitting product:", payload)
 
       const res = initialData
         ? await fetch(`/api/admin/products/${initialData.id}`, {
@@ -110,8 +118,7 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
         throw new Error(error.error || "Failed to save product")
       }
 
-      console.log("[v0] Product saved successfully")
-      router.push(`/admin/${category}`)
+      router.push(`/admin/fashion`)
       router.refresh()
     } catch (error) {
       console.error("[v0] Error saving product:", error)
@@ -121,10 +128,12 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
     }
   }
 
+  const selectedCategoryOption = categoryOptions.find((c) => c.value === selectedCategory)
+
   return (
     <div className="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark">
       <header className="flex items-center bg-white dark:bg-gray-900 px-4 py-3 gap-3 border-b border-gray-200 dark:border-gray-700">
-        <Link href={`/admin/${category}`}>
+        <Link href="/admin/fashion">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -135,6 +144,55 @@ export function AdminProductForm({ category, initialData }: ProductFormProps) {
       </header>
 
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            Choose Category *
+          </label>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                {selectedCategoryOption && (
+                  <>
+                    <selectedCategoryOption.icon className={`h-5 w-5 ${selectedCategoryOption.color}`} />
+                    <span className="font-medium">{selectedCategoryOption.label}</span>
+                  </>
+                )}
+              </div>
+              <ChevronDown className={`h-5 w-5 transition-transform ${showCategoryDropdown ? "rotate-180" : ""}`} />
+            </button>
+
+            {showCategoryDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 overflow-hidden">
+                {categoryOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(option.value)
+                      setShowCategoryDropdown(false)
+                    }}
+                    className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                      selectedCategory === option.value ? "bg-primary/10" : ""
+                    }`}
+                  >
+                    <option.icon className={`h-5 w-5 ${option.color}`} />
+                    <span className="font-medium text-text-primary-light dark:text-text-primary-dark">
+                      {option.label}
+                    </span>
+                    {selectedCategory === option.value && (
+                      <span className="ml-auto text-primary text-sm">Selected</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
             Brand Name *
