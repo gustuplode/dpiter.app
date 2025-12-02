@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useTransition } from "react"
+import { useState, useTransition, useCallback } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { LogoModal } from "./logo-modal"
 
 export function CategoryHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const pathname = usePathname()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -50,12 +50,18 @@ export function CategoryHeader() {
     },
   ]
 
-  const handleCategoryClick = (e: React.MouseEvent, path: string) => {
-    e.preventDefault()
-    startTransition(() => {
-      router.push(path)
-    })
-  }
+  const handleCategoryClick = useCallback(
+    (e: React.MouseEvent, path: string, name: string) => {
+      e.preventDefault()
+      if (pathname === path) return
+
+      setActiveCategory(name)
+      startTransition(() => {
+        router.push(path, { scroll: false })
+      })
+    },
+    [pathname, router],
+  )
 
   return (
     <>
@@ -76,14 +82,13 @@ export function CategoryHeader() {
 
           {categories.map((category) => {
             const isActive = pathname === category.path
+            const isLoading = isPending && activeCategory === category.name
             return (
               <a
                 key={category.name}
                 href={category.path}
-                onClick={(e) => handleCategoryClick(e, category.path)}
-                className={`flex flex-col items-center gap-1.5 lg:gap-2 min-w-[52px] lg:min-w-[64px] group ${
-                  isPending ? "opacity-70 pointer-events-none" : ""
-                }`}
+                onClick={(e) => handleCategoryClick(e, category.path, category.name)}
+                className="flex flex-col items-center gap-1.5 lg:gap-2 min-w-[52px] lg:min-w-[64px] group"
               >
                 <div
                   className={`relative w-11 h-11 lg:w-14 lg:h-14 rounded-full overflow-hidden transition-all duration-200 ${
@@ -97,7 +102,7 @@ export function CategoryHeader() {
                     alt={category.name}
                     className="w-full h-full object-cover"
                   />
-                  {isPending && (
+                  {isLoading && (
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     </div>
