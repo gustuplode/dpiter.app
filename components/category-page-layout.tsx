@@ -3,7 +3,6 @@ import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { getProductUrl } from "@/lib/utils"
 import { AddToCartButton } from "@/components/add-to-cart-button"
-import { CategoryHeader } from "@/components/category-header"
 
 interface CategoryPageLayoutProps {
   title: string
@@ -14,8 +13,6 @@ interface CategoryPageLayoutProps {
 export function CategoryPageLayout({ title, products, error }: CategoryPageLayoutProps) {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
-      <CategoryHeader title={title} />
-
       <main className="flex-1 pb-4">
         <div className="flex flex-col">
           {products && products.length > 0 ? (
