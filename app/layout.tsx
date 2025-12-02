@@ -1,6 +1,7 @@
 import type React from "react"
 import "./globals.css"
 import { ConditionalLayout } from "@/components/conditional-layout"
+import { OfflineToast } from "@/components/offline-toast"
 import type { Metadata, Viewport } from "next"
 
 const dpiterKeywords = [
@@ -531,9 +532,17 @@ export default function RootLayout({
               }
               // Fallback - show content after short delay
               setTimeout(() => document.body.classList.add('loaded'), 100);
-              // Service worker registration
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
+                  // Register main caching service worker
+                  navigator.serviceWorker.register('/sw-cache.js').then((reg) => {
+                    console.log('Cache SW registered');
+                    // Clean expired cache on startup
+                    if (reg.active) {
+                      reg.active.postMessage({ type: 'CLEAN_CACHE' });
+                    }
+                  }).catch((err) => console.log('Cache SW failed:', err));
+                  // Register ad service worker
                   navigator.serviceWorker.register('/sw-ad.js').catch(() => {});
                 });
               }
@@ -543,6 +552,7 @@ export default function RootLayout({
       </head>
       <body className="bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark overflow-x-hidden">
         <ConditionalLayout>{children}</ConditionalLayout>
+        <OfflineToast />
       </body>
     </html>
   )

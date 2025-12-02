@@ -3,47 +3,92 @@
 export default function Loading() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-gray-200 overflow-hidden">
+      {/* YouTube-style top loading bar */}
+      <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-gray-100 overflow-hidden">
         <div
-          className="h-full bg-[#883223] animate-[loading_1.5s_ease-in-out_infinite]"
+          className="h-full bg-[#883223] rounded-r-full"
           style={{
             width: "30%",
-            animation: "loading 1.5s ease-in-out infinite",
+            animation: "youtubeLoading 2s ease-in-out infinite",
           }}
         />
       </div>
 
       <style jsx>{`
-        @keyframes loading {
-          0% { transform: translateX(-100%); }
-          50% { transform: translateX(200%); }
-          100% { transform: translateX(400%); }
+        @keyframes youtubeLoading {
+          0% { width: 0%; margin-left: 0%; }
+          25% { width: 50%; margin-left: 0%; }
+          50% { width: 30%; margin-left: 50%; }
+          75% { width: 20%; margin-left: 80%; }
+          100% { width: 0%; margin-left: 100%; }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .skeleton-shimmer {
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .dark .skeleton-shimmer {
+          background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+          background-size: 200% 100%;
         }
       `}</style>
 
-      {/* Banner Skeleton */}
-      <div className="px-3 py-3 mt-2">
-        <div className="w-full h-36 rounded-xl bg-gray-100 animate-pulse" />
+      {/* Banner Skeleton - matches actual banner */}
+      <div className="px-3 py-3">
+        <div className="w-full h-32 sm:h-40 md:h-48 rounded-xl skeleton-shimmer" />
       </div>
 
-      {/* Product Grid Skeleton */}
+      {/* Product Grid Skeleton - matches actual product cards exactly */}
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="flex flex-col border-t border-r border-gray-100 dark:border-gray-800">
-            <div className="aspect-square bg-gray-100 dark:bg-gray-800 animate-pulse" />
-            <div className="p-2 space-y-2 bg-gray-50 dark:bg-gray-900">
-              <div className="h-2 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-              <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-              <div className="h-3 w-3/4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        {[...Array(10)].map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col border-t border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
+          >
+            {/* Product Image Skeleton */}
+            <div className="relative aspect-square skeleton-shimmer">
+              {/* Rating badge skeleton */}
+              <div className="absolute bottom-1.5 left-1.5 w-8 h-4 bg-white/80 rounded" />
+            </div>
+
+            {/* Product Info Skeleton */}
+            <div className="p-2 space-y-1.5 bg-gray-50 dark:bg-gray-800/50">
+              {/* Brand */}
+              <div className="h-2 w-10 skeleton-shimmer rounded" />
+              {/* Title */}
+              <div className="h-3 w-full skeleton-shimmer rounded" />
+
+              {/* Price and buttons row */}
               <div className="flex items-center justify-between pt-1">
-                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="flex items-center gap-1.5">
+                  {/* Price */}
+                  <div className="h-4 w-14 skeleton-shimmer rounded" />
+                  {/* Original price */}
+                  <div className="h-3 w-10 skeleton-shimmer rounded" />
+                </div>
+
+                {/* Action buttons */}
                 <div className="flex gap-1">
-                  <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                  <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                  <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
                 </div>
               </div>
             </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Nav Skeleton */}
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-1">
+            <div className="w-6 h-6 rounded skeleton-shimmer" />
+            <div className="w-10 h-2 skeleton-shimmer rounded" />
           </div>
         ))}
       </div>

@@ -1,64 +1,60 @@
 "use client"
 
 import type React from "react"
-import { useState, useTransition, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { LogoModal } from "./logo-modal"
 
+const categoryCache = new Map<string, { timestamp: number; visited: boolean }>()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 export function CategoryHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [loadingCategory, setLoadingCategory] = useState<string | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
 
-  const categories = [
-    {
-      name: "All",
-      path: "/",
-      image: "/all-products-colorful-grid.jpg",
-    },
-    {
-      name: "Fashion",
-      path: "/fashion",
-      image: "/fashion-dress-clothing.jpg",
-    },
-    {
-      name: "Gadgets",
-      path: "/gadgets",
-      image: "/smartphone-gadgets-electronics.jpg",
-    },
-    {
-      name: "Gaming",
-      path: "/gaming",
-      image: "/gaming-controller-console.jpg",
-    },
-    {
-      name: "Outfit",
-      path: "/outfit",
-      image: "/outfit-clothes-style.jpg",
-    },
-    {
-      name: "Beauty",
-      path: "/collections/beauty",
-      image: "/beauty-cosmetics-makeup.jpg",
-    },
-    {
-      name: "Home",
-      path: "/collections/home",
-      image: "/cozy-living-room.png",
-    },
-  ]
+  const categories = useMemo(
+    () => [
+      { name: "All", path: "/", image: "/all-products-colorful-grid.jpg" },
+      { name: "Fashion", path: "/fashion", image: "/fashion-dress-clothing.jpg" },
+      { name: "Gadgets", path: "/gadgets", image: "/smartphone-gadgets-electronics.jpg" },
+      { name: "Gaming", path: "/gaming", image: "/gaming-controller-console.jpg" },
+      { name: "Outfit", path: "/outfit", image: "/outfit-clothes-style.jpg" },
+      { name: "Beauty", path: "/collections/beauty", image: "/beauty-cosmetics-makeup.jpg" },
+      { name: "Home", path: "/collections/home", image: "/cozy-living-room.png" },
+    ],
+    [],
+  )
 
   const handleCategoryClick = useCallback(
     (e: React.MouseEvent, path: string, name: string) => {
       e.preventDefault()
+
+      // Don't do anything if already on this path
       if (pathname === path) return
 
-      setActiveCategory(name)
-      startTransition(() => {
+      // Check if this path was recently visited (cached)
+      const cached = categoryCache.get(path)
+      const now = Date.now()
+
+      if (cached && now - cached.timestamp < CACHE_DURATION) {
+        // Use client-side navigation without showing loading state for cached pages
         router.push(path, { scroll: false })
-      })
+        return
+      }
+
+      // Show loading for uncached navigation
+      setLoadingCategory(name)
+
+      // Mark as visited
+      categoryCache.set(path, { timestamp: now, visited: true })
+
+      // Navigate
+      router.push(path, { scroll: false })
+
+      // Clear loading state after navigation
+      setTimeout(() => setLoadingCategory(null), 500)
     },
     [pathname, router],
   )
@@ -82,7 +78,7 @@ export function CategoryHeader() {
 
           {categories.map((category) => {
             const isActive = pathname === category.path
-            const isLoading = isPending && activeCategory === category.name
+            const isLoading = loadingCategory === category.name
             return (
               <a
                 key={category.name}
@@ -101,6 +97,7 @@ export function CategoryHeader() {
                     src={category.image || "/placeholder.svg"}
                     alt={category.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   {isLoading && (
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
