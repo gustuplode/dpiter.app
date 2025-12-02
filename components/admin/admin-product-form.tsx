@@ -19,6 +19,8 @@ interface ProductFormProps {
     image_url: string
     affiliate_link: string
     category?: string
+    description?: string
+    keywords?: string
   }
 }
 
@@ -42,6 +44,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
 
   const [selectedCategory, setSelectedCategory] = useState(initialData?.category || initialCategory || "fashion")
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
+
+  const [description, setDescription] = useState(initialData?.description || "")
+  const [keywords, setKeywords] = useState(initialData?.keywords || "")
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -97,8 +102,10 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         price: Number.parseFloat(price),
         image_url: imageUrl,
         affiliate_link: affiliateLink,
-        category: selectedCategory, // Use selected category
+        category: selectedCategory,
         is_visible: true,
+        description,
+        keywords,
       }
 
       const res = initialData
@@ -233,6 +240,34 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary"
             placeholder="20699"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary resize-none"
+            placeholder="Enter product description... (This will appear on the product details page)"
+          />
+          <p className="text-xs text-gray-500 mt-1">Describe the product features, specifications, etc.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            Keywords (SEO)
+          </label>
+          <textarea
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            rows={2}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary resize-none"
+            placeholder="fashion, trendy, men, women, 2025, best deals, online shopping..."
+          />
+          <p className="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO (shown on product details page)</p>
         </div>
 
         <div>

@@ -56,6 +56,13 @@ export default async function ProductDetailPage({
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0
 
+  const keywordsList = product.keywords
+    ? product.keywords
+        .split(",")
+        .map((k: string) => k.trim())
+        .filter(Boolean)
+    : []
+
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
       <main className="flex-1 pb-20">
@@ -63,24 +70,24 @@ export default async function ProductDetailPage({
         <div className="hidden lg:block max-w-7xl mx-auto px-4 py-6">
           <div className="flex gap-8">
             {/* Left - Image Gallery (Sticky) */}
-            <div className="w-[40%] flex-shrink-0">
-              <div className="sticky top-24">
-                <ProductImageGallery
-                  images={[product.image_url, product.image_url, product.image_url]}
-                  title={product.title}
-                />
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <WishlistButton
-                    productId={product.id}
-                    className="h-14 rounded-sm bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg flex items-center justify-center gap-2"
-                    showLabel
-                    variant="desktop"
-                  />
+            <div className="w-[400px] flex-shrink-0">
+              <div className="sticky top-4">
+                <ProductImageGallery images={[product.image_url, product.image_url]} title={product.title} />
+                <div className="grid grid-cols-2 gap-3 mt-4">
                   <a
                     href={product.affiliate_link || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-14 rounded-sm bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg flex items-center justify-center gap-2"
+                    className="flex items-center justify-center h-14 rounded-sm bg-[#ff9f00] hover:bg-[#e89200] text-white font-bold text-lg gap-2 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">shopping_cart</span>
+                    ADD TO CART
+                  </a>
+                  <a
+                    href={product.affiliate_link || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center h-14 rounded-sm bg-[#fb641b] hover:bg-[#e85d19] text-white font-bold text-lg gap-2 transition-colors"
                   >
                     <span className="material-symbols-outlined">bolt</span>
                     BUY NOW
@@ -158,6 +165,17 @@ export default async function ProductDetailPage({
                 </button>
               </div>
 
+              {product.description && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Product Description</h3>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Highlights */}
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Highlights</h3>
@@ -218,6 +236,22 @@ export default async function ProductDetailPage({
                   </div>
                 </div>
               </div>
+
+              {keywordsList.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Tags & Keywords</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {keywordsList.map((keyword: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full border border-gray-200 dark:border-gray-700"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Product Reviews */}
               <ProductReviews ratings={ratings || []} avgRating={avgRating} ratingCount={ratingCount} />
@@ -290,6 +324,36 @@ export default async function ProductDetailPage({
               )}
             </div>
 
+            {product.description && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Description</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            {keywordsList.length > 0 && (
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Tags</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {keywordsList.slice(0, 8).map((keyword: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full"
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                  {keywordsList.length > 8 && (
+                    <span className="px-2 py-0.5 text-[10px] font-medium text-primary">
+                      +{keywordsList.length - 8} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3 mt-4">
               <RatingButton
                 itemId={product.id}
@@ -328,178 +392,92 @@ export default async function ProductDetailPage({
           <div className="h-2 bg-gray-100 dark:bg-gray-800/50"></div>
 
           {/* Similar Products */}
-          <div className="py-6">
-            <div className="px-4 mb-4">
-              <h2 className="font-display text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
-                Similar Products
-              </h2>
-            </div>
-            <div className="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-px">
-              <div className="flex items-stretch">
-                {relatedProducts?.map((related, index) => (
+          {relatedProducts && relatedProducts.length > 0 && (
+            <div className="p-4">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Similar Products</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {relatedProducts.slice(0, 6).map((item) => (
                   <Link
-                    key={related.id}
-                    href={`/products/${related.category}/${related.id}/${related.title.toLowerCase().replace(/\s+/g, "-")}`}
-                    className={`flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-y border-r border-black/10 dark:border-y dark:border-r dark:border-white/10 w-44 ${index === 0 ? "border-l" : ""}`}
+                    key={item.id}
+                    href={`/products/${item.category || category}/${item.id}/${item.slug || item.id}`}
+                    className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm"
                   >
-                    <div
-                      className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-                      style={{ backgroundImage: `url("${related.image_url || "/placeholder.svg"}")` }}
-                    ></div>
-                    <div className="p-3 flex flex-col gap-1 flex-1">
-                      <p className="text-sm font-bold uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wide">
-                        {related.brand || "BRAND"}
+                    <div className="aspect-square bg-gray-100 dark:bg-gray-700">
+                      <img
+                        src={item.image_url || "/placeholder.svg"}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs text-gray-500 truncate">{item.brand}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.title}</p>
+                      <p className="text-sm font-bold text-primary">
+                        <CurrencyDisplay price={item.price} />
                       </p>
-                      <p className="text-text-primary-light dark:text-white text-xs font-semibold leading-snug truncate">
-                        {related.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-auto pt-1">
-                        <p className="text-text-primary-light dark:text-white text-base font-bold">
-                          <CurrencyDisplay price={related.price} />
-                        </p>
-                      </div>
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="h-2 bg-gray-100 dark:bg-gray-800/50"></div>
-
-          <div className="py-6 bg-gray-50 dark:bg-gray-900">
-            <div className="px-4 mb-4">
-              <h2 className="font-display text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
-                More Products You May Like
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">Explore products from all categories</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 px-2">
-              {allCategoryProducts?.map((item) => {
-                const itemDiscount = item.original_price
-                  ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
-                  : 0
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/products/${item.category}/${item.id}/${item.title.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm"
-                  >
-                    <div className="relative">
-                      <div
-                        className="w-full bg-center bg-no-repeat aspect-square bg-cover"
-                        style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
-                      ></div>
-                      {itemDiscount > 0 && (
-                        <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
-                          {itemDiscount}% OFF
-                        </span>
-                      )}
-                      <span className="absolute top-2 right-2 bg-gray-900/70 text-white text-[10px] px-1.5 py-0.5 rounded capitalize">
-                        {item.category}
-                      </span>
-                    </div>
-                    <div className="p-2.5 flex flex-col gap-1">
-                      <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wide">
-                        {item.brand || "BRAND"}
-                      </p>
-                      <p className="text-gray-900 dark:text-white text-xs font-medium leading-snug line-clamp-2">
-                        {item.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-gray-900 dark:text-white text-sm font-bold">
-                          <CurrencyDisplay price={item.price} />
-                        </p>
-                        {item.original_price && (
-                          <p className="text-gray-400 text-xs line-through">
-                            <CurrencyDisplay price={item.original_price} />
-                          </p>
+          {/* More Products From All Categories - Meesho Style */}
+          {allCategoryProducts && allCategoryProducts.length > 0 && (
+            <div className="p-4 bg-gray-50 dark:bg-gray-900/50">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">More Products You May Like</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {allCategoryProducts.map((item) => {
+                  const itemDiscount = item.original_price
+                    ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
+                    : 0
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.category || "fashion"}/${item.id}/${item.slug || item.id}`}
+                      className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
+                        <img
+                          src={item.image_url || "/placeholder.svg"}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                        {itemDiscount > 0 && (
+                          <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            {itemDiscount}% OFF
+                          </span>
                         )}
+                        <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded capitalize">
+                          {item.category}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-yellow-500 text-xs">★</span>
-                        <span className="text-xs text-gray-500">4.2 | Free Delivery</span>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Desktop Related Products */}
-        <div className="hidden lg:block max-w-7xl mx-auto px-4 py-8 border-t border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Similar Products</h2>
-          <div className="grid grid-cols-6 gap-4">
-            {relatedProducts?.slice(0, 6).map((related) => (
-              <Link
-                key={related.id}
-                href={`/products/${related.category}/${related.id}/${related.title.toLowerCase().replace(/\s+/g, "-")}`}
-                className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
-              >
-                <div
-                  className="relative w-full bg-center bg-no-repeat aspect-square bg-cover group-hover:scale-105 transition-transform"
-                  style={{ backgroundImage: `url("${related.image_url || "/placeholder.svg"}")` }}
-                ></div>
-                <div className="p-3">
-                  <p className="text-xs font-bold uppercase text-gray-500 tracking-wide">{related.brand}</p>
-                  <p className="text-sm text-gray-800 dark:text-white font-medium truncate">{related.title}</p>
-                  <p className="text-base font-bold text-gray-900 dark:text-white mt-1">
-                    <CurrencyDisplay price={related.price} />
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="hidden lg:block max-w-7xl mx-auto px-4 py-8 border-t border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">More Products You May Like</h2>
-          <p className="text-gray-500 mb-6">Explore products from all categories</p>
-          <div className="grid grid-cols-6 gap-4">
-            {allCategoryProducts?.slice(0, 12).map((item) => {
-              const itemDiscount = item.original_price
-                ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
-                : 0
-              return (
-                <Link
-                  key={item.id}
-                  href={`/products/${item.category}/${item.id}/${item.title.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
-                >
-                  <div className="relative">
-                    <div
-                      className="w-full bg-center bg-no-repeat aspect-square bg-cover group-hover:scale-105 transition-transform"
-                      style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
-                    ></div>
-                    {itemDiscount > 0 && (
-                      <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
-                        {itemDiscount}% OFF
-                      </span>
-                    )}
-                    <span className="absolute top-2 right-2 bg-gray-900/80 text-white text-xs px-2 py-0.5 rounded capitalize">
-                      {item.category}
-                    </span>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs font-bold uppercase text-gray-500 tracking-wide">{item.brand}</p>
-                    <p className="text-sm text-gray-800 dark:text-white font-medium truncate">{item.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-base font-bold text-gray-900 dark:text-white">
-                        <CurrencyDisplay price={item.price} />
-                      </p>
-                      {item.original_price && (
-                        <p className="text-sm text-gray-400 line-through">
-                          <CurrencyDisplay price={item.original_price} />
+                      <div className="p-2.5">
+                        <p className="text-[10px] text-gray-500 uppercase tracking-wide">{item.brand}</p>
+                        <p className="text-xs font-medium text-gray-900 dark:text-white truncate mt-0.5">
+                          {item.title}
                         </p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">
+                            <CurrencyDisplay price={item.price} />
+                          </p>
+                          {item.original_price && (
+                            <p className="text-[10px] text-gray-400 line-through">
+                              <CurrencyDisplay price={item.original_price} />
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-yellow-500 text-xs">★</span>
+                          <span className="text-[10px] text-gray-500">4.2 | Free Delivery</span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

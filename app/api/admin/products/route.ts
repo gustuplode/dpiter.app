@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       category: body.category,
       is_visible: body.is_visible,
       slug: uniqueSlug,
+      description: body.description || null,
+      keywords: body.keywords || null,
       created_at: new Date().toISOString(),
     })
     .select()
