@@ -8,7 +8,7 @@ export async function GET() {
     const { data: settings, error } = await supabase
       .from("app_settings")
       .select("key, value")
-      .in("key", ["ai_provider", "gemini_api_key", "openai_api_key", "deepseek_api_key", "openrouter_api_key"])
+      .in("key", ["ai_model", "ai_api_key"])
 
     if (error) throw error
 
@@ -29,14 +29,11 @@ export async function POST(req: Request) {
     const supabase = await createClient()
     const body = await req.json()
 
-    const { ai_provider, gemini_api_key, openai_api_key, deepseek_api_key, openrouter_api_key } = body
+    const { ai_model, ai_api_key } = body
 
     const settings = [
-      { key: "ai_provider", value: ai_provider || "gemini" },
-      { key: "gemini_api_key", value: gemini_api_key || "" },
-      { key: "openai_api_key", value: openai_api_key || "" },
-      { key: "deepseek_api_key", value: deepseek_api_key || "" },
-      { key: "openrouter_api_key", value: openrouter_api_key || "" },
+      { key: "ai_model", value: ai_model || "gemini-1.5-flash" },
+      { key: "ai_api_key", value: ai_api_key || "" },
     ]
 
     for (const setting of settings) {

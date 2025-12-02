@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Shirt, ImageIcon, MousePointer2, Bell, FileText, Layers, Zap, Layout } from "lucide-react"
+import { Plus, Shirt, ImageIcon, MousePointer2, Bell, FileText, Layers, Zap, Layout, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -14,7 +14,14 @@ export function AdminCategorySelector() {
       href: "/admin/fashion/add",
       icon: Shirt,
       color: "bg-pink-500",
-      description: "Add fashion products",
+      description: "Add products with AI auto-fill",
+    },
+    {
+      name: "AI Settings",
+      href: "/admin/settings",
+      icon: Sparkles,
+      color: "bg-purple-600",
+      description: "Configure AI API keys",
     },
     { name: "Banner", href: "/admin/banners", icon: ImageIcon, color: "bg-purple-500" },
     {
