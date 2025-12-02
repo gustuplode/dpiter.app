@@ -22,7 +22,7 @@ interface InfiniteProductListProps {
   initialProducts: Product[]
 }
 
-const productCache = new Map<string, { products: Product[]; page: number; hasMore: boolean }>()
+const productCache = new Map<string, { products: Product[]; page: number; hasMore: boolean; scrollY: number }>()
 
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const cacheKey = "home-products"
@@ -33,16 +33,47 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   const [hasMore, setHasMore] = useState(cached?.hasMore ?? true)
   const [page, setPage] = useState(cached?.page ?? 1)
   const loaderRef = useRef<HTMLDivElement>(null)
+  const initialLoadDone = useRef(!!cached)
 
   useEffect(() => {
-    productCache.set(cacheKey, { products, page, hasMore })
+    if (cached?.scrollY && initialLoadDone.current) {
+      setTimeout(() => {
+        window.scrollTo(0, cached.scrollY)
+      }, 100)
+    }
+  }, [])
 
-    // Also save to IndexedDB for offline access
-    if ("indexedDB" in window) {
-      saveProductsToIndexedDB(products)
+  useEffect(() => {
+    const saveCache = () => {
+      productCache.set(cacheKey, {
+        products,
+        page,
+        hasMore,
+        scrollY: window.scrollY,
+      })
+    }
+
+    window.addEventListener("beforeunload", saveCache)
+
+    // Also save on route change
+    const handleRouteChange = () => saveCache()
+    window.addEventListener("popstate", handleRouteChange)
+
+    return () => {
+      saveCache()
+      window.removeEventListener("beforeunload", saveCache)
+      window.removeEventListener("popstate", handleRouteChange)
     }
   }, [products, page, hasMore])
 
+  // Save to IndexedDB for offline access
+  useEffect(() => {
+    if ("indexedDB" in window && products.length > 0) {
+      saveProductsToIndexedDB(products)
+    }
+  }, [products])
+
+  // Load from IndexedDB if offline
   useEffect(() => {
     if (!navigator.onLine && products.length === 0) {
       loadProductsFromIndexedDB().then((cachedProducts) => {
@@ -107,6 +138,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     return () => observer.disconnect()
   }, [loadMoreProducts, loading, hasMore])
 
+  // Dispatch keywords for SEO
   useEffect(() => {
     const keywords: string[] = []
     products.forEach((product) => {
@@ -120,8 +152,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         keywords.push(`best ${title}`)
         keywords.push(`${title} 2025`)
         keywords.push(`${title} deals`)
-        keywords.push(`${title} offer`)
-        keywords.push(`cheap ${title}`)
         if (product.brand) {
           keywords.push(`${product.brand.toLowerCase()} ${title}`)
           keywords.push(product.brand.toLowerCase())
@@ -248,13 +278,11 @@ async function saveProductsToIndexedDB(products: Product[]) {
       const productsStore = tx.objectStore("products")
       const metaStore = tx.objectStore("meta")
 
-      // Clear and re-add all products
       productsStore.clear()
       products.forEach((product) => {
         productsStore.put(product)
       })
 
-      // Save timestamp
       metaStore.put({ key: "lastUpdate", timestamp: Date.now() })
 
       tx.oncomplete = () => resolve()
