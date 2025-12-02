@@ -2,8 +2,19 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { ArrowLeft, Upload, X, ChevronDown, Shirt, Smartphone, Gamepad2 } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  ChevronDown,
+  Shirt,
+  Smartphone,
+  Gamepad2,
+  Sparkles,
+  AlertCircle,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -48,6 +59,52 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
   const [description, setDescription] = useState(initialData?.description || "")
   const [keywords, setKeywords] = useState(initialData?.keywords || "")
 
+  const [aiAnalyzing, setAiAnalyzing] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
+  const [aiSuccess, setAiSuccess] = useState(false)
+  const previousImageUrl = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (imageUrl && imageUrl !== previousImageUrl.current && !initialData) {
+      previousImageUrl.current = imageUrl
+      analyzeImageWithAI(imageUrl)
+    }
+  }, [imageUrl, initialData])
+
+  const analyzeImageWithAI = async (url: string) => {
+    setAiAnalyzing(true)
+    setAiError(null)
+    setAiSuccess(false)
+
+    try {
+      const res = await fetch("/api/admin/analyze-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: url }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "AI could not analyze the image. Please try again.")
+      }
+
+      // Auto-fill the form fields
+      setTitle(data.title || "")
+      setBrand(data.brand || "Dpiter")
+      setDescription(data.description || "")
+      setKeywords(Array.isArray(data.keywords) ? data.keywords.join(", ") : data.keywords || "")
+
+      setAiSuccess(true)
+      setTimeout(() => setAiSuccess(false), 3000)
+    } catch (error) {
+      console.error("AI analysis error:", error)
+      setAiError(error instanceof Error ? error.message : "AI could not analyze the image. Please try again.")
+    } finally {
+      setAiAnalyzing(false)
+    }
+  }
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -84,6 +141,13 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRemoveImage = () => {
+    setImageUrl("")
+    previousImageUrl.current = null
+    setAiError(null)
+    setAiSuccess(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,7 +192,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
       router.push(`/admin/fashion`)
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error saving product:", error)
+      console.error("Error saving product:", error)
       alert(error instanceof Error ? error.message : "Failed to save product")
     } finally {
       setLoading(false)
@@ -148,9 +212,76 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         <h1 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
           {initialData ? "Edit" : "Add"} Product
         </h1>
+        <Link href="/admin/settings" className="ml-auto">
+          <Button variant="ghost" size="sm" className="text-primary">
+            <Sparkles className="h-4 w-4 mr-1" />
+            AI Settings
+          </Button>
+        </Link>
       </header>
 
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
+            Product Image * <span className="text-xs text-gray-500">(Upload first for AI auto-fill)</span>
+          </label>
+          {imageUrl ? (
+            <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+              <img src={imageUrl || "/placeholder.svg"} alt="Product" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              {aiAnalyzing && (
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+                  <Loader2 className="h-10 w-10 text-white animate-spin mb-3" />
+                  <p className="text-white font-medium">AI is analyzing image...</p>
+                  <p className="text-white/70 text-sm">Auto-filling product details</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white dark:bg-gray-800">
+              <Upload className="h-12 w-12 text-gray-400 mb-2" />
+              <span className="text-sm text-gray-500">Click to upload image</span>
+              <span className="text-xs text-primary mt-1 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                AI will auto-fill details
+              </span>
+              <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+            </label>
+          )}
+
+          {aiError && (
+            <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-red-700 dark:text-red-400">{aiError}</p>
+                <button
+                  type="button"
+                  onClick={() => analyzeImageWithAI(imageUrl)}
+                  className="text-xs text-red-600 underline mt-1"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          )}
+
+          {aiSuccess && (
+            <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-green-500" />
+              <p className="text-sm text-green-700 dark:text-green-400">
+                AI auto-filled Title, Brand, Description & Keywords!
+              </p>
+            </div>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
             Choose Category *
@@ -202,7 +333,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Brand Name *
+            Brand Name * <span className="text-xs text-primary">(AI: always "Dpiter")</span>
           </label>
           <input
             type="text"
@@ -210,13 +341,13 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
             onChange={(e) => setBrand(e.target.value)}
             required
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary"
-            placeholder="e.g., TECHCORP"
+            placeholder="e.g., Dpiter"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Product Title *
+            Product Title * <span className="text-xs text-primary">(AI auto-fill)</span>
           </label>
           <input
             type="text"
@@ -224,13 +355,13 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
             onChange={(e) => setTitle(e.target.value)}
             required
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary"
-            placeholder="e.g., Smartwatch Pro X"
+            placeholder="SEO optimized title will be auto-filled..."
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Price (₹) *
+            Price (₹) * <span className="text-xs text-gray-500">(Manual entry)</span>
           </label>
           <input
             type="number"
@@ -244,35 +375,37 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Description
+            Description <span className="text-xs text-primary">(AI auto-fill)</span>
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary resize-none"
-            placeholder="Enter product description... (This will appear on the product details page)"
+            placeholder="AI will generate SEO-friendly description..."
           />
-          <p className="text-xs text-gray-500 mt-1">Describe the product features, specifications, etc.</p>
+          <p className="text-xs text-gray-500 mt-1">
+            40-70 words SEO friendly description (shown on product details page)
+          </p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Keywords (SEO)
+            Keywords (SEO) <span className="text-xs text-primary">(AI auto-fill)</span>
           </label>
           <textarea
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
             rows={2}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-primary-light dark:text-text-primary-dark focus:ring-2 focus:ring-primary resize-none"
-            placeholder="fashion, trendy, men, women, 2025, best deals, online shopping..."
+            placeholder="AI will generate 8-12 SEO keywords..."
           />
           <p className="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO (shown on product details page)</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Affiliate Link
+            Affiliate Link <span className="text-xs text-gray-500">(Manual entry)</span>
           </label>
           <input
             type="url"
@@ -283,33 +416,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-text-primary-light dark:text-text-primary-dark mb-2">
-            Product Image *
-          </label>
-          {imageUrl ? (
-            <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img src={imageUrl || "/placeholder.svg"} alt="Product" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => setImageUrl("")}
-                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white dark:bg-gray-800">
-              <Upload className="h-12 w-12 text-gray-400 mb-2" />
-              <span className="text-sm text-gray-500">Click to upload image</span>
-              <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
-            </label>
-          )}
-        </div>
-
         <Button
           type="submit"
-          disabled={loading || !brand || !title || !price || !imageUrl}
+          disabled={loading || aiAnalyzing || !brand || !title || !price || !imageUrl}
           className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold text-base disabled:opacity-50"
         >
           {loading ? "Publishing..." : initialData ? "Update Product" : "Publish Product"}
