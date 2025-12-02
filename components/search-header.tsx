@@ -213,7 +213,7 @@ export function SearchHeader() {
         )}
 
         <div
-          className="flex-1 flex items-center h-10 lg:h-11 bg-white dark:bg-gray-800 rounded-full overflow-hidden cursor-text border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus-within:border-[#883223] focus-within:ring-1 focus-within:ring-[#883223]/30 transition-all shadow-sm"
+          className="flex-1 flex items-center h-10 lg:h-11 bg-white dark:bg-gray-800 rounded-full overflow-hidden cursor-text border-2 border-gray-100 dark:border-gray-700 hover:border-[#883223]/40 focus-within:border-[#883223] focus-within:shadow-[0_0_0_3px_rgba(136,50,35,0.15)] transition-all duration-200"
           onClick={handleSearchClick}
           onTouchStart={handleSearchClick}
         >

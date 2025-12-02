@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { DynamicBannerCarousel } from "@/components/dynamic-banner-carousel"
 import { AdDisplay } from "@/components/ad-display"
 import { InfiniteProductList } from "@/components/infinite-product-list"
+import { CategoryHeader } from "@/components/category-header"
 
 async function getInitialProducts() {
   const supabase = await createClient()
@@ -46,6 +47,8 @@ export default async function HomePage() {
 
   return (
     <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
+      <CategoryHeader />
+
       <DynamicBannerCarousel />
 
       <ActiveAds />
