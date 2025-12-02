@@ -7,144 +7,212 @@
   <title>You're Offline - DPITER.shop</title>
   <link rel="icon" href="/favicon.ico">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #fefbf9 0%, #f5f0eb 100%);
+      background: #fefbf9;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
       color: #3c2a21;
     }
-    .container {
-      text-align: center;
-      max-width: 400px;
+    .header {
+      background: white;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .offline-icon {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 24px;
-      background: linear-gradient(135deg, #883223 0%, #a64b3c 100%);
+    .logo { font-size: 20px; font-weight: 700; color: #883223; }
+    .offline-badge {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .container { padding: 16px; max-width: 1200px; margin: 0 auto; }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+    }
+    @media (min-width: 768px) {
+      .products-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    }
+    .product-card {
+      background: white;
+      border: 1px solid #eee;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    @media (min-width: 768px) {
+      .product-card { border-radius: 8px; }
+    }
+    .product-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: #f5f5f5;
+    }
+    .product-info { padding: 10px; }
+    .product-brand {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #888;
+      letter-spacing: 0.5px;
+    }
+    .product-title {
+      font-size: 12px;
+      color: #333;
+      margin: 4px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-price {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+    }
+    .no-cache {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .no-cache-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #883223, #a64b3c);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 8px 32px rgba(136, 50, 35, 0.25);
+      margin: 0 auto 20px;
     }
-    .offline-icon svg {
-      width: 60px;
-      height: 60px;
-      fill: white;
-    }
-    h1 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #883223;
-    }
-    p {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
+    .no-cache-icon svg { width: 40px; height: 40px; fill: white; }
+    .no-cache h2 { font-size: 20px; color: #883223; margin-bottom: 10px; }
+    .no-cache p { color: #666; font-size: 14px; margin-bottom: 20px; }
     .retry-btn {
-      background: linear-gradient(135deg, #883223 0%, #a64b3c 100%);
+      background: linear-gradient(135deg, #883223, #a64b3c);
       color: white;
       border: none;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(136, 50, 35, 0.3);
-    }
-    .retry-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(136, 50, 35, 0.4);
-    }
-    .retry-btn:active {
-      transform: translateY(0);
-    }
-    .tips {
-      margin-top: 40px;
-      padding: 20px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-    .tips h3 {
+      padding: 12px 28px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 12px;
-      color: #883223;
+      cursor: pointer;
     }
-    .tips ul {
-      text-align: left;
-      font-size: 13px;
-      color: #666;
-      list-style: none;
-    }
-    .tips li {
-      padding: 6px 0;
-      padding-left: 20px;
-      position: relative;
-    }
-    .tips li::before {
-      content: "•";
-      color: #883223;
-      position: absolute;
-      left: 0;
-    }
-    .brand {
-      margin-top: 40px;
-      font-size: 20px;
-      font-weight: 700;
-      color: #883223;
-    }
+    .loading { text-align: center; padding: 40px; color: #888; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="offline-icon">
-      <svg viewBox="0 0 24 24">
+  <div class="header">
+    <div class="logo">Dpiter</div>
+    <div class="offline-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
         <path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z"/>
       </svg>
+      Offline Mode
     </div>
-    <h1>You're Offline</h1>
-    <p>It looks like you've lost your internet connection. Please check your network and try again.</p>
-    <button class="retry-btn" onclick="window.location.reload()">
-      Try Again
-    </button>
-    
-    <div class="tips">
-      <h3>While you wait, try:</h3>
-      <ul>
-        <li>Check your Wi-Fi or mobile data</li>
-        <li>Move to an area with better signal</li>
-        <li>Turn airplane mode off</li>
-        <li>Restart your router</li>
-      </ul>
-    </div>
-    
-    <div class="brand">DPITER.shop</div>
   </div>
   
+  <div class="container">
+    <div id="cached-products">
+      <div class="loading">Loading cached products...</div>
+    </div>
+  </div>
+
   <script>
-    // Auto-retry when online
-    window.addEventListener('online', () => {
-      window.location.reload();
-    });
+    // Load cached products from IndexedDB
+    async function loadCachedProducts() {
+      const container = document.getElementById('cached-products');
+      
+      try {
+        const products = await getProductsFromDB();
+        
+        if (products && products.length > 0) {
+          container.innerHTML = `
+            <h2 class="section-title">Previously Viewed Products (${products.length})</h2>
+            <div class="products-grid">
+              ${products.map(product => `
+                <div class="product-card" onclick="openProduct('${product.id}', '${encodeURIComponent(product.title || '')}', '${product.category || 'fashion'}')">
+                  <img class="product-image" src="${product.image_url || '/placeholder.svg'}" alt="${product.title || 'Product'}" onerror="this.src='/placeholder.svg'">
+                  <div class="product-info">
+                    <div class="product-brand">${product.brand || 'DPITER'}</div>
+                    <div class="product-title">${product.title || 'Product'}</div>
+                    <div class="product-price">₹${product.price || 0}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          showNoCache();
+        }
+      } catch (error) {
+        showNoCache();
+      }
+    }
+    
+    function showNoCache() {
+      const container = document.getElementById('cached-products');
+      container.innerHTML = `
+        <div class="no-cache">
+          <div class="no-cache-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z"/>
+            </svg>
+          </div>
+          <h2>You're Offline</h2>
+          <p>No cached products available. Connect to the internet to browse products.</p>
+          <button class="retry-btn" onclick="window.location.reload()">Try Again</button>
+        </div>
+      `;
+    }
+    
+    function getProductsFromDB() {
+      return new Promise((resolve) => {
+        const request = indexedDB.open('dpiter-products-db', 1);
+        request.onsuccess = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('products')) {
+            resolve([]);
+            return;
+          }
+          const tx = db.transaction('products', 'readonly');
+          const store = tx.objectStore('products');
+          const getAllRequest = store.getAll();
+          getAllRequest.onsuccess = () => resolve(getAllRequest.result || []);
+          getAllRequest.onerror = () => resolve([]);
+        };
+        request.onerror = () => resolve([]);
+      });
+    }
+    
+    function openProduct(id, title, category) {
+      const slug = decodeURIComponent(title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      window.location.href = `/products/${category}/${id}/${slug}`;
+    }
+    
+    // Auto-reload when back online
+    window.addEventListener('online', () => window.location.reload());
+    
+    // Load products on page load
+    loadCachedProducts();
   </script>
 </body>
 </html>

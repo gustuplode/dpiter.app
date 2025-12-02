@@ -2,16 +2,13 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { OfflineGame } from "./offline-game"
 
 export function OfflineDetector({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(true)
-  const [initialLoad, setInitialLoad] = useState(true)
   const [isReconnecting, setIsReconnecting] = useState(false)
 
   useEffect(() => {
     setIsOnline(navigator.onLine)
-    setInitialLoad(false)
 
     const handleOnline = () => {
       setIsReconnecting(true)
@@ -47,15 +44,6 @@ export function OfflineDetector({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Show game directly when offline - no loading
-  if (!isOnline) {
-    return <OfflineGame />
-  }
-
-  // Prevent flash on initial load
-  if (initialLoad) {
-    return null
-  }
-
+  // No more game blocking content
   return <>{children}</>
 }

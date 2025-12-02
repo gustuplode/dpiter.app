@@ -22,12 +22,36 @@ interface InfiniteProductListProps {
   initialProducts: Product[]
 }
 
+const productCache = new Map<string, { products: Product[]; page: number; hasMore: boolean }>()
+
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
-  const [products, setProducts] = useState<Product[]>(initialProducts)
+  const cacheKey = "home-products"
+  const cached = productCache.get(cacheKey)
+
+  const [products, setProducts] = useState<Product[]>(cached?.products || initialProducts)
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
-  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(cached?.hasMore ?? true)
+  const [page, setPage] = useState(cached?.page ?? 1)
   const loaderRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    productCache.set(cacheKey, { products, page, hasMore })
+
+    // Also save to IndexedDB for offline access
+    if ("indexedDB" in window) {
+      saveProductsToIndexedDB(products)
+    }
+  }, [products, page, hasMore])
+
+  useEffect(() => {
+    if (!navigator.onLine && products.length === 0) {
+      loadProductsFromIndexedDB().then((cachedProducts) => {
+        if (cachedProducts && cachedProducts.length > 0) {
+          setProducts(cachedProducts)
+        }
+      })
+    }
+  }, [])
 
   const loadMoreProducts = useCallback(async () => {
     if (loading || !hasMore) return
@@ -53,7 +77,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       if (data && data.length > 0) {
         setProducts((prev) => [...prev, ...data])
         setPage((prev) => prev + 1)
-        // Only stop if we get less than expected
         if (data.length < 6) {
           setHasMore(false)
         }
@@ -109,7 +132,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
     })
 
-    // Dispatch to SEO block
     window.dispatchEvent(
       new CustomEvent("productKeywordsUpdated", {
         detail: [...new Set(keywords)],
@@ -191,7 +213,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         ))}
       </div>
 
-      {/* Infinite scroll trigger */}
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (
           <div className="flex items-center gap-2">
@@ -205,4 +226,66 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       </div>
     </>
   )
+}
+
+async function saveProductsToIndexedDB(products: Product[]) {
+  return new Promise<void>((resolve) => {
+    const request = indexedDB.open("dpiter-products-db", 1)
+
+    request.onupgradeneeded = (e: any) => {
+      const db = e.target.result
+      if (!db.objectStoreNames.contains("products")) {
+        db.createObjectStore("products", { keyPath: "id" })
+      }
+      if (!db.objectStoreNames.contains("meta")) {
+        db.createObjectStore("meta", { keyPath: "key" })
+      }
+    }
+
+    request.onsuccess = (e: any) => {
+      const db = e.target.result
+      const tx = db.transaction(["products", "meta"], "readwrite")
+      const productsStore = tx.objectStore("products")
+      const metaStore = tx.objectStore("meta")
+
+      // Clear and re-add all products
+      productsStore.clear()
+      products.forEach((product) => {
+        productsStore.put(product)
+      })
+
+      // Save timestamp
+      metaStore.put({ key: "lastUpdate", timestamp: Date.now() })
+
+      tx.oncomplete = () => resolve()
+    }
+
+    request.onerror = () => resolve()
+  })
+}
+
+async function loadProductsFromIndexedDB(): Promise<Product[]> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open("dpiter-products-db", 1)
+
+    request.onsuccess = (e: any) => {
+      const db = e.target.result
+      if (!db.objectStoreNames.contains("products")) {
+        resolve([])
+        return
+      }
+
+      const tx = db.transaction("products", "readonly")
+      const store = tx.objectStore("products")
+      const getAllRequest = store.getAll()
+
+      getAllRequest.onsuccess = () => {
+        resolve(getAllRequest.result || [])
+      }
+
+      getAllRequest.onerror = () => resolve([])
+    }
+
+    request.onerror = () => resolve([])
+  })
 }
