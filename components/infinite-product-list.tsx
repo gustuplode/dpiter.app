@@ -16,6 +16,9 @@ interface Product {
   image_url: string
   brand?: string
   category?: string
+  image_aspect_ratio?: string
+  image_width?: number
+  image_height?: number
 }
 
 interface InfiniteProductListProps {
@@ -151,66 +154,74 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
-            data-product-title={product.title}
-            data-product-brand={product.brand}
-            data-product-category={product.category}
-          >
-            <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
-              <div
-                className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-                style={{ backgroundImage: `url("${product.image_url || "/placeholder.svg"}")` }}
-              >
-                <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
-                  <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+        {products.map((product) => {
+          const width = product.image_width || 1080
+          const height = product.image_height || 1080
+
+          return (
+            <div
+              key={product.id}
+              className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
+              data-product-title={product.title}
+              data-product-brand={product.brand}
+              data-product-category={product.category}
+            >
+              <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
+                <div
+                  className="relative w-full bg-center bg-no-repeat bg-cover"
+                  style={{
+                    backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
+                    aspectRatio: `${width} / ${height}`,
+                  }}
+                >
+                  <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+                    <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
 
-            <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
-              <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
-                {product.brand || "Brand"}
-              </p>
-              <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
-                {product.title}
-              </p>
+              <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
+                <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
+                  {product.brand || "Brand"}
+                </p>
+                <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
+                  {product.title}
+                </p>
 
-              <div className="flex items-center justify-between mt-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-gray-900 dark:text-white text-sm font-bold">
-                    <CurrencyDisplay price={product.price} />
-                  </p>
-                  {product.original_price && (
-                    <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
-                      <CurrencyDisplay price={product.original_price} />
+                <div className="flex items-center justify-between mt-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-gray-900 dark:text-white text-sm font-bold">
+                      <CurrencyDisplay price={product.price} />
                     </p>
-                  )}
-                </div>
+                    {product.original_price && (
+                      <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                        <CurrencyDisplay price={product.original_price} />
+                      </p>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-1">
-                  <WishlistButton
-                    productId={product.id}
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
-                  />
-                  <RatingButton
-                    itemId={product.id}
-                    itemType="product"
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
-                  />
-                  <RatingButton
-                    itemId={product.id}
-                    itemType="product"
-                    variant="like"
-                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
-                  />
+                  <div className="flex items-center gap-1">
+                    <WishlistButton
+                      productId={product.id}
+                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
+                    />
+                    <RatingButton
+                      itemId={product.id}
+                      itemType="product"
+                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
+                    />
+                    <RatingButton
+                      itemId={product.id}
+                      itemType="product"
+                      variant="like"
+                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
@@ -248,13 +259,11 @@ async function saveProductsToIndexedDB(products: Product[]) {
       const productsStore = tx.objectStore("products")
       const metaStore = tx.objectStore("meta")
 
-      // Clear and re-add all products
       productsStore.clear()
       products.forEach((product) => {
         productsStore.put(product)
       })
 
-      // Save timestamp
       metaStore.put({ key: "lastUpdate", timestamp: Date.now() })
 
       tx.oncomplete = () => resolve()

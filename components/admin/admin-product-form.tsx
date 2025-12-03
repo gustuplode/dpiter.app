@@ -32,6 +32,9 @@ interface ProductFormProps {
     category?: string
     description?: string
     keywords?: string
+    image_aspect_ratio?: string
+    image_width?: number
+    image_height?: number
   }
 }
 
@@ -58,6 +61,10 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
 
   const [description, setDescription] = useState(initialData?.description || "")
   const [keywords, setKeywords] = useState(initialData?.keywords || "")
+
+  const [imageAspectRatio, setImageAspectRatio] = useState(initialData?.image_aspect_ratio || "1:1 Square")
+  const [imageWidth, setImageWidth] = useState(initialData?.image_width || 1080)
+  const [imageHeight, setImageHeight] = useState(initialData?.image_height || 1080)
 
   const [aiAnalyzing, setAiAnalyzing] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
@@ -89,7 +96,6 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         throw new Error(data.error || "AI could not analyze the image. Please try again.")
       }
 
-      // Auto-fill the form fields
       setTitle(data.title || "")
       setBrand(data.brand || "Dpiter")
       setDescription(data.description || "")
@@ -115,7 +121,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
     }
   }
 
-  const handleCropComplete = async (croppedBlob: Blob) => {
+  const handleCropComplete = async (croppedBlob: Blob, aspectRatio: string, width: number, height: number) => {
     setLoading(true)
     try {
       const formData = new FormData()
@@ -133,6 +139,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
 
       const { url } = await uploadRes.json()
       setImageUrl(url)
+      setImageAspectRatio(aspectRatio)
+      setImageWidth(width)
+      setImageHeight(height)
       setShowCropper(false)
       setTempImageUrl(null)
     } catch (error) {
@@ -148,6 +157,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
     previousImageUrl.current = null
     setAiError(null)
     setAiSuccess(false)
+    setImageAspectRatio("1:1 Square")
+    setImageWidth(1080)
+    setImageHeight(1080)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +182,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         is_visible: true,
         description,
         keywords,
+        image_aspect_ratio: imageAspectRatio,
+        image_width: imageWidth,
+        image_height: imageHeight,
       }
 
       const res = initialData
@@ -226,8 +241,10 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
             Product Image * <span className="text-xs text-gray-500">(Upload first for AI auto-fill)</span>
           </label>
           {imageUrl ? (
-            <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img src={imageUrl || "/placeholder.svg"} alt="Product" className="w-full h-full object-cover" />
+            <div className="relative w-full bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+              <div className="relative w-full" style={{ aspectRatio: `${imageWidth} / ${imageHeight}` }}>
+                <img src={imageUrl || "/placeholder.svg"} alt="Product" className="w-full h-full object-cover" />
+              </div>
               <button
                 type="button"
                 onClick={handleRemoveImage}
@@ -235,7 +252,9 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
               >
                 <X className="h-4 w-4" />
               </button>
-
+              <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
+                {imageAspectRatio} • {imageWidth}×{imageHeight}
+              </div>
               {aiAnalyzing && (
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
                   <Loader2 className="h-10 w-10 text-white animate-spin mb-3" />
@@ -248,6 +267,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
             <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white dark:bg-gray-800">
               <Upload className="h-12 w-12 text-gray-400 mb-2" />
               <span className="text-sm text-gray-500">Click to upload image</span>
+              <span className="text-xs text-gray-400 mt-1">Choose aspect ratio in crop screen</span>
               <span className="text-xs text-primary mt-1 flex items-center gap-1">
                 <Sparkles className="h-3 w-3" />
                 AI will auto-fill details
@@ -428,9 +448,6 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
       {showCropper && tempImageUrl && (
         <ImageCropper
           imageUrl={tempImageUrl}
-          aspectRatio={1}
-          cropWidth={1080}
-          cropHeight={1080}
           onCropComplete={handleCropComplete}
           onCancel={() => {
             setShowCropper(false)

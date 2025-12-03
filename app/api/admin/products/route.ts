@@ -34,6 +34,9 @@ export async function POST(request: Request) {
       slug: uniqueSlug,
       description: body.description || null,
       keywords: body.keywords || null,
+      image_aspect_ratio: body.image_aspect_ratio || "1:1 Square",
+      image_width: body.image_width || 1080,
+      image_height: body.image_height || 1080,
       created_at: new Date().toISOString(),
     })
     .select()
