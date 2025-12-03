@@ -14,6 +14,7 @@ import {
   Sparkles,
   AlertCircle,
   Loader2,
+  Check,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
   const [showCropper, setShowCropper] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [updateSuccess, setUpdateSuccess] = useState(false)
 
   const [selectedCategory, setSelectedCategory] = useState(initialData?.category || initialCategory || "fashion")
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
@@ -171,6 +173,7 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
     }
 
     setLoading(true)
+    setUpdateSuccess(false)
     try {
       const payload = {
         brand,
@@ -203,6 +206,14 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         const error = await res.json()
         throw new Error(error.error || "Failed to save product")
       }
+
+      setUpdateSuccess(true)
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("productUpdated", { detail: { id: initialData?.id } }))
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       router.push(`/admin/fashion`)
       router.refresh()
@@ -439,9 +450,25 @@ export function AdminProductForm({ category: initialCategory, initialData }: Pro
         <Button
           type="submit"
           disabled={loading || aiAnalyzing || !brand || !title || !price || !imageUrl}
-          className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold text-base disabled:opacity-50"
+          className={`w-full h-12 font-semibold text-base disabled:opacity-50 transition-all ${
+            updateSuccess ? "bg-green-500 hover:bg-green-600" : "bg-primary hover:bg-primary/90"
+          } text-white`}
         >
-          {loading ? "Publishing..." : initialData ? "Update Product" : "Publish Product"}
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              {initialData ? "Updating..." : "Publishing..."}
+            </span>
+          ) : updateSuccess ? (
+            <span className="flex items-center gap-2">
+              <Check className="h-5 w-5" />
+              Updated Successfully!
+            </span>
+          ) : initialData ? (
+            "Update Product"
+          ) : (
+            "Publish Product"
+          )}
         </Button>
       </form>
 

@@ -25,6 +25,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (body.is_visible !== undefined) updateData.is_visible = body.is_visible
   if (body.category !== undefined) updateData.category = body.category
   if (body.pin_position !== undefined) updateData.pin_position = body.pin_position
+  if (body.description !== undefined) updateData.description = body.description
+  if (body.keywords !== undefined) updateData.keywords = body.keywords
+  if (body.image_aspect_ratio !== undefined) updateData.image_aspect_ratio = body.image_aspect_ratio
+  if (body.image_width !== undefined) updateData.image_width = body.image_width
+  if (body.image_height !== undefined) updateData.image_height = body.image_height
 
   const { error, data } = await supabase.from("category_products").update(updateData).eq("id", id).select().single()
 
@@ -33,7 +38,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  return NextResponse.json(data, {
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+    },
+  })
 }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {

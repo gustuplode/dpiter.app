@@ -21,92 +21,56 @@ interface Product {
   image_height?: number
 }
 
-interface InfiniteProductListProps {
+interface CategoryProductListProps {
+  category: string
   initialProducts: Product[]
 }
 
-const globalCache = {
-  products: new Map<string, Product>(),
-  loadedIds: new Set<string>(),
-  page: 1,
-  hasMore: true,
-  initialized: false,
+const categoryCache = new Map<
+  string,
+  {
+    products: Map<string, Product>
+    loadedIds: Set<string>
+    page: number
+    hasMore: boolean
+  }
+>()
+
+function getCategoryCache(category: string) {
+  if (!categoryCache.has(category)) {
+    categoryCache.set(category, {
+      products: new Map(),
+      loadedIds: new Set(),
+      page: 1,
+      hasMore: true,
+    })
+  }
+  return categoryCache.get(category)!
 }
 
-export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
+export function CategoryProductList({ category, initialProducts }: CategoryProductListProps) {
+  const cache = getCategoryCache(category)
+
   const [products, setProducts] = useState<Product[]>(() => {
-    if (globalCache.initialized && globalCache.products.size > 0) {
-      return Array.from(globalCache.products.values())
+    if (cache.products.size > 0) {
+      return Array.from(cache.products.values())
     }
-    // Initialize cache with initial products
     initialProducts.forEach((p) => {
-      globalCache.products.set(p.id, p)
-      globalCache.loadedIds.add(p.id)
+      cache.products.set(p.id, p)
+      cache.loadedIds.add(p.id)
     })
-    globalCache.initialized = true
     return initialProducts
   })
 
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(globalCache.hasMore)
-  const [page, setPage] = useState(globalCache.page)
+  const [hasMore, setHasMore] = useState(cache.hasMore)
+  const [page, setPage] = useState(cache.page)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleProductUpdate = () => {
-      // Clear cache and reload
-      globalCache.products.clear()
-      globalCache.loadedIds.clear()
-      globalCache.page = 1
-      globalCache.hasMore = true
-      globalCache.initialized = false
-      setPage(1)
-      setHasMore(true)
-
-      // Reload initial products
-      const supabase = createClient()
-      supabase
-        .from("category_products")
-        .select("*")
-        .eq("is_visible", true)
-        .order("created_at", { ascending: false })
-        .range(0, 5)
-        .then(({ data }) => {
-          if (data) {
-            data.forEach((p) => {
-              globalCache.products.set(p.id, p)
-              globalCache.loadedIds.add(p.id)
-            })
-            globalCache.initialized = true
-            setProducts(data)
-          }
-        })
-    }
-
-    window.addEventListener("productUpdated", handleProductUpdate)
-    return () => window.removeEventListener("productUpdated", handleProductUpdate)
-  }, [])
-
-  useEffect(() => {
-    globalCache.page = page
-    globalCache.hasMore = hasMore
-  }, [page, hasMore])
-
-  useEffect(() => {
-    if ("indexedDB" in window) {
-      saveProductsToIndexedDB(products)
-    }
-  }, [products])
-
-  useEffect(() => {
-    if (!navigator.onLine && products.length === 0) {
-      loadProductsFromIndexedDB().then((cachedProducts) => {
-        if (cachedProducts && cachedProducts.length > 0) {
-          setProducts(cachedProducts)
-        }
-      })
-    }
-  }, [])
+    cache.page = page
+    cache.hasMore = hasMore
+  }, [page, hasMore, cache])
 
   const loadMoreProducts = useCallback(async () => {
     if (loading || !hasMore) return
@@ -120,6 +84,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       const { data, error } = await supabase
         .from("category_products")
         .select("*")
+        .eq("category", category)
         .eq("is_visible", true)
         .order("created_at", { ascending: false })
         .range(from, to)
@@ -130,15 +95,14 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
 
       if (data && data.length > 0) {
-        const newProducts = data.filter((p) => !globalCache.loadedIds.has(p.id))
+        const newProducts = data.filter((p) => !cache.loadedIds.has(p.id))
 
         if (newProducts.length > 0) {
           newProducts.forEach((p) => {
-            globalCache.products.set(p.id, p)
-            globalCache.loadedIds.add(p.id)
+            cache.products.set(p.id, p)
+            cache.loadedIds.add(p.id)
           })
-
-          setProducts(Array.from(globalCache.products.values()))
+          setProducts(Array.from(cache.products.values()))
         }
 
         setPage((prev) => prev + 1)
@@ -153,7 +117,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     } finally {
       setLoading(false)
     }
-  }, [loading, page, hasMore])
+  }, [loading, page, hasMore, category, cache])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -172,43 +136,11 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     return () => observer.disconnect()
   }, [loadMoreProducts, loading, hasMore])
 
-  useEffect(() => {
-    const keywords: string[] = []
-    products.forEach((product) => {
-      if (product.title) {
-        const title = product.title.toLowerCase()
-        keywords.push(title)
-        keywords.push(`buy ${title}`)
-        keywords.push(`${title} price`)
-        keywords.push(`${title} online`)
-        keywords.push(`${title} india`)
-        keywords.push(`best ${title}`)
-        keywords.push(`${title} 2025`)
-        keywords.push(`${title} deals`)
-        keywords.push(`${title} offer`)
-        keywords.push(`cheap ${title}`)
-        if (product.brand) {
-          keywords.push(`${product.brand.toLowerCase()} ${title}`)
-          keywords.push(product.brand.toLowerCase())
-        }
-        if (product.category) {
-          keywords.push(`${product.category.toLowerCase()} ${title}`)
-        }
-      }
-    })
-
-    window.dispatchEvent(
-      new CustomEvent("productKeywordsUpdated", {
-        detail: [...new Set(keywords)],
-      }),
-    )
-  }, [products])
-
   if (products.length === 0 && !loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
         <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
-        <p className="text-lg text-slate-600 dark:text-slate-400">No products available</p>
+        <p className="text-lg text-slate-600 dark:text-slate-400">No products in {category}</p>
       </div>
     )
   }
@@ -223,10 +155,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           return (
             <div
               key={product.id}
-              className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 md:mb-0"
-              data-product-title={product.title}
-              data-product-brand={product.brand}
-              data-product-category={product.category}
+              className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
             >
               <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
                 <div
@@ -294,69 +223,11 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           </div>
         )}
         {!hasMore && products.length > 0 && (
-          <p className="text-xs text-gray-400">All products loaded ({products.length})</p>
+          <p className="text-xs text-gray-400">
+            All {category} products loaded ({products.length})
+          </p>
         )}
       </div>
     </>
   )
-}
-
-async function saveProductsToIndexedDB(products: Product[]) {
-  return new Promise<void>((resolve) => {
-    const request = indexedDB.open("dpiter-products-db", 1)
-
-    request.onupgradeneeded = (e: any) => {
-      const db = e.target.result
-      if (!db.objectStoreNames.contains("products")) {
-        db.createObjectStore("products", { keyPath: "id" })
-      }
-      if (!db.objectStoreNames.contains("meta")) {
-        db.createObjectStore("meta", { keyPath: "key" })
-      }
-    }
-
-    request.onsuccess = (e: any) => {
-      const db = e.target.result
-      const tx = db.transaction(["products", "meta"], "readwrite")
-      const productsStore = tx.objectStore("products")
-      const metaStore = tx.objectStore("meta")
-
-      productsStore.clear()
-      products.forEach((product) => {
-        productsStore.put(product)
-      })
-
-      metaStore.put({ key: "lastUpdate", timestamp: Date.now() })
-
-      tx.oncomplete = () => resolve()
-    }
-
-    request.onerror = () => resolve()
-  })
-}
-
-async function loadProductsFromIndexedDB(): Promise<Product[]> {
-  return new Promise((resolve) => {
-    const request = indexedDB.open("dpiter-products-db", 1)
-
-    request.onsuccess = (e: any) => {
-      const db = e.target.result
-      if (!db.objectStoreNames.contains("products")) {
-        resolve([])
-        return
-      }
-
-      const tx = db.transaction("products", "readonly")
-      const store = tx.objectStore("products")
-      const getAllRequest = store.getAll()
-
-      getAllRequest.onsuccess = () => {
-        resolve(getAllRequest.result || [])
-      }
-
-      getAllRequest.onerror = () => resolve([])
-    }
-
-    request.onerror = () => resolve([])
-  })
 }
