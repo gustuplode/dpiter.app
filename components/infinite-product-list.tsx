@@ -40,7 +40,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   useEffect(() => {
     productCache.set(cacheKey, { products, page, hasMore })
 
-    // Also save to IndexedDB for offline access
     if ("indexedDB" in window) {
       saveProductsToIndexedDB(products)
     }
@@ -153,7 +152,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:gap-4 xl:grid-cols-5">
+      <div className="columns-2 md:columns-4 xl:columns-5 gap-0">
         {products.map((product) => {
           const width = product.image_width || 1080
           const height = product.image_height || 1080
@@ -161,7 +160,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           return (
             <div
               key={product.id}
-              className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700 md:rounded-lg md:border hover:shadow-lg transition-shadow"
+              className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 md:mb-0"
               data-product-title={product.title}
               data-product-brand={product.brand}
               data-product-category={product.category}

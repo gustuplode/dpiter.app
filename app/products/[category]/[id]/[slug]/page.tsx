@@ -6,6 +6,7 @@ import { RatingButton } from "@/components/rating-button"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { ProductImageGallery } from "@/components/product-image-gallery"
 import { ProductReviews } from "@/components/product-reviews"
+import { ShareButton } from "@/components/share-button"
 
 export default async function ProductDetailPage({
   params,
@@ -159,10 +160,11 @@ export default async function ProductDetailPage({
                   className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-500"
                 />
                 <RatingButton itemId={product.id} itemType="product" showLabel />
-                <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary">
-                  <span className="material-symbols-outlined">share</span>
-                  <span>Share</span>
-                </button>
+                <ShareButton
+                  title={product.title}
+                  description={product.description || `Check out ${product.title} on Dpiter`}
+                  showLabel
+                />
               </div>
 
               {product.description && (
@@ -373,7 +375,6 @@ export default async function ProductDetailPage({
               </a>
             </div>
 
-            {/* Additional action row */}
             <div className="flex items-center justify-around py-3 border-t border-gray-200 dark:border-gray-700">
               <WishlistButton productId={product.id} showLabel className="flex items-center gap-1 text-sm" />
               <RatingButton
@@ -382,10 +383,11 @@ export default async function ProductDetailPage({
                 showLabel
                 className="flex items-center gap-1 text-sm"
               />
-              <button className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                <span className="material-symbols-outlined text-lg">share</span>
-                Share
-              </button>
+              <ShareButton
+                title={product.title}
+                description={product.description || `Check out ${product.title} on Dpiter`}
+                showLabel
+              />
             </div>
           </div>
 
@@ -395,20 +397,25 @@ export default async function ProductDetailPage({
           {relatedProducts && relatedProducts.length > 0 && (
             <div className="mt-4">
               <h2 className="text-base font-bold text-gray-900 dark:text-white px-3 mb-2">Similar Products</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4">
+              <div className="columns-2 md:columns-4 gap-0">
                 {relatedProducts.slice(0, 6).map((item) => {
                   const itemDiscount = item.original_price
                     ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
                     : 0
+                  const itemWidth = item.image_width || 1080
+                  const itemHeight = item.image_height || 1080
                   return (
                     <Link
                       key={item.id}
                       href={`/products/${item.category || category}/${item.id}/${item.slug || item.id}`}
-                      className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700"
+                      className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
                     >
                       <div
-                        className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-                        style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
+                        className="relative w-full bg-center bg-no-repeat bg-cover"
+                        style={{
+                          backgroundImage: `url("${item.image_url || "/placeholder.svg"}")`,
+                          aspectRatio: `${itemWidth} / ${itemHeight}`,
+                        }}
                       >
                         {itemDiscount > 0 && (
                           <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
@@ -426,12 +433,12 @@ export default async function ProductDetailPage({
                         <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
                           {item.title}
                         </p>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex items-center gap-1.5">
                           <p className="text-gray-900 dark:text-white text-sm font-bold">
                             <CurrencyDisplay price={item.price} />
                           </p>
                           {item.original_price && (
-                            <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                            <p className="text-gray-400 text-[10px] line-through">
                               <CurrencyDisplay price={item.original_price} />
                             </p>
                           )}
@@ -444,35 +451,39 @@ export default async function ProductDetailPage({
             </div>
           )}
 
-          {/* More Products From All Categories - Meesho Style */}
+          <div className="h-2 bg-gray-100 dark:bg-gray-800/50"></div>
+
+          {/* More Products */}
           {allCategoryProducts && allCategoryProducts.length > 0 && (
-            <div className="mt-4 bg-gray-50 dark:bg-gray-900/50">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white px-3 py-2">
+            <div className="mt-4">
+              <h2 className="text-base font-bold text-gray-900 dark:text-white px-3 mb-2">
                 More Products You May Like
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4">
+              <div className="columns-2 md:columns-4 gap-0">
                 {allCategoryProducts.map((item) => {
                   const itemDiscount = item.original_price
                     ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
                     : 0
+                  const itemWidth = item.image_width || 1080
+                  const itemHeight = item.image_height || 1080
                   return (
                     <Link
                       key={item.id}
                       href={`/products/${item.category || "fashion"}/${item.id}/${item.slug || item.id}`}
-                      className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-t border-r border-gray-200 dark:border-gray-700"
+                      className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
                     >
                       <div
-                        className="relative w-full bg-center bg-no-repeat aspect-square bg-cover"
-                        style={{ backgroundImage: `url("${item.image_url || "/placeholder.svg"}")` }}
+                        className="relative w-full bg-center bg-no-repeat bg-cover"
+                        style={{
+                          backgroundImage: `url("${item.image_url || "/placeholder.svg"}")`,
+                          aspectRatio: `${itemWidth} / ${itemHeight}`,
+                        }}
                       >
                         {itemDiscount > 0 && (
                           <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                             {itemDiscount}% OFF
                           </span>
                         )}
-                        <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded capitalize">
-                          {item.category}
-                        </span>
                         <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
                           <span className="text-[10px] font-semibold text-gray-800">4.1</span>
                         </div>
@@ -484,12 +495,12 @@ export default async function ProductDetailPage({
                         <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
                           {item.title}
                         </p>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex items-center gap-1.5">
                           <p className="text-gray-900 dark:text-white text-sm font-bold">
                             <CurrencyDisplay price={item.price} />
                           </p>
                           {item.original_price && (
-                            <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                            <p className="text-gray-400 text-[10px] line-through">
                               <CurrencyDisplay price={item.original_price} />
                             </p>
                           )}
