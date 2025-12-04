@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
@@ -25,45 +25,69 @@ interface InfiniteProductListProps {
   initialProducts: Product[]
 }
 
-const globalCache = {
-  products: new Map<string, Product>(),
-  loadedIds: new Set<string>(),
-  page: 1,
-  hasMore: true,
-  initialized: false,
+class ProductCache {
+  private static instance: ProductCache
+  products: Map<string, Product> = new Map()
+  loadedIds: Set<string> = new Set()
+  page = 1
+  hasMore = true
+  initialized = false
+  isLoading = false
+
+  static getInstance(): ProductCache {
+    if (!ProductCache.instance) {
+      ProductCache.instance = new ProductCache()
+    }
+    return ProductCache.instance
+  }
+
+  reset() {
+    this.products.clear()
+    this.loadedIds.clear()
+    this.page = 1
+    this.hasMore = true
+    this.initialized = false
+    this.isLoading = false
+  }
+
+  addProducts(products: Product[]) {
+    products.forEach((p) => {
+      if (!this.loadedIds.has(p.id)) {
+        this.products.set(p.id, p)
+        this.loadedIds.add(p.id)
+      }
+    })
+  }
+
+  getProducts(): Product[] {
+    return Array.from(this.products.values())
+  }
 }
+
+const cache = ProductCache.getInstance()
 
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const [products, setProducts] = useState<Product[]>(() => {
-    if (globalCache.initialized && globalCache.products.size > 0) {
-      return Array.from(globalCache.products.values())
+    if (cache.initialized && cache.products.size > 0) {
+      return cache.getProducts()
     }
-    // Initialize cache with initial products
-    initialProducts.forEach((p) => {
-      globalCache.products.set(p.id, p)
-      globalCache.loadedIds.add(p.id)
-    })
-    globalCache.initialized = true
+    cache.addProducts(initialProducts)
+    cache.initialized = true
     return initialProducts
   })
 
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(globalCache.hasMore)
-  const [page, setPage] = useState(globalCache.page)
+  const [hasMore, setHasMore] = useState(cache.hasMore)
   const loaderRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef(cache.page)
 
+  // Handle product update events
   useEffect(() => {
     const handleProductUpdate = () => {
-      // Clear cache and reload
-      globalCache.products.clear()
-      globalCache.loadedIds.clear()
-      globalCache.page = 1
-      globalCache.hasMore = true
-      globalCache.initialized = false
-      setPage(1)
+      cache.reset()
+      pageRef.current = 1
       setHasMore(true)
 
-      // Reload initial products
       const supabase = createClient()
       supabase
         .from("category_products")
@@ -73,12 +97,9 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         .range(0, 5)
         .then(({ data }) => {
           if (data) {
-            data.forEach((p) => {
-              globalCache.products.set(p.id, p)
-              globalCache.loadedIds.add(p.id)
-            })
-            globalCache.initialized = true
-            setProducts(data)
+            cache.addProducts(data)
+            cache.initialized = true
+            setProducts(cache.getProducts())
           }
         })
     }
@@ -87,17 +108,14 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     return () => window.removeEventListener("productUpdated", handleProductUpdate)
   }, [])
 
+  // Save to IndexedDB for offline
   useEffect(() => {
-    globalCache.page = page
-    globalCache.hasMore = hasMore
-  }, [page, hasMore])
-
-  useEffect(() => {
-    if ("indexedDB" in window) {
+    if ("indexedDB" in window && products.length > 0) {
       saveProductsToIndexedDB(products)
     }
   }, [products])
 
+  // Load from IndexedDB if offline
   useEffect(() => {
     if (!navigator.onLine && products.length === 0) {
       loadProductsFromIndexedDB().then((cachedProducts) => {
@@ -109,12 +127,15 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   }, [])
 
   const loadMoreProducts = useCallback(async () => {
-    if (loading || !hasMore) return
+    // Prevent concurrent loads
+    if (cache.isLoading || !cache.hasMore) return
 
+    cache.isLoading = true
     setLoading(true)
+
     try {
       const supabase = createClient()
-      const from = page * 6
+      const from = pageRef.current * 6
       const to = from + 5
 
       const { data, error } = await supabase
@@ -130,70 +151,58 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
 
       if (data && data.length > 0) {
-        const newProducts = data.filter((p) => !globalCache.loadedIds.has(p.id))
+        // Filter out already loaded products
+        const newProducts = data.filter((p) => !cache.loadedIds.has(p.id))
 
         if (newProducts.length > 0) {
-          newProducts.forEach((p) => {
-            globalCache.products.set(p.id, p)
-            globalCache.loadedIds.add(p.id)
-          })
-
-          setProducts(Array.from(globalCache.products.values()))
+          cache.addProducts(newProducts)
+          setProducts(cache.getProducts())
         }
 
-        setPage((prev) => prev + 1)
+        pageRef.current += 1
+        cache.page = pageRef.current
+
         if (data.length < 6) {
+          cache.hasMore = false
           setHasMore(false)
         }
       } else {
+        cache.hasMore = false
         setHasMore(false)
       }
     } catch (error) {
       console.error("Error:", error)
     } finally {
+      cache.isLoading = false
       setLoading(false)
     }
-  }, [loading, page, hasMore])
+  }, []) // Empty dependency array - uses refs and cache
 
   useEffect(() => {
+    const currentLoader = loaderRef.current
+    if (!currentLoader) return
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && hasMore) {
+        if (entries[0].isIntersecting && !cache.isLoading && cache.hasMore) {
           loadMoreProducts()
         }
       },
       { threshold: 0.1, rootMargin: "500px" },
     )
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current)
-    }
-
+    observer.observe(currentLoader)
     return () => observer.disconnect()
-  }, [loadMoreProducts, loading, hasMore])
+  }, [loadMoreProducts])
 
+  // SEO keywords
   useEffect(() => {
     const keywords: string[] = []
     products.forEach((product) => {
       if (product.title) {
         const title = product.title.toLowerCase()
-        keywords.push(title)
-        keywords.push(`buy ${title}`)
-        keywords.push(`${title} price`)
-        keywords.push(`${title} online`)
-        keywords.push(`${title} india`)
-        keywords.push(`best ${title}`)
-        keywords.push(`${title} 2025`)
-        keywords.push(`${title} deals`)
-        keywords.push(`${title} offer`)
-        keywords.push(`cheap ${title}`)
-        if (product.brand) {
-          keywords.push(`${product.brand.toLowerCase()} ${title}`)
-          keywords.push(product.brand.toLowerCase())
-        }
-        if (product.category) {
-          keywords.push(`${product.category.toLowerCase()} ${title}`)
-        }
+        keywords.push(title, `buy ${title}`, `${title} price`, `${title} online`)
+        if (product.brand) keywords.push(product.brand.toLowerCase())
       }
     })
 
@@ -202,6 +211,77 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
         detail: [...new Set(keywords)],
       }),
     )
+  }, [products])
+
+  const productCards = useMemo(() => {
+    return products.map((product) => {
+      const width = product.image_width || 1080
+      const height = product.image_height || 1080
+
+      return (
+        <div
+          key={product.id}
+          className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+          data-product-title={product.title}
+          data-product-brand={product.brand}
+          data-product-category={product.category}
+        >
+          <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
+            <div
+              className="relative w-full bg-center bg-no-repeat bg-cover"
+              style={{
+                backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
+                aspectRatio: `${width} / ${height}`,
+              }}
+            >
+              <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+                <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+              </div>
+            </div>
+          </Link>
+
+          <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
+            <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
+              {product.brand || "Brand"}
+            </p>
+            <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
+              {product.title}
+            </p>
+
+            <div className="flex items-center justify-between mt-1">
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                  <CurrencyDisplay price={product.price} />
+                </p>
+                {product.original_price && (
+                  <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                    <CurrencyDisplay price={product.original_price} />
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <WishlistButton
+                  productId={product.id}
+                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
+                />
+                <RatingButton
+                  itemId={product.id}
+                  itemType="product"
+                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
+                />
+                <RatingButton
+                  itemId={product.id}
+                  itemType="product"
+                  variant="like"
+                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    })
   }, [products])
 
   if (products.length === 0 && !loading) {
@@ -215,76 +295,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   return (
     <>
-      <div className="columns-2 md:columns-4 xl:columns-5 gap-0">
-        {products.map((product) => {
-          const width = product.image_width || 1080
-          const height = product.image_height || 1080
-
-          return (
-            <div
-              key={product.id}
-              className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 md:mb-0"
-              data-product-title={product.title}
-              data-product-brand={product.brand}
-              data-product-category={product.category}
-            >
-              <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
-                <div
-                  className="relative w-full bg-center bg-no-repeat bg-cover"
-                  style={{
-                    backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
-                    aspectRatio: `${width} / ${height}`,
-                  }}
-                >
-                  <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
-                    <span className="text-[10px] font-semibold text-gray-800">4.1</span>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
-                <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
-                  {product.brand || "Brand"}
-                </p>
-                <p className="text-gray-800 dark:text-gray-200 text-[11px] font-normal leading-snug line-clamp-1">
-                  {product.title}
-                </p>
-
-                <div className="flex items-center justify-between mt-1">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                      <CurrencyDisplay price={product.price} />
-                    </p>
-                    {product.original_price && (
-                      <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
-                        <CurrencyDisplay price={product.original_price} />
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <WishlistButton
-                      productId={product.id}
-                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
-                    />
-                    <RatingButton
-                      itemId={product.id}
-                      itemType="product"
-                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
-                    />
-                    <RatingButton
-                      itemId={product.id}
-                      itemType="product"
-                      variant="like"
-                      className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <div className="columns-2 md:columns-4 xl:columns-5 gap-0">{productCards}</div>
 
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (
