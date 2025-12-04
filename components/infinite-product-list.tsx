@@ -27,12 +27,13 @@ interface InfiniteProductListProps {
 
 class ProductCache {
   private static instance: ProductCache
-  products: Map<string, Product> = new Map()
+  products: Product[] = []
   loadedIds: Set<string> = new Set()
   page = 1
   hasMore = true
   initialized = false
   isLoading = false
+  lastFetchTime = 0
 
   static getInstance(): ProductCache {
     if (!ProductCache.instance) {
@@ -42,25 +43,26 @@ class ProductCache {
   }
 
   reset() {
-    this.products.clear()
+    this.products = []
     this.loadedIds.clear()
     this.page = 1
     this.hasMore = true
     this.initialized = false
     this.isLoading = false
+    this.lastFetchTime = 0
   }
 
-  addProducts(products: Product[]) {
-    products.forEach((p) => {
+  addProducts(newProducts: Product[]) {
+    newProducts.forEach((p) => {
       if (!this.loadedIds.has(p.id)) {
-        this.products.set(p.id, p)
         this.loadedIds.add(p.id)
+        this.products.push(p)
       }
     })
   }
 
   getProducts(): Product[] {
-    return Array.from(this.products.values())
+    return this.products
   }
 }
 
@@ -68,12 +70,13 @@ const cache = ProductCache.getInstance()
 
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const [products, setProducts] = useState<Product[]>(() => {
-    if (cache.initialized && cache.products.size > 0) {
+    if (cache.initialized && cache.products.length > 0) {
       return cache.getProducts()
     }
+    // First time - add initial products to cache
     cache.addProducts(initialProducts)
     cache.initialized = true
-    return initialProducts
+    return cache.getProducts()
   })
 
   const [loading, setLoading] = useState(false)
@@ -127,10 +130,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   }, [])
 
   const loadMoreProducts = useCallback(async () => {
-    // Prevent concurrent loads
-    if (cache.isLoading || !cache.hasMore) return
+    // Prevent concurrent loads and rapid successive calls
+    const now = Date.now()
+    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 500) return
 
     cache.isLoading = true
+    cache.lastFetchTime = now
     setLoading(true)
 
     try {
@@ -151,12 +156,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
 
       if (data && data.length > 0) {
-        // Filter out already loaded products
+        // Filter out already loaded products strictly
         const newProducts = data.filter((p) => !cache.loadedIds.has(p.id))
 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
-          setProducts(cache.getProducts())
+          setProducts([...cache.getProducts()]) // Create new array reference
         }
 
         pageRef.current += 1
@@ -176,7 +181,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       cache.isLoading = false
       setLoading(false)
     }
-  }, []) // Empty dependency array - uses refs and cache
+  }, [])
 
   useEffect(() => {
     const currentLoader = loaderRef.current
@@ -188,7 +193,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           loadMoreProducts()
         }
       },
-      { threshold: 0.1, rootMargin: "500px" },
+      { threshold: 0.1, rootMargin: "300px" },
     )
 
     observer.observe(currentLoader)

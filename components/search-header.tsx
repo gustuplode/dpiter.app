@@ -4,10 +4,11 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import type React from "react"
 
 import { useRouter, usePathname } from "next/navigation"
+import Link from "next/link"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { CategoryHeader } from "./category-header"
 import { CurrencyDisplay } from "./currency-display"
-import { Search, Mic, X, Clock, TrendingUp, ArrowUpRight, MicOff } from "lucide-react"
+import { Search, Mic, X, Clock, TrendingUp, ArrowUpRight, MicOff, Home, Heart, Gift, User } from "lucide-react"
 
 export function SearchHeader({
   showBackButton = false,
@@ -284,7 +285,12 @@ export function SearchHeader({
     }
   }, [])
 
-  if (isAdminPage) return null
+  const desktopNavItems = [
+    { href: "/", icon: Home, label: "Home" },
+    { href: "/wishlist", icon: Heart, label: "Wishlist" },
+    { href: "/offers", icon: Gift, label: "Offers" },
+    { href: "/profile", icon: User, label: "Profile" },
+  ]
 
   return (
     <>
@@ -302,17 +308,17 @@ export function SearchHeader({
 
             {!showBackButtonComputed && (
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-xl font-bold text-[#883223]">Dpiter</span>
+                <span className="text-2xl lg:text-3xl font-logo text-[#883223]">Dpiter</span>
               </div>
             )}
 
             <div
-              className="flex-1 flex items-center h-10 lg:h-11 bg-white dark:bg-gray-800 rounded-lg overflow-hidden cursor-text shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:shadow-[0_2px_5px_rgba(0,0,0,0.15)] focus-within:shadow-[0_0_0_2px_rgba(251,146,60,0.5)] transition-all"
+              className="flex-1 flex items-center h-10 lg:h-11 bg-white dark:bg-gray-800 rounded-full overflow-hidden cursor-text border-2 border-gray-400 dark:border-gray-600 shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.2)] hover:border-gray-500 focus-within:border-[#883223] focus-within:shadow-[0_0_0_3px_rgba(136,50,35,0.2)] transition-all"
               onClick={handleSearchClick}
               onTouchStart={handleSearchClick}
             >
               <div className="flex items-center justify-center w-10 lg:w-12 h-full">
-                <Search className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                <Search className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500" />
               </div>
               <input
                 ref={inputRef}
@@ -322,7 +328,7 @@ export function SearchHeader({
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
                 placeholder="Search products..."
-                className="flex-1 h-full bg-transparent text-sm lg:text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
+                className="flex-1 h-full bg-transparent text-sm lg:text-base text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -332,10 +338,10 @@ export function SearchHeader({
                   }}
                   className="flex items-center justify-center w-8 h-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <X className="h-4 w-4 text-gray-400" />
+                  <X className="h-4 w-4 text-gray-500" />
                 </button>
               )}
-              <div className="w-px h-5 bg-gray-200 dark:bg-gray-600" />
+              <div className="w-px h-5 bg-gray-300 dark:bg-gray-600" />
               <button
                 onClick={toggleVoiceSearch}
                 className={`flex items-center justify-center w-10 lg:w-12 h-full transition-colors ${
@@ -348,6 +354,26 @@ export function SearchHeader({
                   <Mic className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500" />
                 )}
               </button>
+            </div>
+
+            <div className="hidden lg:flex items-center gap-1">
+              {desktopNavItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-[#883223] text-white"
+                        : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -497,7 +523,7 @@ export function SearchHeader({
                             </h4>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.brand}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-base font-bold text-gray-900 dark:text-white">
+                              <span className="text-base font-bold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                                 <CurrencyDisplay price={product.price} />
                               </span>
                               {product.original_price && product.original_price > product.price && (
