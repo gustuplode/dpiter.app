@@ -29,11 +29,20 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
   const hideControlsTimerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
 
-  const getAspectRatio = (banner: Banner) => {
+  const getAspectRatio = (banner: Banner, isDesktop: boolean) => {
     if (banner.aspect_ratio === "custom" && banner.custom_width && banner.custom_height) {
+      // On desktop, limit the height ratio
+      if (isDesktop) {
+        const ratio = banner.custom_width / banner.custom_height
+        // If banner is too tall, use a wider ratio
+        if (ratio < 2) {
+          return "21/9"
+        }
+      }
       return `${banner.custom_width}/${banner.custom_height}`
     }
-    return banner.aspect_ratio || "16/7"
+    // Default: wider on desktop
+    return isDesktop ? "21/9" : banner.aspect_ratio || "16/7"
   }
 
   useEffect(() => {
@@ -120,40 +129,69 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
 
   const currentBannerData = banners[currentBanner]
   const hasLink = !!currentBannerData?.link_url
-  const currentAspectRatio = getAspectRatio(currentBannerData)
 
   return (
     <div className="mb-4 relative" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       <div
         className={`w-full bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl shadow-lg transition-all duration-300 ${hasLink ? "cursor-pointer" : ""}`}
-        style={{ aspectRatio: currentAspectRatio }}
         onClick={handleBannerClick}
       >
-        {currentBannerData?.type === "image" ? (
-          <img
-            src={currentBannerData.media_url || "/placeholder.svg"}
-            alt={currentBannerData.title}
-            className="w-full h-full object-cover transition-all duration-500"
-          />
-        ) : currentBannerData?.type === "video" ? (
-          <video
-            key={currentBannerData.id}
-            ref={videoRef}
-            src={currentBannerData.media_url}
-            autoPlay
-            muted={isMuted}
-            playsInline
-            onEnded={handleVideoEnd}
-            className="w-full h-full object-cover"
-          >
-            <source src={currentBannerData.media_url} type="video/mp4" />
-          </video>
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
-            dangerouslySetInnerHTML={{ __html: currentBannerData?.ad_code || "" }}
-          />
-        )}
+        {/* Mobile aspect ratio */}
+        <div className="block lg:hidden w-full" style={{ aspectRatio: getAspectRatio(currentBannerData, false) }}>
+          {currentBannerData?.type === "image" ? (
+            <img
+              src={currentBannerData.media_url || "/placeholder.svg"}
+              alt={currentBannerData.title}
+              className="w-full h-full object-cover transition-all duration-500"
+            />
+          ) : currentBannerData?.type === "video" ? (
+            <video
+              key={currentBannerData.id}
+              ref={videoRef}
+              src={currentBannerData.media_url}
+              autoPlay
+              muted={isMuted}
+              playsInline
+              onEnded={handleVideoEnd}
+              className="w-full h-full object-cover"
+            >
+              <source src={currentBannerData.media_url} type="video/mp4" />
+            </video>
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
+              dangerouslySetInnerHTML={{ __html: currentBannerData?.ad_code || "" }}
+            />
+          )}
+        </div>
+
+        {/* Desktop aspect ratio - wider/shorter */}
+        <div className="hidden lg:block w-full" style={{ aspectRatio: getAspectRatio(currentBannerData, true) }}>
+          {currentBannerData?.type === "image" ? (
+            <img
+              src={currentBannerData.media_url || "/placeholder.svg"}
+              alt={currentBannerData.title}
+              className="w-full h-full object-cover transition-all duration-500"
+            />
+          ) : currentBannerData?.type === "video" ? (
+            <video
+              key={`desktop-${currentBannerData.id}`}
+              src={currentBannerData.media_url}
+              autoPlay
+              muted={isMuted}
+              playsInline
+              onEnded={handleVideoEnd}
+              className="w-full h-full object-cover"
+            >
+              <source src={currentBannerData.media_url} type="video/mp4" />
+            </video>
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center bg-white dark:bg-gray-900"
+              dangerouslySetInnerHTML={{ __html: currentBannerData?.ad_code || "" }}
+            />
+          )}
+        </div>
       </div>
 
       {currentBannerData?.type === "video" && (

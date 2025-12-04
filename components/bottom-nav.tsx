@@ -40,7 +40,7 @@ export function BottomNav() {
   }, [])
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+    <nav className="fixed bottom-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] lg:hidden">
       <Link
         href="/"
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] ${pathname === "/" ? "text-primary" : "text-text-secondary-light dark:text-text-secondary-dark"}`}

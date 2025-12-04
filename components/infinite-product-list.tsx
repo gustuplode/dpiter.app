@@ -27,8 +27,7 @@ interface InfiniteProductListProps {
 
 class ProductCache {
   private static instance: ProductCache
-  products: Product[] = []
-  loadedIds: Set<string> = new Set()
+  products: Map<string, Product> = new Map()
   page = 1
   hasMore = true
   initialized = false
@@ -43,8 +42,7 @@ class ProductCache {
   }
 
   reset() {
-    this.products = []
-    this.loadedIds.clear()
+    this.products.clear()
     this.page = 1
     this.hasMore = true
     this.initialized = false
@@ -54,15 +52,22 @@ class ProductCache {
 
   addProducts(newProducts: Product[]) {
     newProducts.forEach((p) => {
-      if (!this.loadedIds.has(p.id)) {
-        this.loadedIds.add(p.id)
-        this.products.push(p)
+      if (!this.products.has(p.id)) {
+        this.products.set(p.id, p)
       }
     })
   }
 
+  hasProduct(id: string): boolean {
+    return this.products.has(id)
+  }
+
   getProducts(): Product[] {
-    return this.products
+    return Array.from(this.products.values())
+  }
+
+  getProductCount(): number {
+    return this.products.size
   }
 }
 
@@ -70,10 +75,9 @@ const cache = ProductCache.getInstance()
 
 export function InfiniteProductList({ initialProducts }: InfiniteProductListProps) {
   const [products, setProducts] = useState<Product[]>(() => {
-    if (cache.initialized && cache.products.length > 0) {
+    if (cache.initialized && cache.getProductCount() > 0) {
       return cache.getProducts()
     }
-    // First time - add initial products to cache
     cache.addProducts(initialProducts)
     cache.initialized = true
     return cache.getProducts()
@@ -84,7 +88,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   const loaderRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef(cache.page)
 
-  // Handle product update events
   useEffect(() => {
     const handleProductUpdate = () => {
       cache.reset()
@@ -111,14 +114,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     return () => window.removeEventListener("productUpdated", handleProductUpdate)
   }, [])
 
-  // Save to IndexedDB for offline
   useEffect(() => {
     if ("indexedDB" in window && products.length > 0) {
       saveProductsToIndexedDB(products)
     }
   }, [products])
 
-  // Load from IndexedDB if offline
   useEffect(() => {
     if (!navigator.onLine && products.length === 0) {
       loadProductsFromIndexedDB().then((cachedProducts) => {
@@ -130,9 +131,9 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   }, [])
 
   const loadMoreProducts = useCallback(async () => {
-    // Prevent concurrent loads and rapid successive calls
     const now = Date.now()
-    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 500) return
+    // Prevent concurrent loads and rapid calls (1 second debounce)
+    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 1000) return
 
     cache.isLoading = true
     cache.lastFetchTime = now
@@ -140,7 +141,8 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
     try {
       const supabase = createClient()
-      const from = pageRef.current * 6
+      const currentCount = cache.getProductCount()
+      const from = currentCount
       const to = from + 5
 
       const { data, error } = await supabase
@@ -156,12 +158,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
 
       if (data && data.length > 0) {
-        // Filter out already loaded products strictly
-        const newProducts = data.filter((p) => !cache.loadedIds.has(p.id))
+        // Strict filter - only add products not in cache
+        const newProducts = data.filter((p) => !cache.hasProduct(p.id))
 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
-          setProducts([...cache.getProducts()]) // Create new array reference
+          setProducts(cache.getProducts())
         }
 
         pageRef.current += 1
@@ -200,7 +202,6 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     return () => observer.disconnect()
   }, [loadMoreProducts])
 
-  // SEO keywords
   useEffect(() => {
     const keywords: string[] = []
     products.forEach((product) => {
@@ -300,7 +301,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   return (
     <>
-      <div className="columns-2 md:columns-4 xl:columns-5 gap-0">{productCards}</div>
+      <div className="columns-2 md:columns-4 lg:columns-4 xl:columns-6 gap-0">{productCards}</div>
 
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (
