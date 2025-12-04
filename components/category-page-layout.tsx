@@ -149,7 +149,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
       return (
         <div
           key={product.id}
-          className="break-inside-avoid flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 h-full"
         >
           <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
             <div
@@ -165,7 +165,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
             </div>
           </Link>
 
-          <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800">
+          <div className="p-2 flex flex-col gap-1 bg-gray-50 dark:bg-gray-800 flex-1 min-h-[72px]">
             <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider">
               {product.brand || "Brand"}
             </p>
@@ -173,7 +173,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
               {product.title}
             </p>
 
-            <div className="flex items-center justify-between mt-1">
+            <div className="flex items-center justify-between mt-auto">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                   <CurrencyDisplay price={product.price} />
@@ -215,7 +215,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         <div className="flex flex-col">
           {products && products.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-0">{productCards}</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0">{productCards}</div>
 
               <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
                 {loading && (

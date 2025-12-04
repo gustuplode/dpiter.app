@@ -35,14 +35,13 @@ export function BannerCarouselClient({ banners }: { banners: Banner[] }) {
       if (isDesktop) {
         const ratio = banner.custom_width / banner.custom_height
         // If banner is too tall, use a wider ratio
-        if (ratio < 2) {
-          return "21/9"
+        if (ratio < 3) {
+          return "4/1"
         }
       }
       return `${banner.custom_width}/${banner.custom_height}`
     }
-    // Default: wider on desktop
-    return isDesktop ? "21/9" : banner.aspect_ratio || "16/7"
+    return isDesktop ? "4/1" : banner.aspect_ratio || "16/7"
   }
 
   useEffect(() => {
