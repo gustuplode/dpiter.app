@@ -215,7 +215,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         <div className="flex flex-col">
           {products && products.length > 0 ? (
             <>
-              <div className="columns-2 md:columns-4 xl:columns-5 gap-0">{productCards}</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-0">{productCards}</div>
 
               <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
                 {loading && (
