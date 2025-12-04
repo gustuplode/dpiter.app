@@ -41,30 +41,27 @@ export default function WishlistLoading() {
         {/* Title Skeleton */}
         <div className="h-8 w-40 skeleton-shimmer rounded mb-6" />
 
-        {/* Wishlist Grid Skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[5px] gap-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="flex flex-col bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-sm relative"
+              className="flex flex-col bg-white dark:bg-slate-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 relative"
             >
               {/* Remove button skeleton */}
               <div className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full skeleton-shimmer" />
 
               {/* Image Skeleton */}
-              <div className="w-full aspect-[3/4] skeleton-shimmer" />
+              <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3/4" }} />
 
               {/* Info Skeleton */}
-              <div className="p-3 space-y-2">
-                {/* Brand */}
-                <div className="h-3 w-16 skeleton-shimmer rounded" />
-                {/* Title */}
-                <div className="h-4 w-full skeleton-shimmer rounded" />
-                <div className="h-4 w-3/4 skeleton-shimmer rounded" />
-                {/* Price */}
-                <div className="h-4 w-20 skeleton-shimmer rounded pt-1" />
-                {/* Type badge */}
-                <div className="h-3 w-14 skeleton-shimmer rounded" />
+              <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800/50 flex-1">
+                <div className="h-2.5 w-16 skeleton-shimmer rounded mb-1" />
+                <div className="flex-1 min-h-[32px] space-y-1">
+                  <div className="h-3 w-full skeleton-shimmer rounded" />
+                  <div className="h-3 w-3/4 skeleton-shimmer rounded" />
+                </div>
+                <div className="h-4 w-20 skeleton-shimmer rounded mt-1.5" />
+                <div className="h-3 w-14 skeleton-shimmer rounded mt-1" />
               </div>
             </div>
           ))}

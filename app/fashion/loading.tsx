@@ -37,53 +37,41 @@ export default function FashionLoading() {
         }
       `}</style>
 
-      {/* Header Skeleton */}
-      <div className="px-4 py-4 border-b border-gray-100 dark:border-gray-800">
-        <div className="h-7 w-24 skeleton-shimmer rounded" />
-        <div className="h-4 w-48 skeleton-shimmer rounded mt-1" />
-      </div>
-
-      {/* Product Grid Skeleton - Masonry style with 0 gap */}
-      <div className="columns-2 md:columns-4 xl:columns-5 gap-0">
-        {[...Array(12)].map((_, i) => {
-          // Varying heights for masonry effect
-          const heights = ["aspect-square", "aspect-[3/4]", "aspect-[4/5]", "aspect-[2/3]"]
-          const randomHeight = heights[i % heights.length]
-
-          return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col border-b border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
+          >
+            {/* Product Image Skeleton - varying heights */}
             <div
-              key={i}
-              className="break-inside-avoid flex flex-col border-b border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
+              className="relative skeleton-shimmer"
+              style={{ aspectRatio: i % 3 === 0 ? "3/4" : i % 2 === 0 ? "4/5" : "1/1" }}
             >
-              {/* Product Image Skeleton */}
-              <div className={`relative ${randomHeight} skeleton-shimmer`}>
-                {/* Rating badge skeleton */}
-                <div className="absolute bottom-1.5 left-1.5 w-8 h-4 bg-white/80 rounded" />
-              </div>
+              <div className="absolute bottom-1.5 left-1.5 w-8 h-4 bg-white/80 rounded" />
+            </div>
 
-              {/* Product Info Skeleton */}
-              <div className="p-2 space-y-1.5 bg-gray-50 dark:bg-gray-800/50">
-                {/* Brand */}
-                <div className="h-2 w-10 skeleton-shimmer rounded" />
-                {/* Title */}
+            {/* Product Info Skeleton */}
+            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800/50 flex-1">
+              <div className="h-2.5 w-12 skeleton-shimmer rounded mb-1" />
+              <div className="flex-1 min-h-[32px] space-y-1">
                 <div className="h-3 w-full skeleton-shimmer rounded" />
-
-                {/* Price and buttons row */}
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-4 w-14 skeleton-shimmer rounded" />
-                    <div className="h-3 w-10 skeleton-shimmer rounded" />
-                  </div>
-                  <div className="flex gap-1">
-                    <div className="w-7 h-7 rounded-full skeleton-shimmer" />
-                    <div className="w-7 h-7 rounded-full skeleton-shimmer" />
-                    <div className="w-7 h-7 rounded-full skeleton-shimmer" />
-                  </div>
+                <div className="h-3 w-3/4 skeleton-shimmer rounded" />
+              </div>
+              <div className="flex items-center justify-between mt-1.5">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-4 w-14 skeleton-shimmer rounded" />
+                  <div className="h-3 w-10 skeleton-shimmer rounded" />
+                </div>
+                <div className="flex gap-1">
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
+                  <div className="w-7 h-7 rounded-full skeleton-shimmer" />
                 </div>
               </div>
             </div>
-          )
-        })}
+          </div>
+        ))}
       </div>
     </div>
   )

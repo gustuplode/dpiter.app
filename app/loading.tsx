@@ -39,15 +39,14 @@ export default function Loading() {
 
       {/* Banner Skeleton - matches actual banner */}
       <div className="px-3 py-3">
-        <div className="w-full h-32 sm:h-40 md:h-48 rounded-xl skeleton-shimmer" />
+        <div className="w-full h-32 sm:h-40 md:h-48 lg:h-32 rounded-xl skeleton-shimmer" />
       </div>
 
-      {/* Product Grid Skeleton - matches actual product cards exactly */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5">
-        {[...Array(10)].map((_, i) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+        {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className="flex flex-col border-t border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
+            className="flex flex-col border-b border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
           >
             {/* Product Image Skeleton */}
             <div className="relative aspect-square skeleton-shimmer">
@@ -55,15 +54,18 @@ export default function Loading() {
               <div className="absolute bottom-1.5 left-1.5 w-8 h-4 bg-white/80 rounded" />
             </div>
 
-            {/* Product Info Skeleton */}
-            <div className="p-2 space-y-1.5 bg-gray-50 dark:bg-gray-800/50">
+            {/* Product Info Skeleton - matches actual layout */}
+            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800/50 flex-1">
               {/* Brand */}
-              <div className="h-2 w-10 skeleton-shimmer rounded" />
-              {/* Title */}
-              <div className="h-3 w-full skeleton-shimmer rounded" />
+              <div className="h-2.5 w-12 skeleton-shimmer rounded mb-1" />
+              {/* Title - expanded area */}
+              <div className="flex-1 min-h-[32px] space-y-1">
+                <div className="h-3 w-full skeleton-shimmer rounded" />
+                <div className="h-3 w-3/4 skeleton-shimmer rounded" />
+              </div>
 
               {/* Price and buttons row */}
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between mt-1.5">
                 <div className="flex items-center gap-1.5">
                   {/* Price */}
                   <div className="h-4 w-14 skeleton-shimmer rounded" />
@@ -83,8 +85,8 @@ export default function Loading() {
         ))}
       </div>
 
-      {/* Bottom Nav Skeleton */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-4">
+      {/* Bottom Nav Skeleton - only on mobile */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-1">
             <div className="w-6 h-6 rounded skeleton-shimmer" />

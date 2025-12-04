@@ -259,6 +259,128 @@ export default async function ProductDetailPage({
               <ProductReviews ratings={ratings || []} avgRating={avgRating} ratingCount={ratingCount} />
             </div>
           </div>
+
+          {/* Similar Products section for Desktop */}
+          {relatedProducts && relatedProducts.length > 0 && (
+            <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Similar Products</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+                {relatedProducts.slice(0, 8).map((item) => {
+                  const itemDiscount = item.original_price
+                    ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
+                    : 0
+                  const itemWidth = item.image_width || 1080
+                  const itemHeight = item.image_height || 1080
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.category || category}/${item.id}/${item.slug || item.id}`}
+                      className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+                    >
+                      <div
+                        className="relative w-full bg-center bg-no-repeat bg-cover"
+                        style={{
+                          backgroundImage: `url("${item.image_url || "/placeholder.svg"}")`,
+                          aspectRatio: `${itemWidth} / ${itemHeight}`,
+                        }}
+                      >
+                        {itemDiscount > 0 && (
+                          <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            {itemDiscount}% OFF
+                          </span>
+                        )}
+                        <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+                          <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+                        </div>
+                      </div>
+                      <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
+                        <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
+                          {item.brand || "Brand"}
+                        </p>
+                        <p
+                          className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal flex-1 min-h-[32px]"
+                          style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                        >
+                          {item.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                            <CurrencyDisplay price={item.price} />
+                          </p>
+                          {item.original_price && (
+                            <p className="text-gray-400 text-[10px] line-through">
+                              <CurrencyDisplay price={item.original_price} />
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* More Products section for Desktop */}
+          {allCategoryProducts && allCategoryProducts.length > 0 && (
+            <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">More Products You May Like</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+                {allCategoryProducts.map((item) => {
+                  const itemDiscount = item.original_price
+                    ? Math.round(((item.original_price - item.price) / item.original_price) * 100)
+                    : 0
+                  const itemWidth = item.image_width || 1080
+                  const itemHeight = item.image_height || 1080
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.category || "fashion"}/${item.id}/${item.slug || item.id}`}
+                      className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+                    >
+                      <div
+                        className="relative w-full bg-center bg-no-repeat bg-cover"
+                        style={{
+                          backgroundImage: `url("${item.image_url || "/placeholder.svg"}")`,
+                          aspectRatio: `${itemWidth} / ${itemHeight}`,
+                        }}
+                      >
+                        {itemDiscount > 0 && (
+                          <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            {itemDiscount}% OFF
+                          </span>
+                        )}
+                        <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+                          <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+                        </div>
+                      </div>
+                      <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
+                        <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
+                          {item.brand || "Brand"}
+                        </p>
+                        <p
+                          className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal flex-1 min-h-[32px]"
+                          style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                        >
+                          {item.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                            <CurrencyDisplay price={item.price} />
+                          </p>
+                          {item.original_price && (
+                            <p className="text-gray-400 text-[10px] line-through">
+                              <CurrencyDisplay price={item.original_price} />
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mobile Layout */}
@@ -496,7 +618,7 @@ export default async function ProductDetailPage({
                           {item.title}
                         </p>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-gray-900 dark:text-white text-sm font-bold">
+                          <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                             <CurrencyDisplay price={item.price} />
                           </p>
                           {item.original_price && (
