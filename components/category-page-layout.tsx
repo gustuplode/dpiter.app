@@ -56,6 +56,32 @@ class CategoryCache {
   }
 }
 
+function getAspectRatioStyle(product: Product): { paddingBottom: string } {
+  if (product.image_width && product.image_height && product.image_width > 0 && product.image_height > 0) {
+    const ratio = (product.image_height / product.image_width) * 100
+    return { paddingBottom: `${ratio}%` }
+  }
+
+  if (product.image_aspect_ratio) {
+    const ratioMap: Record<string, number> = {
+      "1:1": 100,
+      "4:5": 125,
+      "3:4": 133.33,
+      "2:3": 150,
+      "9:16": 177.78,
+      "16:9": 56.25,
+      "4:3": 75,
+      "3:2": 66.67,
+    }
+    const ratio = ratioMap[product.image_aspect_ratio]
+    if (ratio) {
+      return { paddingBottom: `${ratio}%` }
+    }
+  }
+
+  return { paddingBottom: "125%" }
+}
+
 export function CategoryPageLayout({ title, products: initialProducts, error }: CategoryPageLayoutProps) {
   const category = title.toLowerCase()
   const cache = CategoryCache.getInstance(category)
@@ -143,15 +169,18 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
 
   const productCards = useMemo(() => {
     return products.map((product) => {
+      const aspectStyle = getAspectRatioStyle(product)
+
       return (
         <div
           key={product.id}
-          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 h-full"
+          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 break-inside-avoid"
         >
           <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
             <div
-              className="relative w-full bg-center bg-no-repeat bg-cover aspect-[3/4]"
+              className="relative w-full bg-center bg-no-repeat bg-cover"
               style={{
+                ...aspectStyle,
                 backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
               }}
             >
@@ -161,18 +190,18 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
             </div>
           </Link>
 
-          <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
+          <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
             <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
               {product.brand || "Brand"}
             </p>
             <p
-              className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal line-clamp-2 flex-1"
+              className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal line-clamp-2 min-h-[32px]"
               style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
             >
               {product.title}
             </p>
 
-            <div className="flex items-center justify-between mt-auto pt-1.5">
+            <div className="flex items-center justify-between mt-1.5">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                   <CurrencyDisplay price={product.price} />
@@ -214,9 +243,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         <div className="flex flex-col">
           {products && products.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 auto-rows-fr">
-                {productCards}
-              </div>
+              <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-4 gap-0">{productCards}</div>
 
               <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
                 {loading && (
