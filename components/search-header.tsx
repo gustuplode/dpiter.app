@@ -30,6 +30,8 @@ export function SearchHeader({
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const lastScrollY = useRef(0)
   const isInteractingRef = useRef(false)
+  const [showNavText, setShowNavText] = useState(true)
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const pathname = usePathname()
   const router = useRouter()
@@ -285,6 +287,37 @@ export function SearchHeader({
     }
   }, [])
 
+  useEffect(() => {
+    const handleNavScroll = () => {
+      const currentScrollY = window.scrollY
+
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+
+      scrollTimeout.current = setTimeout(() => {
+        // Scrolling up - hide text
+        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+          setShowNavText(false)
+        }
+        // Scrolling down - show text
+        else if (currentScrollY < lastScrollY.current) {
+          setShowNavText(true)
+        }
+
+        lastScrollY.current = currentScrollY
+      }, 50)
+    }
+
+    window.addEventListener("scroll", handleNavScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", handleNavScroll)
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current)
+      }
+    }
+  }, [])
+
   const desktopNavItems = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/wishlist", icon: Heart, label: "Wishlist" },
@@ -363,14 +396,20 @@ export function SearchHeader({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                       isActive
                         ? "bg-[#883223] text-white"
                         : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                     }`}
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                    <span
+                      className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+                        showNavText ? "max-w-[80px] opacity-100" : "max-w-0 opacity-0"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
                   </Link>
                 )
               })}

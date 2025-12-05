@@ -41,26 +41,26 @@ export default function WishlistLoading() {
         {/* Title Skeleton */}
         <div className="h-8 w-40 skeleton-shimmer rounded mb-6" />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 auto-rows-fr">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="flex flex-col bg-white dark:bg-slate-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 relative"
+              className="flex flex-col bg-white dark:bg-slate-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 relative h-full"
             >
               {/* Remove button skeleton */}
               <div className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full skeleton-shimmer" />
 
-              {/* Image Skeleton */}
-              <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3/4" }} />
+              {/* Fixed 3/4 aspect ratio */}
+              <div className="w-full aspect-[3/4] skeleton-shimmer" />
 
               {/* Info Skeleton */}
               <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800/50 flex-1">
                 <div className="h-2.5 w-16 skeleton-shimmer rounded mb-1" />
-                <div className="flex-1 min-h-[32px] space-y-1">
+                <div className="flex-1 space-y-1">
                   <div className="h-3 w-full skeleton-shimmer rounded" />
                   <div className="h-3 w-3/4 skeleton-shimmer rounded" />
                 </div>
-                <div className="h-4 w-20 skeleton-shimmer rounded mt-1.5" />
+                <div className="h-4 w-20 skeleton-shimmer rounded mt-auto pt-1.5" />
                 <div className="h-3 w-14 skeleton-shimmer rounded mt-1" />
               </div>
             </div>

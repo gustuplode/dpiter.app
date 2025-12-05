@@ -221,23 +221,19 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   const productCards = useMemo(() => {
     return products.map((product) => {
-      const width = product.image_width || 1080
-      const height = product.image_height || 1080
-
       return (
         <div
           key={product.id}
-          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 h-full"
           data-product-title={product.title}
           data-product-brand={product.brand}
           data-product-category={product.category}
         >
           <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
             <div
-              className="relative w-full bg-center bg-no-repeat bg-cover"
+              className="relative w-full bg-center bg-no-repeat bg-cover aspect-[3/4]"
               style={{
                 backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
-                aspectRatio: `${width} / ${height}`,
               }}
             >
               <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
@@ -250,15 +246,14 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
             <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
               {product.brand || "Brand"}
             </p>
-            {/* Amazon-style title - Arial/Helvetica, normal weight, more lines */}
             <p
-              className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal flex-1 min-h-[32px]"
+              className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal line-clamp-2 flex-1"
               style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
             >
               {product.title}
             </p>
 
-            <div className="flex items-center justify-between mt-1.5">
+            <div className="flex items-center justify-between mt-auto pt-1.5">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                   <CurrencyDisplay price={product.price} />
@@ -305,7 +300,9 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">{productCards}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 auto-rows-fr">
+        {productCards}
+      </div>
 
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (

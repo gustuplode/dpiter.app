@@ -42,14 +42,14 @@ export default function Loading() {
         <div className="w-full h-32 sm:h-40 md:h-48 lg:h-32 rounded-xl skeleton-shimmer" />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 auto-rows-fr">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className="flex flex-col border-b border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800"
+            className="flex flex-col border-b border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 h-full"
           >
-            {/* Product Image Skeleton */}
-            <div className="relative aspect-square skeleton-shimmer">
+            {/* Product Image Skeleton - fixed 3/4 aspect ratio */}
+            <div className="relative aspect-[3/4] skeleton-shimmer">
               {/* Rating badge skeleton */}
               <div className="absolute bottom-1.5 left-1.5 w-8 h-4 bg-white/80 rounded" />
             </div>
@@ -58,14 +58,14 @@ export default function Loading() {
             <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800/50 flex-1">
               {/* Brand */}
               <div className="h-2.5 w-12 skeleton-shimmer rounded mb-1" />
-              {/* Title - expanded area */}
-              <div className="flex-1 min-h-[32px] space-y-1">
+              {/* Title - expanded area with line-clamp-2 */}
+              <div className="flex-1 space-y-1">
                 <div className="h-3 w-full skeleton-shimmer rounded" />
                 <div className="h-3 w-3/4 skeleton-shimmer rounded" />
               </div>
 
               {/* Price and buttons row */}
-              <div className="flex items-center justify-between mt-1.5">
+              <div className="flex items-center justify-between mt-auto pt-1.5">
                 <div className="flex items-center gap-1.5">
                   {/* Price */}
                   <div className="h-4 w-14 skeleton-shimmer rounded" />

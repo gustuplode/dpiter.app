@@ -86,17 +86,19 @@ export default function ProductDetailLoading() {
 
         <div className="h-2 bg-gray-100 dark:bg-gray-800/50" />
 
-        {/* Similar Products Skeleton - 4 columns grid */}
         <div className="mt-4">
           <div className="h-5 w-32 skeleton-shimmer rounded mx-3 mb-2" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 auto-rows-fr">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="border-b border-r border-gray-200 dark:border-gray-700">
-                <div className="aspect-square skeleton-shimmer" />
-                <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
+              <div key={i} className="border-b border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
+                <div className="aspect-[3/4] skeleton-shimmer" />
+                <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
                   <div className="h-2.5 w-10 skeleton-shimmer rounded mb-1" />
-                  <div className="h-3 w-full skeleton-shimmer rounded mb-1" />
-                  <div className="h-4 w-14 skeleton-shimmer rounded mt-1" />
+                  <div className="flex-1 space-y-1">
+                    <div className="h-3 w-full skeleton-shimmer rounded" />
+                    <div className="h-3 w-3/4 skeleton-shimmer rounded" />
+                  </div>
+                  <div className="h-4 w-14 skeleton-shimmer rounded mt-auto pt-1.5" />
                 </div>
               </div>
             ))}
@@ -161,20 +163,19 @@ export default function ProductDetailLoading() {
           </div>
         </div>
 
-        {/* Similar Products Skeleton for Desktop - 4 columns grid */}
         <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="h-6 w-40 skeleton-shimmer rounded mb-4" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 auto-rows-fr">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="border-b border-r border-gray-200 dark:border-gray-700">
-                <div className="aspect-square skeleton-shimmer" />
+              <div key={i} className="border-b border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
+                <div className="aspect-[3/4] skeleton-shimmer" />
                 <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
                   <div className="h-2.5 w-10 skeleton-shimmer rounded mb-1" />
-                  <div className="flex-1 min-h-[32px] space-y-1">
+                  <div className="flex-1 space-y-1">
                     <div className="h-3 w-full skeleton-shimmer rounded" />
                     <div className="h-3 w-3/4 skeleton-shimmer rounded" />
                   </div>
-                  <div className="h-4 w-14 skeleton-shimmer rounded mt-1.5" />
+                  <div className="h-4 w-14 skeleton-shimmer rounded mt-auto pt-1.5" />
                 </div>
               </div>
             ))}
