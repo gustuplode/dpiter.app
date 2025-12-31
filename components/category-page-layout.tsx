@@ -7,6 +7,7 @@ import { RatingButton } from "@/components/rating-button"
 import { getProductUrl } from "@/lib/utils"
 import { CurrencyDisplay } from "@/components/currency-display"
 import { createClient } from "@/lib/supabase/client"
+import type { JSX } from "react/jsx-runtime" // Import JSX to fix the undeclared variable error
 
 interface Product {
   id: string
@@ -80,6 +81,23 @@ function getAspectRatioStyle(product: Product): { paddingBottom: string } {
   }
 
   return { paddingBottom: "125%" }
+}
+
+function normalizeAspectRatio(product: Product): string {
+  if (product.image_width && product.image_height && product.image_width > 0 && product.image_height > 0) {
+    const ratio = product.image_width / product.image_height
+
+    if (ratio >= 0.9 && ratio <= 1.1) return "1:1"
+    if (ratio >= 0.75 && ratio <= 0.85) return "4:5"
+    if (ratio >= 0.55 && ratio <= 0.65) return "9:16"
+    if (ratio >= 1.3 && ratio <= 1.4) return "4:3"
+    if (ratio >= 1.7 && ratio <= 1.9) return "16:9"
+    if (ratio < 0.7) return "9:16"
+    if (ratio > 1.5) return "16:9"
+    return "4:5"
+  }
+
+  return product.image_aspect_ratio || "4:5"
 }
 
 export function CategoryPageLayout({ title, products: initialProducts, error }: CategoryPageLayoutProps) {
@@ -167,75 +185,99 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
     return () => observer.disconnect()
   }, [loadMoreProducts])
 
-  const productCards = useMemo(() => {
-    return products.map((product) => {
-      const aspectStyle = getAspectRatioStyle(product)
+  const groupedProducts = useMemo(() => {
+    const groups: { [key: string]: Product[] } = {}
 
-      return (
-        <div
-          key={product.id}
-          className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 break-inside-avoid"
-        >
-          <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
-            <div
-              className="relative w-full bg-center bg-no-repeat bg-cover"
-              style={{
-                ...aspectStyle,
-                backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
-              }}
-            >
-              <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
-                <span className="text-[10px] font-semibold text-gray-800">4.1</span>
-              </div>
-            </div>
-          </Link>
-
-          <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
-            <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
-              {product.brand || "Brand"}
-            </p>
-            <p
-              className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal line-clamp-2 min-h-[32px]"
-              style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-            >
-              {product.title}
-            </p>
-
-            <div className="flex items-center justify-between mt-1.5">
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                  <CurrencyDisplay price={product.price} />
-                </p>
-                {product.original_price && (
-                  <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
-                    <CurrencyDisplay price={product.original_price} />
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1">
-                <WishlistButton
-                  productId={product.id}
-                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
-                />
-                <RatingButton
-                  itemId={product.id}
-                  itemType="product"
-                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
-                />
-                <RatingButton
-                  itemId={product.id}
-                  itemType="product"
-                  variant="like"
-                  className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+    products.forEach((product) => {
+      const aspectRatio = normalizeAspectRatio(product)
+      if (!groups[aspectRatio]) {
+        groups[aspectRatio] = []
+      }
+      groups[aspectRatio].push(product)
     })
+
+    return groups
   }, [products])
+
+  const productCards = useMemo(() => {
+    const allCards: JSX.Element[] = []
+    const orderedRatios = ["9:16", "4:5", "1:1", "4:3", "16:9"]
+
+    orderedRatios.forEach((ratio) => {
+      const productsInGroup = groupedProducts[ratio] || []
+
+      productsInGroup.forEach((product) => {
+        const aspectStyle = getAspectRatioStyle(product)
+
+        allCards.push(
+          <div
+            key={product.id}
+            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 break-inside-avoid"
+            data-aspect-ratio={ratio}
+          >
+            <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
+              <div
+                className="relative w-full bg-center bg-no-repeat bg-cover"
+                style={{
+                  ...aspectStyle,
+                  backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
+                }}
+              >
+                <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
+                  <span className="text-[10px] font-semibold text-gray-800">4.1</span>
+                </div>
+              </div>
+            </Link>
+
+            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
+              <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
+                {product.brand || "Brand"}
+              </p>
+              <p
+                className="text-gray-800 dark:text-gray-200 text-[12px] leading-[1.3] font-normal line-clamp-2 min-h-[32px]"
+                style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+              >
+                {product.title}
+              </p>
+
+              <div className="flex items-center justify-between mt-1.5">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-extrabold bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                    <CurrencyDisplay price={product.price} />
+                  </p>
+                  {product.original_price && (
+                    <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through">
+                      <CurrencyDisplay price={product.original_price} />
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <WishlistButton
+                    productId={product.id}
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all"
+                  />
+                  <RatingButton
+                    itemId={product.id}
+                    itemType="product"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 transition-all"
+                  />
+                  <RatingButton
+                    itemId={product.id}
+                    itemType="product"
+                    variant="like"
+                    className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>,
+        )
+      })
+    })
+
+    return allCards
+  }, [groupedProducts])
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark">
