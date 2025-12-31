@@ -5,8 +5,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { WishlistButton } from "@/components/wishlist-button"
 import { RatingButton } from "@/components/rating-button"
 import { getProductUrl } from "@/lib/utils"
-import { CurrencyDisplay } from "@/components/currency-display"
 import { createClient } from "@/lib/supabase/client"
+import CurrencyDisplay from "@/components/currency-display" // Import CurrencyDisplay component
 import type { JSX } from "react/jsx-runtime" // Import JSX to fix the undeclared variable error
 
 interface Product {
@@ -199,20 +199,22 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
     return groups
   }, [products])
 
-  const productCards = useMemo(() => {
-    const allCards: JSX.Element[] = []
+  const renderProductGroups = useMemo(() => {
     const orderedRatios = ["9:16", "4:5", "1:1", "4:3", "16:9"]
+    const sections: JSX.Element[] = []
 
     orderedRatios.forEach((ratio) => {
       const productsInGroup = groupedProducts[ratio] || []
 
-      productsInGroup.forEach((product) => {
+      if (productsInGroup.length === 0) return
+
+      const cards = productsInGroup.map((product) => {
         const aspectStyle = getAspectRatioStyle(product)
 
-        allCards.push(
+        return (
           <div
             key={product.id}
-            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 break-inside-avoid"
+            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
             data-aspect-ratio={ratio}
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
@@ -271,12 +273,18 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
                 </div>
               </div>
             </div>
-          </div>,
+          </div>
         )
       })
+
+      sections.push(
+        <div key={ratio} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+          {cards}
+        </div>,
+      )
     })
 
-    return allCards
+    return sections
   }, [groupedProducts])
 
   return (
@@ -285,7 +293,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         <div className="flex flex-col">
           {products && products.length > 0 ? (
             <>
-              <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-4 gap-0">{productCards}</div>
+              {renderProductGroups}
 
               <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
                 {loading && (
