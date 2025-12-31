@@ -100,6 +100,9 @@ function normalizeAspectRatio(product: Product): string {
   return product.image_aspect_ratio || "4:5"
 }
 
+const ITEMS_PER_PAGE = 8
+const PRELOAD_THRESHOLD = "500px"
+
 export function CategoryPageLayout({ title, products: initialProducts, error }: CategoryPageLayoutProps) {
   const category = title.toLowerCase()
   const cache = CategoryCache.getInstance(category)
@@ -125,8 +128,8 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
 
     try {
       const supabase = createClient()
-      const from = pageRef.current * 6
-      const to = from + 5
+      const from = pageRef.current * ITEMS_PER_PAGE
+      const to = from + ITEMS_PER_PAGE - 1
 
       const { data, error } = await supabase
         .from("category_products")
@@ -147,12 +150,19 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
           setProducts(cache.getProducts())
+
+          newProducts.forEach((product) => {
+            if (product.image_url) {
+              const img = new Image()
+              img.src = product.image_url
+            }
+          })
         }
 
         pageRef.current += 1
         cache.page = pageRef.current
 
-        if (data.length < 6) {
+        if (data.length < ITEMS_PER_PAGE) {
           cache.hasMore = false
           setHasMore(false)
         }
@@ -166,7 +176,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
       cache.isLoading = false
       setLoading(false)
     }
-  }, [category]) // Only category as dependency
+  }, [category])
 
   useEffect(() => {
     const currentLoader = loaderRef.current
@@ -178,7 +188,10 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
           loadMoreProducts()
         }
       },
-      { threshold: 0.1, rootMargin: "500px" },
+      {
+        threshold: 0,
+        rootMargin: PRELOAD_THRESHOLD,
+      },
     )
 
     observer.observe(currentLoader)
@@ -214,12 +227,12 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
         return (
           <div
             key={product.id}
-            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700"
+            className="flex flex-col bg-white dark:bg-gray-800 overflow-hidden border-b border-r border-gray-200 dark:border-gray-700 will-change-transform"
             data-aspect-ratio={ratio}
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
               <div
-                className="relative w-full bg-center bg-no-repeat bg-cover"
+                className="relative w-full bg-center bg-no-repeat bg-cover will-change-transform"
                 style={{
                   ...aspectStyle,
                   backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
@@ -231,7 +244,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
               </div>
             </Link>
 
-            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
+            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 will-change-transform">
               <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
                 {product.brand || "Brand"}
               </p>
@@ -278,7 +291,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
       })
 
       sections.push(
-        <div key={ratio} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+        <div key={ratio} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 contain-layout">
           {cards}
         </div>,
       )

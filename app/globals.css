@@ -3,9 +3,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Add smooth scroll behavior */
+/* Enhanced smooth scroll with performance optimizations */
 html {
   scroll-behavior: smooth;
+}
+
+/* Hardware acceleration for better scroll performance */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Optimize scrolling performance on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -195,9 +207,29 @@ html {
     perspective: 1000px;
   }
 
-  /* Optimize scroll performance */
+  /* Enhanced scroll performance with containment */
   .smooth-scroll {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .contain-layout {
+    contain: layout style paint;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  /* Optimize image rendering */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* Reduce repaints during scroll */
+  .scroll-optimized {
+    transform: translateZ(0);
+    will-change: scroll-position;
   }
 }

@@ -180,10 +180,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     }
   }, [])
 
+  const ITEMS_PER_PAGE = 8 // Increased from 6 for better loading
+  const PRELOAD_THRESHOLD = "500px" // Reduced from 300px for earlier loading
+
   const loadMoreProducts = useCallback(async () => {
     const now = Date.now()
-    // Prevent concurrent loads and rapid calls (1 second debounce)
-    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 1000) return
+    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 300) return
 
     cache.isLoading = true
     cache.lastFetchTime = now
@@ -193,7 +195,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       const supabase = createClient()
       const currentCount = cache.getProductCount()
       const from = currentCount
-      const to = from + 5
+      const to = from + ITEMS_PER_PAGE - 1 // Load 8 items at a time
 
       const { data, error } = await supabase
         .from("category_products")
@@ -208,18 +210,24 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       }
 
       if (data && data.length > 0) {
-        // Strict filter - only add products not in cache
         const newProducts = data.filter((p) => !cache.hasProduct(p.id))
 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
           setProducts(cache.getProducts())
+
+          newProducts.forEach((product) => {
+            if (product.image_url) {
+              const img = new Image()
+              img.src = product.image_url
+            }
+          })
         }
 
         pageRef.current += 1
         cache.page = pageRef.current
 
-        if (data.length < 6) {
+        if (data.length < ITEMS_PER_PAGE) {
           cache.hasMore = false
           setHasMore(false)
         }
@@ -245,7 +253,10 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           loadMoreProducts()
         }
       },
-      { threshold: 0.1, rootMargin: "300px" },
+      {
+        threshold: 0,
+        rootMargin: PRELOAD_THRESHOLD, // Load earlier for smoother experience
+      },
     )
 
     observer.observe(currentLoader)
@@ -306,7 +317,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
               <div
-                className="relative w-full bg-center bg-no-repeat bg-cover"
+                className="relative w-full bg-center bg-no-repeat bg-cover will-change-transform"
                 style={{
                   ...aspectStyle,
                   backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
@@ -318,7 +329,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
               </div>
             </Link>
 
-            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800">
+            <div className="p-2 flex flex-col bg-gray-50 dark:bg-gray-800 will-change-transform">
               <p className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 tracking-wider mb-0.5">
                 {product.brand || "Brand"}
               </p>
@@ -365,7 +376,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       })
 
       sections.push(
-        <div key={ratio} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0">
+        <div key={ratio} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-0 contain-layout">
           {cards}
         </div>,
       )
@@ -390,8 +401,8 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
       <div ref={loaderRef} className="py-6 flex flex-col items-center justify-center gap-3">
         {loading && (
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 border-2 border-[#883223] border-t-transparent rounded-full animate-spin" />
-            <span className="text-gray-500 text-sm">Loading...</span>
+            <div className="w-6 h-6 border-3 border-[#883223] border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-500 text-sm font-medium">Loading more products...</span>
           </div>
         )}
         {!hasMore && products.length > 0 && (
