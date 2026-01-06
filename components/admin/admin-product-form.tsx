@@ -43,6 +43,8 @@ const categoryOptions = [
   { value: "fashion", label: "Fashion", icon: Shirt, color: "text-pink-500" },
   { value: "gadgets", label: "Gadgets", icon: Smartphone, color: "text-green-500" },
   { value: "gaming", label: "Gaming", icon: Gamepad2, color: "text-red-500" },
+  { value: "hair", label: "Hair", icon: Sparkles, color: "text-purple-500" },
+  { value: "skin", label: "Skin", icon: Sparkles, color: "text-blue-500" },
 ]
 
 export function AdminProductForm({ category: initialCategory, initialData }: ProductFormProps) {

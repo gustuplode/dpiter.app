@@ -163,18 +163,33 @@ body {
   animation: slide-left 30s linear infinite;
 }
 
-/* Added shimmer animation for Meesho-style loading bar */
+/* Enhanced Pinterest-style shimmer animation for progressive image loading */
 @keyframes shimmer {
   0% {
-    transform: translateX(-100%);
+    background-position: -200% 0;
   }
   100% {
-    transform: translateX(100%);
+    background-position: 200% 0;
   }
 }
 
 .animate-shimmer {
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 2s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+/* Smooth fade-in for loaded images */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-in;
 }
 
 /* Added fadeOut animation for splash screen */
@@ -231,5 +246,16 @@ body {
   .scroll-optimized {
     transform: translateZ(0);
     will-change: scroll-position;
+  }
+
+  /* Pinterest-style image placeholder gradient */
+  .image-placeholder {
+    background: linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 20%, #f0f0f0 40%, #f0f0f0 100%);
+    background-size: 200% 100%;
+  }
+
+  .dark .image-placeholder {
+    background: linear-gradient(90deg, #2a2a2a 0%, #1a1a1a 20%, #2a2a2a 40%, #2a2a2a 100%);
+    background-size: 200% 100%;
   }
 }

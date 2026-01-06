@@ -23,6 +23,8 @@ export function CategoryHeader() {
       { name: "Outfit", path: "/outfit", image: "/outfit-clothes-style.jpg" },
       { name: "Beauty", path: "/collections/beauty", image: "/beauty-cosmetics-makeup.jpg" },
       { name: "Home", path: "/collections/home", image: "/cozy-living-room.png" },
+      { name: "Hair", path: "/collections/hair", image: "/hair-care-products.jpg" },
+      { name: "Skin", path: "/collections/skin", image: "/skincare-products.jpg" },
     ],
     [],
   )

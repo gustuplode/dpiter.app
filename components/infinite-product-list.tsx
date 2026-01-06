@@ -138,6 +138,12 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
   const loaderRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef(cache.page)
 
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set())
+
+  const handleImageLoad = useCallback((productId: string) => {
+    setLoadedImages((prev) => new Set(prev).add(productId))
+  }, [])
+
   useEffect(() => {
     const handleProductUpdate = () => {
       cache.reset()
@@ -305,6 +311,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
       const cards = productsInGroup.map((product) => {
         const aspectStyle = getAspectRatioStyle(product)
+        const isImageLoaded = loadedImages.has(product.id)
 
         return (
           <div
@@ -316,13 +323,22 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
             data-aspect-ratio={ratio}
           >
             <Link href={getProductUrl(product.id, product.title, product.category)} className="block">
-              <div
-                className="relative w-full bg-center bg-no-repeat bg-cover will-change-transform"
-                style={{
-                  ...aspectStyle,
-                  backgroundImage: `url("${product.image_url || "/placeholder.svg"}")`,
-                }}
-              >
+              <div className="relative w-full overflow-hidden will-change-transform" style={aspectStyle}>
+                {!isImageLoaded && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer bg-[length:200%_100%]" />
+                )}
+
+                <img
+                  src={product.image_url || "/placeholder.svg"}
+                  alt={product.title}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    isImageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  loading="lazy"
+                  onLoad={() => handleImageLoad(product.id)}
+                  onError={() => handleImageLoad(product.id)}
+                />
+
                 <div className="absolute bottom-1.5 left-1.5 flex items-center bg-white/95 backdrop-blur-sm rounded px-1.5 py-0.5 shadow-sm">
                   <span className="text-[10px] font-semibold text-gray-800">4.1</span>
                 </div>
@@ -383,7 +399,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
     })
 
     return sections
-  }, [groupedProducts])
+  }, [groupedProducts, loadedImages, handleImageLoad])
 
   if (products.length === 0 && !loading) {
     return (
