@@ -149,7 +149,7 @@ export function CategoryPageLayout({ title, products: initialProducts, error }: 
 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
-          setProducts(cache.getProducts())
+          setProducts(() => cache.getProducts())
 
           newProducts.forEach((product) => {
             if (product.image_url) {

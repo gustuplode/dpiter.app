@@ -191,7 +191,7 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
   const loadMoreProducts = useCallback(async () => {
     const now = Date.now()
-    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 300) return
+    if (cache.isLoading || !cache.hasMore || now - cache.lastFetchTime < 200) return
 
     cache.isLoading = true
     cache.lastFetchTime = now
@@ -220,7 +220,10 @@ export function InfiniteProductList({ initialProducts }: InfiniteProductListProp
 
         if (newProducts.length > 0) {
           cache.addProducts(newProducts)
-          setProducts(cache.getProducts())
+          setProducts((prev) => {
+            const updatedProducts = cache.getProducts()
+            return updatedProducts
+          })
 
           newProducts.forEach((product) => {
             if (product.image_url) {
